@@ -8,12 +8,16 @@ type Props = {
   shipping: number; 
   orderTotal: number;
   cartItems?: any[]; // optional
+  hideCheckoutButton?: boolean;
+  hidePromoCode?: boolean;
 };
 
 export default function OrderSummary({
   subtotal,
   shipping,
   orderTotal,
+  hideCheckoutButton = false,
+  hidePromoCode = false,
 }: Props) {
   const [promoCode, setPromoCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -52,27 +56,29 @@ export default function OrderSummary({
         )}
 
         {/* Promo Code */}
-        <div className="pt-2">
-          <div className="text-sm font-semibold mb-2">Apply Promo Code</div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-              placeholder="Enter code"
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <button
-              onClick={handleApplyPromo}
-              className="px-5 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 font-medium text-sm"
-            >
-              Apply
-            </button>
+        {!hidePromoCode && (
+          <div className="pt-2">
+            <div className="text-sm font-semibold mb-2">Apply Promo Code</div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                placeholder="Enter code"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button
+                onClick={handleApplyPromo}
+                className="px-5 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 font-medium text-sm"
+              >
+                Apply
+              </button>
+            </div>
+            {appliedDiscount > 0 && (
+              <p className="text-xs text-green-600 mt-1">✓ SAVE10 applied!</p>
+            )}
           </div>
-          {appliedDiscount > 0 && (
-            <p className="text-xs text-green-600 mt-1">✓ SAVE10 applied!</p>
-          )}
-        </div>
+        )}
 
         {/* Divider */}
         <div className="border-t border-gray-200 pt-4 mt-4"></div>
@@ -85,11 +91,13 @@ export default function OrderSummary({
       </div>
 
       {/* Checkout Button */}
-      <Link href="/cart/checkout">
-      <button className="mt-6 w-full bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition ">
-        Proceed to Checkout
-      </button>
-      </Link>
+      {!hideCheckoutButton && (
+        <Link href="/cart/checkout">
+          <button className="mt-6 w-full bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition ">
+            Proceed to Checkout
+          </button>
+        </Link>
+      )}
 
       {/* Secure Checkout */}
       <div className="flex items-center justify-center gap-1 mt-4 text-xs text-gray-500">
