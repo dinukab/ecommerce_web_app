@@ -1,5 +1,7 @@
 import { CardNumberInput, FormInput } from "@/components/FormInput"
 import OrderSummary from "@/components/OrderSummary"
+import { Button } from "@/components/ui/button"
+
 
 type CartItem = {
   id: string
@@ -109,8 +111,16 @@ export default function CheckoutPage() {
               
             />
           </div>
+
+          <div className="mt-8">
+          <Button className="mt-5 w-full h-10 bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition ">
+             Continue to Payment
+         </Button>
+        </div>
         </div>
       </div>
     </div>
+
+    
   )
 }
