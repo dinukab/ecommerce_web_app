@@ -1,3 +1,6 @@
+"use client"
+
+import { useRouter } from "next/navigation"
 import { CardNumberInput, FormInput } from "@/components/FormInput"
 import OrderSummary from "@/components/OrderSummary"
 import { Button } from "@/components/ui/button"
@@ -13,6 +16,8 @@ type CartItem = {
 }
 
 export default function CheckoutPage() {
+  const router = useRouter()
+
   // Placeholder data; replace with real cart values when available
   const cartItems: CartItem[] = [
     {
@@ -45,12 +50,44 @@ export default function CheckoutPage() {
   const shipping = 400
   const orderTotal = subtotal + shipping
 
+  const getInputValue = (id: string) => {
+    const input = document.getElementById(id) as HTMLInputElement | null
+    return input?.value?.trim() ?? ""
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const checkoutData = {
+      email: getInputValue("email"),
+      emailOffers: false,
+      fullName: getInputValue("fullName"),
+      province: getInputValue("Province"),
+      phoneNumber: getInputValue("Phone Number"),
+      district: getInputValue("District"),
+      buildingAddress: getInputValue("Bulding No./House No./Floor/Street"),
+      city: getInputValue("City"),
+      colonyLocality: getInputValue("Colony/Suburd/Locality/Landmark"),
+      address: getInputValue("Address"),
+      cardNumber: getInputValue("card-number"),
+      nameOnCard: getInputValue("Name on Card"),
+      expirationDate: getInputValue("Expiry Date"),
+      cvc: getInputValue("CVV"),
+    }
+
+    localStorage.setItem("checkoutData", JSON.stringify(checkoutData))
+    localStorage.setItem("orderTotals", JSON.stringify({ subtotal, shipping, orderTotal }))
+    localStorage.setItem("checkoutCartItems", JSON.stringify(cartItems))
+
+    router.push("/cart/checkout/ReviewOrder")
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold mb-8">Checkout</h1>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
           {/* LEFT SIDE – Customer Info */}
           <div className="md:col-span-2 space-y-8">
             <div className="bg-white p-9 rounded-xl shadow-sm">
@@ -112,15 +149,16 @@ export default function CheckoutPage() {
             />
           </div>
 
-          <div className="mt-8">
-          <Button className="mt-5 w-full h-10 bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition ">
-             Continue to Payment
-         </Button>
-        </div>
-        </div>
+          <div className="mt-8 md:col-span-3">
+            <Button
+              type="submit"
+              className="mt-5 w-full h-10 bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition"
+            >
+              Continue to Review
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
-
-    
   )
 }

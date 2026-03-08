@@ -31,7 +31,7 @@ type CartItem = {
 // Sample cart items above return
 export default function CartPage() {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState<CartItem[]>([
+  const defaultCartItems: CartItem[] = [
     {
       id: "005",
       name: "Product_005",
@@ -47,8 +47,8 @@ export default function CartPage() {
       details: "Volume: 200ml",
       status: "in-stock",
       price: 300,
-        quantity: 1,
-        total: 300,
+      quantity: 1,
+      total: 300,
     },
     {
       id: "007",
@@ -56,9 +56,13 @@ export default function CartPage() {
       details: "Size: S | Color: White",
       status: "low-stock",
       price: 400,
-        quantity: 1,
-        total: 400,
+      quantity: 1,
+      total: 400,
     },
+  ];
+
+  const [cartItems, setCartItems] = useState<CartItem[]>([
+    ...defaultCartItems,
   ]);
 
   //calculation of order summary
@@ -377,6 +381,7 @@ export default function CartPage() {
             
             orderTotal={cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) + 400}
             cartItems={cartItems}
+            hideCheckoutButton
           />
         </div>
       </div>
