@@ -69,6 +69,22 @@ export default function ReviewOrderPage() {
       alert('Please agree to the Terms and Conditions');
       return;
     }
+
+    if (!checkoutData || !orderTotals) {
+      alert('Order details are missing. Please review checkout again.');
+      return;
+    }
+
+    const orderNumber = `#ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+    const placedAt = new Date().toISOString();
+
+    const finalOrderData = {
+      orderNumber,
+      placedAt,
+      checkoutData,
+      orderTotals,
+      cartItems,
+    };
     
     // Here you would typically send the order to your backend
     console.log('Order placed:', {
@@ -77,13 +93,14 @@ export default function ReviewOrderPage() {
       cartItems
     });
     
-    // Clear localStorage after order
+    localStorage.setItem('finalOrderData', JSON.stringify(finalOrderData));
+
+    // Clear checkout flow temporary data
     localStorage.removeItem('checkoutData');
     localStorage.removeItem('orderTotals');
     localStorage.removeItem('checkoutCartItems');
     
-    alert('Order placed successfully!');
-    router.push('/');
+    router.push('/cart/checkout/ReviewOrder/Final');
   };
 
   const handleChangePayment = () => {

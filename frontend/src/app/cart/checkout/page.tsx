@@ -5,6 +5,10 @@ import { CardNumberInput, FormInput } from "@/components/FormInput"
 import OrderSummary from "@/components/OrderSummary"
 import { Button } from "@/components/ui/button"
 
+import { ProvinceSelect } from "@/components/ProvinceSelect"
+import { DistrictSelect } from "@/components/DistrictSelect"
+
+import { useState } from "react"
 
 type CartItem = {
   id: string
@@ -16,9 +20,12 @@ type CartItem = {
 }
 
 export default function CheckoutPage() {
+
   const router = useRouter()
 
-  // Placeholder data; replace with real cart values when available
+  const [province, setProvince] = useState("")
+  const [district, setDistrict] = useState("")
+
   const cartItems: CartItem[] = [
     {
       id: "005",
@@ -62,9 +69,9 @@ export default function CheckoutPage() {
       email: getInputValue("email"),
       emailOffers: false,
       fullName: getInputValue("fullName"),
-      province: getInputValue("Province"),
+      province: province,
       phoneNumber: getInputValue("Phone Number"),
-      district: getInputValue("District"),
+      district: district,
       buildingAddress: getInputValue("Bulding No./House No./Floor/Street"),
       city: getInputValue("City"),
       colonyLocality: getInputValue("Colony/Suburd/Locality/Landmark"),
@@ -84,60 +91,163 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+
       <div className="max-w-6xl mx-auto">
+
         <h1 className="text-2xl font-bold mb-8">Checkout</h1>
 
         <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
-          {/* LEFT SIDE – Customer Info */}
+
+          {/* LEFT SIDE */}
           <div className="md:col-span-2 space-y-8">
+
+            {/* Customer Info */}
             <div className="bg-white p-9 rounded-xl shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Customer Information</h2>
+
+              <h2 className="text-lg font-semibold mb-4">
+                Customer Information
+              </h2>
 
               <div className="space-y-4">
-                <FormInput id="email" label="Email Address" type="email" placeholder="Enter your email" />
-                <p className="text-xs text-gray-500">Enter your email to get delivery status updates.</p>
+
+                <FormInput
+                  id="email"
+                  label="Email Address"
+                  type="email"
+                  placeholder="Enter your email"
+                />
+
+                <p className="text-xs text-gray-500">
+                  Enter your email to get delivery status updates.
+                </p>
+
               </div>
+
             </div>
 
-            {/* Shipping Address Details */}
+
+            {/* Shipping Address */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
+
+              <h2 className="text-lg font-semibold mb-4">
+                Shipping Address
+              </h2>
+
               <div className="grid grid-cols-2 gap-4">
-                <FormInput id="fullName" label="Full Name" placeholder="Enter your first and last name" />
-                <FormInput id="Province" label="Province" placeholder="Please choose your province" />
-                <FormInput id="Phone Number" label="Phone Number" placeholder="Please enter your phone number" />
-                <FormInput id="District" label="District" placeholder="Please choose your district" />
-                <FormInput id="Bulding No./House No./Floor/Street" label="Building No./House No./Floor/Street" placeholder="Please enter" />
-                <FormInput id="City" label="City" placeholder="Please choose your city" />
-                <FormInput id="Colony/Suburd/Locality/Landmark" label="Colony/Suburb/Locality/Landmark" placeholder="Please enter" />
-                <FormInput id="Address" label="Complete Address" placeholder="No.123,Street#,ABC Road" />
+
+                <FormInput
+                  id="fullName"
+                  label="Full Name"
+                  placeholder="Enter your first and last name"
+                />
+
+                {/* Province Combobox */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Province</label>
+                  <ProvinceSelect
+                    value={province}
+                    setValue={setProvince}
+                  />
+                </div>
+
+                <FormInput
+                  id="Phone Number"
+                  label="Phone Number"
+                  placeholder="Please enter your phone number"
+                />
+
+                {/* District Combobox */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">District</label>
+                  <DistrictSelect
+                    province={province}
+                    value={district}
+                    setValue={setDistrict}
+                  />
+                </div>
+
+                <FormInput
+                  id="Bulding No./House No./Floor/Street"
+                  label="Building No./House No./Floor/Street"
+                  placeholder="Please enter"
+                />
+
+                <FormInput
+                  id="City"
+                  label="City"
+                  placeholder="Please choose your city"
+                />
+
+                <FormInput
+                  id="Colony/Suburd/Locality/Landmark"
+                  label="Colony/Suburb/Locality/Landmark"
+                  placeholder="Please enter"
+                />
+
+                <FormInput
+                  id="Address"
+                  label="Complete Address"
+                  placeholder="No.123,Street#,ABC Road"
+                />
+
               </div>
+
             </div>
 
-            {/* Payment Method details */}
+
+            {/* Payment */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Credit/Debit Card</h2>
+
+              <h2 className="text-lg font-semibold mb-4">
+                Credit/Debit Card
+              </h2>
+
               <div className="space-y-4">
+
                 <CardNumberInput />
 
                 <div className="space-y-4 mt-4">
-                  <FormInput id="Name on Card" label="Name on Card" placeholder="Name on card" />
+
+                  <FormInput
+                    id="Name on Card"
+                    label="Name on Card"
+                    placeholder="Name on card"
+                  />
 
                   <div className="grid grid-cols-2 gap-4 mt-4">
-                    <FormInput id="Expiry Date" label="Expiry Date" placeholder="MM/YY" />
-                    <FormInput id="CVV" label="CVV" placeholder="CVV" />
+
+                    <FormInput
+                      id="Expiry Date"
+                      label="Expiry Date"
+                      placeholder="MM/YY"
+                    />
+
+                    <FormInput
+                      id="CVV"
+                      label="CVV"
+                      placeholder="CVV"
+                    />
+
                   </div>
 
                   <p className="text-xs text-gray-500 mt-4">
-                    We will save this card for your convenience. If required, you can remove the card in the "Payment Options" section in the "Account" menu.
+                    We will save this card for your convenience.
+                    If required, you can remove the card in the
+                    "Payment Options" section in the "Account" menu.
                   </p>
+
                 </div>
+
               </div>
+
             </div>
+
           </div>
 
-          {/* RIGHT SIDE – Order Summary */}
+
+          {/* RIGHT SIDE */}
           <div className="h-fit sticky top-6">
+
             <OrderSummary
               subtotal={subtotal}
               shipping={shipping}
@@ -145,20 +255,27 @@ export default function CheckoutPage() {
               cartItems={cartItems}
               hideCheckoutButton
               hidePromoCode
-              
             />
+
           </div>
 
+
+          {/* Button */}
           <div className="mt-8 md:col-span-3">
+
             <Button
               type="submit"
-              className="mt-5 w-full h-10 bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition"
+              className="mt-6 h-11 w-60 bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition"
             >
               Continue to Review
             </Button>
+
           </div>
+
         </form>
+
       </div>
+
     </div>
   )
 }
