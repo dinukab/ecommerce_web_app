@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button"
 
 import { ProvinceSelect } from "@/components/ProvinceSelect"
 import { DistrictSelect } from "@/components/DistrictSelect"
+import { CitySelect } from "@/components/CitySelect"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 type CartItem = {
   id: string
@@ -25,6 +26,18 @@ export default function CheckoutPage() {
 
   const [province, setProvince] = useState("")
   const [district, setDistrict] = useState("")
+  const [city, setCity] = useState("")
+
+  // Reset district and city when province changes
+  useEffect(() => {
+    setDistrict("")
+    setCity("")
+  }, [province])
+
+  // Reset city when district changes
+  useEffect(() => {
+    setCity("")
+  }, [district])
 
   const cartItems: CartItem[] = [
     {
@@ -73,7 +86,7 @@ export default function CheckoutPage() {
       phoneNumber: getInputValue("Phone Number"),
       district: district,
       buildingAddress: getInputValue("Bulding No./House No./Floor/Street"),
-      city: getInputValue("City"),
+      city: city,
       colonyLocality: getInputValue("Colony/Suburd/Locality/Landmark"),
       address: getInputValue("Address"),
       cardNumber: getInputValue("card-number"),
@@ -172,11 +185,16 @@ export default function CheckoutPage() {
                   placeholder="Please enter"
                 />
 
-                <FormInput
-                  id="City"
-                  label="City"
-                  placeholder="Please choose your city"
-                />
+                {/* City Combobox */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">City</label>
+                  <CitySelect
+                    province={province}
+                    district={district}
+                    value={city}
+                    setValue={setCity}
+                  />
+                </div>
 
                 <FormInput
                   id="Colony/Suburd/Locality/Landmark"

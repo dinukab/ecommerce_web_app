@@ -21,12 +21,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-export function DistrictSelect({ province, value, setValue }: any) {
+export function CitySelect({ province, district, value, setValue }: any) {
 
   const [open, setOpen] = React.useState(false)
 
-  const districts =
-    provinces.find((p) => p.value === province)?.districts || []
+  const cities =
+    provinces
+      .find((p) => p.value === province)
+      ?.districts.find((d) => d.value === district)?.cities || []
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -37,11 +39,11 @@ export function DistrictSelect({ province, value, setValue }: any) {
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"
-          disabled={!province}
+          disabled={!district}
         >
           {value
-            ? districts.find((d) => d.value === value)?.label
-            : "Select district..."}
+            ? cities.find((c) => c.value === value)?.label
+            : "Select city..."}
 
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 
@@ -53,16 +55,16 @@ export function DistrictSelect({ province, value, setValue }: any) {
 
         <Command>
 
-          <CommandInput placeholder="Search district..." />
+          <CommandInput placeholder="Search city..." />
 
-          <CommandEmpty>No district found.</CommandEmpty>
+          <CommandEmpty>No city found.</CommandEmpty>
 
           <CommandGroup>
 
-            {districts.map((district) => (
+            {cities.map((city) => (
               <CommandItem
-                key={district.value}
-                value={district.value}
+                key={city.value}
+                value={city.value}
                 onSelect={(currentValue) => {
                   setValue(currentValue)
                   setOpen(false)
@@ -70,10 +72,10 @@ export function DistrictSelect({ province, value, setValue }: any) {
               >
                 <Check
                   className={`mr-2 h-4 w-4 ${
-                    value === district.value ? "opacity-100" : "opacity-0"
+                    value === city.value ? "opacity-100" : "opacity-0"
                   }`}
                 />
-                {district.label}
+                {city.label}
               </CommandItem>
             ))}
 
