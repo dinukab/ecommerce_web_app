@@ -1,5 +1,14 @@
-import "./globals.css";
+import type { Metadata } from 'next';
+import './globals.css';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { CartProvider } from '@/context/CartContext';
+import React from 'react';
 
+export const metadata: Metadata = {
+  title: 'OneShop - Your Online Marketplace',
+  description: 'Shop quality products at the best prices',
+};
 
 export default function RootLayout({
   children,
@@ -9,8 +18,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        
-        {children}
+        <CartProvider>
+          <Navbar />
+          <main className="min-h-screen bg-gray-50">
+            {children}
+          </main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

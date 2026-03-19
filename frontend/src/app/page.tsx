@@ -1,8 +1,178 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import ProductCard from '@/components/ProductCard';
+import { ArrowRight, Tag } from 'lucide-react';
+
+// TypeScript Interface
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+}
+
+// Dummy Product Data
+const trendingProducts: Product[] = [
+  { id: 1, name: 'product1', price: 200,  category: 'Category_001' },
+  { id: 2, name: 'product2', price: 500,  category: 'Category_002' },
+  { id: 3, name: 'product3', price: 830,  category: 'Category_003' },
+  { id: 4, name: 'product4', price: 150,  category: 'Category_001' },
+  { id: 5, name: 'product5', price: 999,  category: 'Category_004' },
+  { id: 6, name: 'product6', price: 450,  category: 'Category_002' },
+  { id: 7, name: 'product7', price: 310,  category: 'Category_005' },
+  { id: 8, name: 'product8', price: 720,  category: 'Category_003' },
+];
+
+// Category Data
+const categories = [
+  { id: 1, name: 'Category_001' },
+  { id: 2, name: 'Category_002' },
+  { id: 3, name: 'Category_003' },
+  { id: 4, name: 'Category_004' },
+  { id: 5, name: 'Category_005' },
+];
+
 export default function HomePage() {
+  const [cartCount, setCartCount] = useState(0);
+  const [notification, setNotification] = useState('');
+
+  const handleAddToCart = (product: Product) => {
+    setCartCount(prev => prev + 1);
+    setNotification(`${product.name} added to cart!`);
+    setTimeout(() => setNotification(''), 2500);
+  };
+
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Home Page</h1>
-      <p>Go to /cart</p>
+    <div className="min-h-screen bg-gray-50">
+
+      {/* Cart Notification Toast */}
+      {notification && (
+        <div className="fixed top-20 right-4 z-50 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg text-sm font-medium">
+          ✓ {notification}
+        </div>
+      )}
+
+      {/* ── Hero Section ── */}
+      <section className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="max-w-2xl">
+
+            {/* Badge */}
+            <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+              <Tag className="w-4 h-4" />
+              <span className="text-sm font-semibold tracking-wide">Limited Time Offer</span>
+            </div>
+
+            {/* Title */}
+            <h1 className="text-6xl md:text-7xl font-extrabold mb-4 leading-tight">
+              Flash Sale
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-xl md:text-2xl text-blue-100 mb-3 font-medium">
+              Up to 50% off on selected items
+            </p>
+            <p className="text-base text-blue-200 mb-10 max-w-lg">
+              Discover amazing deals on top products. Shop before the sale ends and save big on your favorite items.
+            </p>
+
+            {/* Buttons */}
+            <div className="flex flex-wrap gap-4">
+              
+              
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Categories Section ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">Categories</h2>
+            <p className="text-gray-500 mt-1">Browse products by category</p>
+          </div>
+        </div>
+
+        {/* Category Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              className="bg-white border-2 border-transparent hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer hover:shadow-md transition-all duration-200 group"
+            >
+              <div className="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-3 flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                <span className="text-blue-600 group-hover:text-white font-bold text-lg">
+                  {category.id}
+                </span>
+              </div>
+              <h3 className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                {category.name}
+              </h3>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Trending Now Section ── */}
+      <section className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">Trending Now</h2>
+              <p className="text-gray-500 mt-1">Most popular products this week</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">
+                Cart: {cartCount} item{cartCount !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {trendingProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={handleAddToCart}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer CTA Section ── */}
+      <section className="bg-gray-900 text-white py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold mb-4">
+            Start Shopping Today
+          </h2>
+          <p className="text-gray-400 text-lg mb-8">
+            Join thousands of happy customers and find what you're looking for
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/register"
+              className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors"
+            >
+              Create Account
+            </Link>
+            <Link
+              href="/products"
+              className="px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white hover:text-gray-900 transition-colors"
+            >
+              Browse Products
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
