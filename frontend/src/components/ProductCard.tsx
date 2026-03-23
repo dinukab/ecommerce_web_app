@@ -1,51 +1,75 @@
-'use client';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-}
+import React from 'react';
+import { Star, Heart } from 'lucide-react';
+import Link from 'next/link';
 
 interface ProductCardProps {
-  product: Product;
-  onAddToCart: (product: Product) => void;
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  rating: number;
+  reviews: number;
+  badge?: string;
 }
 
-export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
+export default function ProductCard({
+  id,
+  name,
+  price,
+  originalPrice,
+  rating,
+  reviews,
+  badge,
+}: ProductCardProps) {
+  const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-5 flex flex-col justify-between">
-
-      {/* Product Color Block (No Image) */}
-      <div className="w-full h-36 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-4">
-        <span className="text-blue-400 font-semibold text-lg tracking-wide">
-          {product.name}
-        </span>
-      </div>
-
-      {/* Product Info */}
-      <div className="flex flex-col space-y-3">
-        <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">
-            {product.category}
-          </p>
-          <h3 className="text-gray-900 font-semibold text-lg leading-tight">
-            {product.name}
-          </h3>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-blue-600 font-bold text-xl">
-            Rs.{product.price}
-          </span>
-          <button
-            onClick={() => onAddToCart(product)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150"
-          >
-            Add to Cart
+    <Link href={`/product/${id}`}>
+      <div className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer group">
+        <div className="relative p-4">
+          {badge && (
+            <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded">
+              {badge}
+            </span>
+          )}
+          <button className="absolute top-2 right-2 p-2 rounded-full bg-white shadow-sm hover:bg-gray-50">
+            <Heart className="h-5 w-5 text-gray-400" />
           </button>
+          <div className="bg-gray-100 rounded-lg aspect-square flex items-center justify-center mb-4">
+            <span className="text-gray-400">Product Image</span>
+          </div>
+        </div>
+
+        <div className="px-4 pb-4">
+          <h3 className="font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            {name}
+          </h3>
+
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="flex">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-4 w-4 ${
+                    star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-gray-600">({reviews})</span>
+          </div>
+
+          <div className="flex items-baseline space-x-2">
+            <span className="text-xl font-bold text-gray-900">Rs {price}</span>
+            {originalPrice && (
+              <>
+                <span className="text-sm text-gray-500 line-through">Rs {originalPrice}</span>
+                <span className="text-sm font-medium text-green-600">Save {discount}%</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
