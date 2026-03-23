@@ -52,8 +52,8 @@ export default function ProductDetailPage() {
         <div>
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
 
-          <p className="text-2xl text-blue-600 mb-4">
-            Rs {product.price}
+          <p className="text-2xl text-[#151194] font-bold mb-4">
+            Rs.{product.price}
           </p>
 
           <p className="text-gray-600 mb-6">
@@ -62,7 +62,7 @@ export default function ProductDetailPage() {
 
           <button
             onClick={() => alert("Added to cart")}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700"
+            className="bg-[#151194] text-white font-bold px-6 py-3 rounded-lg hover:bg-[#0c0a5c] transition-colors"
           >
             Add to Cart
           </button>

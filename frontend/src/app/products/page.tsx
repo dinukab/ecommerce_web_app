@@ -39,7 +39,7 @@ export default function ProductsPage() {
               </div>
 
               <h2 className="text-lg font-semibold">{item.name}</h2>
-              <p className="text-blue-600 font-bold mt-2">
+              <p className="text-blue-900 font-bold mt-2">
                 Rs.{item.price}
               </p>
               <p className="text-sm text-gray-500 mt-2">

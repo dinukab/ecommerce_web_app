@@ -4,6 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { ArrowRight, Tag } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // TypeScript Interface
 interface Product {
@@ -34,6 +41,39 @@ const categories = [
   { id: 5, name: 'Category_005' },
 ];
 
+const heroSlides = [
+  {
+    id: 1,
+    badge: 'Limited Time Offer',
+    title: 'Flash Sale',
+    subtitle: 'Up to 50% off on selected items',
+    description: 'Discover amazing deals on top products. Shop before the sale ends and save big on your favorite items.',
+    gradient: 'from-blue-900 via-blue-600 to-indigo-700',
+    subtitleColor: 'text-blue-100',
+    descriptionColor: 'text-blue-200',
+  },
+  {
+    id: 2,
+    badge: 'New Arrivals',
+    title: 'Fresh Styles',
+    subtitle: 'Trending picks for this season',
+    description: 'Explore our latest collection curated for comfort, style, and everyday confidence.',
+    gradient: 'from-cyan-900 via-sky-600 to-blue-700',
+    subtitleColor: 'text-cyan-100',
+    descriptionColor: 'text-cyan-200',
+  },
+  {
+    id: 3,
+    badge: 'Members Exclusive',
+    title: 'Weekend Deals',
+    subtitle: 'Special prices for premium products',
+    description: 'Unlock member-only discounts and enjoy fast shipping on selected items this weekend.',
+    gradient: 'from-slate-900 via-slate-700 to-zinc-800',
+    subtitleColor: 'text-slate-100',
+    descriptionColor: 'text-slate-300',
+  },
+];
+
 export default function HomePage() {
   const [cartCount, setCartCount] = useState(0);
   const [notification, setNotification] = useState('');
@@ -54,37 +94,58 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── Hero Section ── */}
-      <section className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="max-w-2xl">
+      {/* ── Hero Carousel Section ── */}
+      <section className="relative overflow-visible">
+        <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+          <CarouselContent className="ml-0">
+            {heroSlides.map((slide) => (
+              <CarouselItem key={slide.id} className="pl-0">
+                <div className={`bg-gradient-to-r ${slide.gradient} text-white`}>
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                    <div className="max-w-2xl">
+                      <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                        <Tag className="w-4 h-4" />
+                        <span className="text-sm font-semibold tracking-wide">{slide.badge}</span>
+                      </div>
 
-            {/* Badge */}
-            <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-              <Tag className="w-4 h-4" />
-              <span className="text-sm font-semibold tracking-wide">Limited Time Offer</span>
-            </div>
+                      <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight">
+                        {slide.title}
+                      </h1>
 
-            {/* Title */}
-            <h1 className="text-6xl md:text-7xl font-extrabold mb-4 leading-tight">
-              Flash Sale
-            </h1>
+                      <p className={`text-xl md:text-2xl mb-3 font-medium ${slide.subtitleColor}`}>
+                        {slide.subtitle}
+                      </p>
+                      <p className={`text-base mb-10 max-w-lg ${slide.descriptionColor}`}>
+                        {slide.description}
+                      </p>
 
-            {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-blue-100 mb-3 font-medium">
-              Up to 50% off on selected items
-            </p>
-            <p className="text-base text-blue-200 mb-10 max-w-lg">
-              Discover amazing deals on top products. Shop before the sale ends and save big on your favorite items.
-            </p>
+                      <div className="flex flex-wrap gap-4">
+                        <Link
+                          href="/products"
+                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#151194] font-bold hover:bg-blue-50 transition-colors"
+                        >
+                          Shop Now
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                        <Link
+                          href="/register"
+                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white text-white font-bold hover:bg-white/20 transition-colors"
+                        >
+                          Create Account
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
 
-            {/* Buttons */}
-            <div className="flex flex-wrap gap-4">
-              
-              
-            </div>
+          <div className="hidden md:block">
+            <CarouselPrevious className="left-4 bg-white/20 border-white/30 text-white hover:bg-white/30" />
+            <CarouselNext className="right-4 bg-white/20 border-white/30 text-white hover:bg-white/30" />
           </div>
-        </div>
+        </Carousel>
       </section>
 
       {/* ── Categories Section ── */}
@@ -103,14 +164,14 @@ export default function HomePage() {
           {categories.map((category) => (
             <div
               key={category.id}
-              className="bg-white border-2 border-transparent hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer hover:shadow-md transition-all duration-200 group"
+              className="bg-white border-2 border-transparent hover:border-blue-900 rounded-xl p-6 text-center cursor-pointer hover:shadow-md transition-all duration-200 group"
             >
-              <div className="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-3 flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                <span className="text-blue-600 group-hover:text-white font-bold text-lg">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-3 flex items-center justify-center group-hover:bg-blue-900 transition-colors">
+                <span className="text-[#151194] group-hover:text-white font-bold text-lg">
                   {category.id}
                 </span>
               </div>
-              <h3 className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+              <h3 className="text-sm font-semibold text-gray-800 group-hover:text-blue-900 transition-colors">
                 {category.name}
               </h3>
             </div>
@@ -160,7 +221,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors"
+              className="px-8 py-4 bg-[#151194] text-white font-bold rounded-xl hover:bg-blue-950 transition-colors"
             >
               Create Account
             </Link>

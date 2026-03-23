@@ -167,7 +167,7 @@ export default function CartPage() {
       }}
     >
       {/* Header */}
-      <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>Your Cart</h1>
+      <h1 style={{ fontSize: "24px",color: "#333", fontWeight: "bold" }}>Your Cart</h1>
       <p style={{ fontSize: "14px", color: "#666", marginBottom: "20px" }}>
         You have {cartItems.length} items in your cart.{" "}
       </p>
@@ -188,7 +188,7 @@ export default function CartPage() {
           borderBottom: "2px solid #ddd",
           fontWeight: "600",
           fontSize: "12px",
-          color: "#666",
+          color: "black",
         }}
       >
         <div>Product</div>
@@ -226,7 +226,7 @@ export default function CartPage() {
 
               {/* Details */}
               <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: "14px", fontWeight: "600", margin: "0 0 5px 0" }}>
+                <h3 style={{ fontSize: "14px", fontWeight: "600", color: "#1f2937", margin: "0 0 5px 0" }}>
                   {item.name}
                 </h3>
                 <p style={{ fontSize: "11px", color: "#666", margin: "0 0 5px 0" }}>
@@ -355,8 +355,8 @@ export default function CartPage() {
                     </button>
                   </div>
 
-                  <p className="mt-2 text-sm font-semibold">{product.name}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{product.name}</p>
+                  <p className="text-xs text-slate-600">
                     Rs.{product.price.toLocaleString()}
                   </p>
                 </div>
