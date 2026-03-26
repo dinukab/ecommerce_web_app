@@ -89,7 +89,7 @@ export default function HomePage() {
 
       {/* Cart Notification Toast */}
       {notification && (
-        <div className="fixed top-20 right-4 z-50 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg text-sm font-medium">
+        <div className="fixed top-20 right-4 z-50 bg-green-900 text-white px-5 py-3 rounded-lg shadow-lg text-xs font-medium ">
           ✓ {notification}
         </div>
       )}
@@ -97,10 +97,10 @@ export default function HomePage() {
       {/* ── Hero Carousel Section ── */}
       <section className="relative overflow-visible">
         <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-          <CarouselContent className="ml-0">
+          <CarouselContent className="ml-0 ">
             {heroSlides.map((slide) => (
               <CarouselItem key={slide.id} className="pl-0">
-                <div className={`bg-gradient-to-r ${slide.gradient} text-white`}>
+                <div className={`bg-linear-to-r ${slide.gradient} text-white`}>
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="max-w-2xl">
                       <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">

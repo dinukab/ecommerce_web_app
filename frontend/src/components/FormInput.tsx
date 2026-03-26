@@ -61,6 +61,7 @@ type FormInputPropsBase = {
   type?: string
   placeholder?: string
   maxLength?: number
+  inputClassName?: string
 }
 
 export function FormInput({
@@ -69,6 +70,7 @@ export function FormInput({
   type = "text",
   placeholder,
   maxLength,
+  inputClassName,
 }: FormInputPropsBase) {
   const handleCVVInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (id === "CVV") {
@@ -84,6 +86,7 @@ export function FormInput({
         type={type}
         placeholder={placeholder}
         maxLength={maxLength}
+        className={inputClassName}
         inputMode={id === "CVV" ? "numeric" : undefined}
         onChange={id === "CVV" ? handleCVVInput : undefined}
       />

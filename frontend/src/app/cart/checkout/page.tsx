@@ -107,7 +107,7 @@ export default function CheckoutPage() {
 
       <div className="max-w-6xl mx-auto">
 
-        <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+        <h1 className="text-2xl font-bold mb-8 text-black">Checkout</h1>
 
         <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
 
@@ -117,17 +117,19 @@ export default function CheckoutPage() {
             {/* Customer Info */}
             <div className="bg-white p-9 rounded-xl shadow-sm">
 
-              <h2 className="text-lg font-semibold mb-4">
+              <h2 className="text-lg font-semibold mb-4 text-black">
                 Customer Information
               </h2>
 
               <div className="space-y-4">
 
                 <FormInput
+                
                   id="email"
                   label="Email Address"
                   type="email"
                   placeholder="Enter your email"
+                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                 />
 
                 <p className="text-xs text-gray-500">
@@ -142,7 +144,7 @@ export default function CheckoutPage() {
             {/* Shipping Address */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
 
-              <h2 className="text-lg font-semibold mb-4">
+              <h2 className="text-lg font-semibold mb-4 text-black">
                 Shipping Address
               </h2>
 
@@ -152,11 +154,12 @@ export default function CheckoutPage() {
                   id="fullName"
                   label="Full Name"
                   placeholder="Enter your first and last name"
+                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                 />
 
                 {/* Province Combobox */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Province</label>
+                  <label className="text-sm font-medium text-gray-600">Province</label>
                   <ProvinceSelect
                     value={province}
                     setValue={setProvince}
@@ -167,11 +170,12 @@ export default function CheckoutPage() {
                   id="Phone Number"
                   label="Phone Number"
                   placeholder="Please enter your phone number"
+                   inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                 />
 
                 {/* District Combobox */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">District</label>
+                  <label className="text-sm font-medium text-gray-600">District</label>
                   <DistrictSelect
                     province={province}
                     value={district}
@@ -183,11 +187,12 @@ export default function CheckoutPage() {
                   id="Bulding No./House No./Floor/Street"
                   label="Building No./House No./Floor/Street"
                   placeholder="Please enter"
+                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                 />
 
                 {/* City Combobox */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">City</label>
+                  <label className="text-sm font-medium text-gray-600">City</label>
                   <CitySelect
                     province={province}
                     district={district}
@@ -200,12 +205,14 @@ export default function CheckoutPage() {
                   id="Colony/Suburd/Locality/Landmark"
                   label="Colony/Suburb/Locality/Landmark"
                   placeholder="Please enter"
+                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                 />
 
                 <FormInput
                   id="Address"
                   label="Complete Address"
                   placeholder="No.123,Street#,ABC Road"
+                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                 />
 
               </div>
@@ -216,7 +223,7 @@ export default function CheckoutPage() {
             {/* Payment */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
 
-              <h2 className="text-lg font-semibold mb-4">
+              <h2 className="text-lg font-semibold mb-4 text-black">
                 Credit/Debit Card
               </h2>
 
@@ -230,6 +237,7 @@ export default function CheckoutPage() {
                     id="Name on Card"
                     label="Name on Card"
                     placeholder="Name on card"
+                    inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                   />
 
                   <div className="grid grid-cols-2 gap-4 mt-4">
@@ -238,12 +246,14 @@ export default function CheckoutPage() {
                       id="Expiry Date"
                       label="Expiry Date"
                       placeholder="MM/YY"
+                      inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                     />
 
                     <FormInput
                       id="CVV"
                       label="CVV"
                       placeholder="CVV"
+                      inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
                     />
 
                   </div>

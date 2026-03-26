@@ -10,7 +10,7 @@ export function FieldLabel({
   htmlFor?: string 
 }) {
   return (
-    <label htmlFor={htmlFor} className="block text-sm font-medium">
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700">
       {children}
     </label>
   )

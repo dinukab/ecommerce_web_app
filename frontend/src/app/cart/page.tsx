@@ -269,7 +269,7 @@ export default function CartPage() {
 
             {/* PRICE COLUMN */}
             <div style={{ textAlign: "center", paddingTop: "5px" }}>
-              <p style={{ fontSize: "14px", fontWeight: "600", margin: 0 }}>
+              <p style={{ fontSize: "14px", fontWeight: "600", margin: 0, color: "#1f2937" }}>
                 Rs.{item.price.toLocaleString()}
               </p>
             </div>
@@ -285,7 +285,7 @@ export default function CartPage() {
 
             {/* TOTAL COLUMN */}
             <div style={{ textAlign: "right", paddingTop: "5px" }}>
-              <p style={{ fontSize: "14px", fontWeight: "600", margin: 0 }}>
+              <p style={{ fontSize: "14px", fontWeight: "600", margin: 0, color: "#1f2937" }}>
                 Rs.{(item.price * item.quantity).toLocaleString()}
               </p>
             </div>
@@ -293,7 +293,12 @@ export default function CartPage() {
         </div>
       ))}
 
-      
+     {/* Empty cart */}
+      {cartItems.length === 0 && (
+        <p style={{ textAlign: "center", marginTop: "40px", color: "#999" }}>
+          Your cart is empty
+        </p>
+      )} 
 
 
 
@@ -301,10 +306,10 @@ export default function CartPage() {
       <button
         onClick={() => router.push("/")}
         style={{
-          marginTop: "50px",
-          padding: "10px 20px",
-          fontSize: "14px",
-          fontWeight: "600",
+          marginTop: "90px",
+          padding: "10px 6px",
+          fontSize: "16px",
+          fontWeight: "700",
           color: "#151194",
           cursor: "pointer",
           display: "flex",
@@ -314,22 +319,17 @@ export default function CartPage() {
           border: "none",
         }}
       >
-        <ArrowLeft size={18} />
+        <ArrowLeft size={20} />
         Continue Shopping
       </button>
       
 
-      {/* Empty cart */}
-      {cartItems.length === 0 && (
-        <p style={{ textAlign: "center", marginTop: "40px", color: "#999" }}>
-          Your cart is empty
-        </p>
-      )}
+      
 
 
       {/* Recommended Another Products */}
-      <div className="mt-10">
-        <h2 className="text-lg font-semibold mb-4">
+      <div className="mt-18">
+        <h2 className="text-lg font-semibold mb-4 text-black">
           You may also like...
         </h2>
 
@@ -347,7 +347,7 @@ export default function CartPage() {
                     <div className="absolute bottom-2 right-2"></div>
                     <button
                       type="button"
-                      className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white hover:bg-blue-100 text-sm shadow cursor-pointer"
+                      className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white hover:bg-gray-500 text-sm shadow cursor-pointer"
                       aria-label="Add to cart"
                       onClick={() => addToCartFromRecommended(product)}
                     >
