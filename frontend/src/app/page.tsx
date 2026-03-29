@@ -209,31 +209,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Footer CTA Section ── */}
-      <section className="bg-gray-900 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            Start Shopping Today
-          </h2>
-          <p className="text-gray-400 text-lg mb-8">
-            Join thousands of happy customers and find what you're looking for
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/register"
-              className="px-8 py-4 bg-[#151194] text-white font-bold rounded-xl hover:bg-blue-950 transition-colors"
-            >
-              Create Account
-            </Link>
-            <Link
-              href="/products"
-              className="px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white hover:text-gray-900 transition-colors"
-            >
-              Browse Products
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

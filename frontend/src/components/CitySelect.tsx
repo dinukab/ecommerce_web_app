@@ -38,7 +38,7 @@ export function CitySelect({ province, district, value, setValue }: any) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-full justify-between border-gray-500 bg-gray-100 text-gray-900 hover:bg-gray-200 hover:text-gray-900 disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-500 disabled:opacity-100"
           disabled={!district}
         >
           {value
@@ -51,11 +51,14 @@ export function CitySelect({ province, district, value, setValue }: any) {
 
       </PopoverTrigger>
 
-      <PopoverContent className="w-full p-0">
+      <PopoverContent className="w-full border-gray-200 bg-white p-0 text-gray-900">
 
-        <Command>
+        <Command className="bg-white text-gray-900">
 
-          <CommandInput placeholder="Search city..." />
+          <CommandInput
+            placeholder="Search city..."
+            className="bg-white text-gray-900 placeholder:text-gray-400"
+          />
 
           <CommandEmpty>No city found.</CommandEmpty>
 
@@ -65,6 +68,7 @@ export function CitySelect({ province, district, value, setValue }: any) {
               <CommandItem
                 key={city.value}
                 value={city.value}
+                className="text-gray-800 data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900"
                 onSelect={(currentValue) => {
                   setValue(currentValue)
                   setOpen(false)

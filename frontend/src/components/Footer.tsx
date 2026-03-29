@@ -18,7 +18,7 @@ export default function Footer() {
           {/* About */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-[#151194] rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">O</span>
               </div>
               <span className="text-xl font-bold">OneShop</span>
@@ -111,7 +111,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>© 2024 OneShop. All rights reserved.</p>
+          <p>© 2026 OneShop. All rights reserved.</p>
         </div>
       </div>
     </footer>

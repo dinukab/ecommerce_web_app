@@ -35,12 +35,12 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-blue-600 font-bold text-xl">
+          <span className="text-[#151194] font-bold text-xl">
             Rs.{product.price}
           </span>
           <button
             onClick={() => onAddToCart(product)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-150"
+            className="px-4 py-2 bg-[#151194] text-white text-sm font-semibold rounded-lg hover:bg-[#0c0a5c] active:scale-95 transition-all duration-150"
           >
             Add to Cart
           </button>

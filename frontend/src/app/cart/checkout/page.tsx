@@ -129,7 +129,7 @@ export default function CheckoutPage() {
                   label="Email Address"
                   type="email"
                   placeholder="Enter your email"
-                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                  inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                 />
 
                 <p className="text-xs text-gray-500">
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
                   id="fullName"
                   label="Full Name"
                   placeholder="Enter your first and last name"
-                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                  inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                 />
 
                 {/* Province Combobox */}
@@ -170,7 +170,7 @@ export default function CheckoutPage() {
                   id="Phone Number"
                   label="Phone Number"
                   placeholder="Please enter your phone number"
-                   inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                   inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                 />
 
                 {/* District Combobox */}
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
                   id="Bulding No./House No./Floor/Street"
                   label="Building No./House No./Floor/Street"
                   placeholder="Please enter"
-                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                  inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                 />
 
                 {/* City Combobox */}
@@ -205,14 +205,14 @@ export default function CheckoutPage() {
                   id="Colony/Suburd/Locality/Landmark"
                   label="Colony/Suburb/Locality/Landmark"
                   placeholder="Please enter"
-                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                  inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                 />
 
                 <FormInput
                   id="Address"
                   label="Complete Address"
                   placeholder="No.123,Street#,ABC Road"
-                  inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                  inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                 />
 
               </div>
@@ -237,7 +237,7 @@ export default function CheckoutPage() {
                     id="Name on Card"
                     label="Name on Card"
                     placeholder="Name on card"
-                    inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                    inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                   />
 
                   <div className="grid grid-cols-2 gap-4 mt-4">
@@ -246,14 +246,14 @@ export default function CheckoutPage() {
                       id="Expiry Date"
                       label="Expiry Date"
                       placeholder="MM/YY"
-                      inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                      inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                     />
 
                     <FormInput
                       id="CVV"
                       label="CVV"
                       placeholder="CVV"
-                      inputClassName="text-gray-600 placeholder:text-gray-400 text-sm"
+                      inputClassName="text-gray-800 placeholder:text-gray-400 text-sm bg-gray-100 border-gray-500"
                     />
 
                   </div>

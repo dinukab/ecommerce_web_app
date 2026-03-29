@@ -37,7 +37,7 @@ export function CardNumberInput() {
         Card Number
       </FieldLabel>
 
-      <InputGroup>
+      <InputGroup className="focus ring- ">
         <InputGroupInput
           id="card-number"
           placeholder="1234 5678 9012 3456"

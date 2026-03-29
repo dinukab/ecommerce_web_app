@@ -30,7 +30,7 @@ export function ProvinceSelect({ value, setValue }: any) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-full justify-between border-gray-500 bg-gray-100 text-gray-900 hover:bg-gray-200 hover:text-gray-900"
         >
           {value
             ? provinces.find((province) => province.value === value)?.label
@@ -40,9 +40,12 @@ export function ProvinceSelect({ value, setValue }: any) {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder="Search province..." />
+      <PopoverContent className="w-full border-gray-200 bg-white p-0 text-gray-900">
+        <Command className="bg-white text-gray-900">
+          <CommandInput
+            placeholder="Search province..."
+            className="bg-white text-gray-900 placeholder:text-gray-400"
+          />
           <CommandEmpty>No province found.</CommandEmpty>
 
           <CommandGroup>
@@ -50,6 +53,7 @@ export function ProvinceSelect({ value, setValue }: any) {
               <CommandItem
                 key={province.value}
                 value={province.value}
+                className="text-gray-800 data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900"
                 onSelect={(currentValue) => {
                   setValue(currentValue)
                   setOpen(false)

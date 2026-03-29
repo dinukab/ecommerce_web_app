@@ -135,7 +135,7 @@ export default function ReviewOrderPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Review your order</h1>
+          <h1 className="text-2xl font-bold text-black">Review your order</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -146,7 +146,7 @@ export default function ReviewOrderPage() {
             {/* Shipping Address */}
             
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-lg font-semibold">Shipping Address</h2>
+                <h2 className="text-lg font-semibold text-black">Shipping Address</h2>
                 <button
                   onClick={handleChangePayment}
                   className="text-sm text-blue-600 hover:underline flex items-center gap-1"
@@ -168,7 +168,7 @@ export default function ReviewOrderPage() {
             {/* Payment Method */}
             
               <div className="flex justify-between items-start mb-4 mt-9">
-                <h2 className="text-lg font-semibold">Payment Method</h2>
+                <h2 className="text-lg font-semibold text-black">Payment Method</h2>
                 <button
                   onClick={handleChangePayment}
                   className="text-sm text-blue-600 hover:underline flex items-center gap-1"
@@ -178,7 +178,7 @@ export default function ReviewOrderPage() {
                 </button>
               </div>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-8 bg-blue-600 rounded flex items-center justify-center">
+                <div className="w-12 h-8 bg-[#151194] rounded flex items-center justify-center">
                   <span className="text-white text-xs font-bold">VISA</span>
                 </div>
                 <div className="text-sm text-gray-700">
@@ -219,7 +219,7 @@ export default function ReviewOrderPage() {
             <div className="flex gap-4">
               <button
                 onClick={() => router.push('/cart/checkout')}
-                className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+                className="flex items-center gap-2 px-6 py-3 border border-gray-400 rounded-2xl text-gray-700 hover:bg-gray-200 font-medium"
               >
                 <ChevronLeft size={18} />
                 Back to Payment
@@ -227,7 +227,7 @@ export default function ReviewOrderPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={!agreedToTerms}
-                className="flex-1 px-6 py-3 bg-blue-900 hover:bg-blue-800 disabled:bg-gray-400 text-white rounded-lg font-bold flex items-center justify-center gap-2 transition"
+                className="flex-1 px-6 py-3 bg-[#151194] hover:bg-blue-800 disabled:bg-gray-400 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition"
               >
                 Place Order
                 <span>→</span>
@@ -238,7 +238,7 @@ export default function ReviewOrderPage() {
           {/* Right Column - Order Summary */}
           <div className="lg:sticky lg:top-6 h-fit">
             <div className="bg-white rounded-xl p-6 shadow-md">
-              <h2 className="text-xl font-bold mb-5">Order Summary</h2>
+              <h2 className="text-xl font-bold mb-5 text-black">Order Summary</h2>
 
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
@@ -258,23 +258,23 @@ export default function ReviewOrderPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold">Rs.{orderTotals.subtotal.toLocaleString()}</span>
+                  <span className="font-semibold text-gray-900">Rs.{orderTotals.subtotal.toLocaleString()}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="font-semibold">Rs.{orderTotals.shipping.toLocaleString()}</span>
+                  <span className="font-semibold text-gray-900">Rs.{orderTotals.shipping.toLocaleString()}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Taxes</span>
-                  <span className="font-semibold">Rs.0</span>
+                  <span className="font-semibold text-gray-900">Rs.0</span>
                 </div>
 
                 <div className="border-t border-gray-200 pt-3 mt-3"></div>
 
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-base">Total</span>
+                  <span className="font-bold text-base text-black">Total</span>
                   <span className="text-xl font-bold text-blue-900">Rs.{orderTotals.orderTotal.toLocaleString()}</span>
                 </div>
               </div>
