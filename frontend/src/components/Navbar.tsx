@@ -67,7 +67,7 @@ export default function Navbar() {
             )}
 
             <Link
-              href="/login"
+              href="/profile"
               className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
             >
               <User className="w-5 h-5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
