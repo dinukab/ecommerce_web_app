@@ -21,8 +21,10 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 shrink-0">
-            <ShoppingBag className="w-7 h-7 text-[#151194] fill-[#151194]" />
-            <span className="text-xl font-extrabold text-gray-900 tracking-tight">OneShop</span>
+            <div className="w-9 h-9 bg-[#151194] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">O</span>
+            </div>
+            <span className="text-2xl font-bold text-gray-900 tracking-tight">OneShop</span>
           </Link>
 
           {/* Search Bar - Desktop */}

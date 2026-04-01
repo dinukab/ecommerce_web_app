@@ -7,17 +7,37 @@ export default function ProductsPage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const mockProductsList = [
+    {
+      id: "mock123", /* Needs to navigate to [id] where we have mocked data */
+      name: "Wireless Headphones",
+      price: 2300,
+      category: "Electronics",
+      image: "https://placehold.co/400x400/d1d5db/ffffff?text=Headphones"
+    },
+    {
+      id: "mock456",
+      name: "Ergonomic Office Chair",
+      price: 15000,
+      category: "Furniture",
+      image: "https://placehold.co/400x400/d1d5db/ffffff?text=Chair"
+    },
+    {
+      id: "mock789",
+      name: "Mechanical Keyboard",
+      price: 4500,
+      category: "Electronics",
+      image: "https://placehold.co/400x400/d1d5db/ffffff?text=Keyboard"
+    }
+  ];
+
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`)
-      .then(res => res.json())
-      .then(result => {
-        setData(result);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("API ERROR:", err);
-        setLoading(false);
-      });
+    // Simulate API delay
+    const timer = setTimeout(() => {
+      setData(mockProductsList);
+      setLoading(false);
+    }, 400);
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) {
