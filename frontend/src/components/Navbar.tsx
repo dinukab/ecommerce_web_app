@@ -4,11 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingCart, User, Search, Menu, X, Heart, ShoppingBag } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const isCheckoutFlowPage = pathname.startsWith('/cart/checkout');
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
 
   if (pathname === '/login' || pathname === '/register') {
     return null;
@@ -45,7 +48,7 @@ export default function Navbar() {
           <div className="flex md:flex items-center space-x-10">
             {!isCheckoutFlowPage && (
               <Link
-                href="/wishlist"
+                href="/profile/wishlist"
                 className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
               >
                 <Heart className="w-5 h-5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
@@ -60,9 +63,11 @@ export default function Navbar() {
               >
                 <div className="relative">
                   <ShoppingCart className="w-5.5 h-5.5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
-                  <span className="absolute -top-1.5 -right-2 bg-[#151194] text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white box-content">
-                    2
-                  </span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-[#151194] text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white box-content">
+                      {cartCount}
+                    </span>
+                  )}
                 </div>
                 <span className="font-bold text-sm ml-1">Cart</span>
               </Link>

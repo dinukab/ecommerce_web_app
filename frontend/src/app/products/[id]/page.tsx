@@ -1,82 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Star, Truck, RefreshCcw, ChevronRight, Check } from "lucide-react";
+import { Star, Truck, RefreshCcw, ChevronRight, Check, Share2, Heart } from "lucide-react";
+import type { Product } from "@/types";
+import { getProductById } from "data/products";
+import { useCart } from "@/context/CartContext";
+
+type Review = {
+  _id: string;
+  user: string;
+  rating: number;
+  title: string;
+  text: string;
+  createdAt: string;
+};
 
 export default function ProductDetailPage() {
   const { id } = useParams();
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
+  const { addToCart } = useCart();
 
-  const mockData = {
-    product: {
-      _id: "mock123",
-      name: "Wireless Headphones",
-      description: "Engineered for the music enthusiast, these comfortable headphones combine state-of-the-art noise cancellation with a sound profile that is rich, deep, and incredibly detailed.",
-      price: 2300,
-      originalPrice: 4600,
-      images: [
-        "https://placehold.co/800x800/d1d5db/ffffff?text=Product+Main",
-        "https://placehold.co/200x200/e5e7eb/a3a3a3?text=Thumb+1",
-        "https://placehold.co/200x200/e5e7eb/a3a3a3?text=Thumb+2",
-        "https://placehold.co/200x200/e5e7eb/a3a3a3?text=Thumb+3"
-      ],
-      rating: 4.8,
-      numReviews: 124,
-      badge: "New Arrival",
-      specifications: {
-        model: "Standard"
-      }
-    },
-    reviews: [
-      {
-        _id: "rev1",
-        user: "Sarah Jenkins",
-        rating: 5,
-        title: "Absolute game changer!",
-        text: "The noise cancellation is phenomenal. I can wear these all day in the office without any discomfort. Highly recommend!",
-        createdAt: new Date().toISOString()
-      },
-      {
-        _id: "rev2",
-        user: "David Chen",
-        rating: 4,
-        title: "Great value for the price",
-        text: "Sound quality is excellent. Only giving it 4 stars because the case feels a bit cheap, but the headphones themselves are premium.",
-        createdAt: new Date(Date.now() - 86400000).toISOString()
-      },
-      {
-        _id: "rev3",
-        user: "Emily Roberts",
-        rating: 5,
-        title: "Immersive sound indeed",
-        text: "I bought these for my commute and they make the subway ride so much better. The bass is deep and the battery lasts forever.",
-        createdAt: new Date(Date.now() - 172800000).toISOString()
-      }
-    ]
-  };
+  const idValue = Array.isArray(id) ? id[0] : id;
+  const productId = Number(idValue);
 
-  useEffect(() => {
-    // Simulate a network request delay
-    const timer = setTimeout(() => {
-      setData(mockData);
-      setLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [id]);
+  const product: Product | undefined = Number.isFinite(productId)
+    ? getProductById(productId)
+    : undefined;
 
-  if (loading) {
-    return <div className="p-10 max-w-7xl mx-auto flex items-center justify-center h-64">Loading product...</div>;
-  }
-
-  if (!data || !data.product) {
+  if (!product) {
     return <div className="p-10 max-w-7xl mx-auto text-red-500 flex items-center justify-center h-64">Product Not Found</div>;
   }
 
-  const { product, reviews } = data;
+  const reviews: Review[] = [];
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, i) => (
@@ -98,12 +55,14 @@ export default function ProductDetailPage() {
         <span className="text-gray-900 font-medium">{product.name}</span>
       </nav>
 
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         {/* Left Col: Images */}
         <div className="flex flex-col gap-4">
           <div className="bg-[#f0f2f5] aspect-square rounded-2xl flex items-center justify-center relative overflow-hidden">
-             {product.images && product.images.length > 0 ? (
-                <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+           {product.images && product.images.length > 0 ? (
+             // eslint-disable-next-line @next/next/no-img-element
+             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
              ) : (
                 <span className="text-xl font-medium text-gray-400">Image Placeholder</span>
              )}
@@ -113,7 +72,8 @@ export default function ProductDetailPage() {
              {[1, 2, 3].map((num) => (
                <div key={num} className="w-20 h-20 bg-[#f0f2f5] rounded-xl flex items-center justify-center border border-transparent hover:border-gray-300 cursor-pointer transition">
                   {product.images && product.images[num] ? (
-                     <img src={product.images[num]} alt="thumb" className="w-full h-full object-cover rounded-xl" />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={product.images[num]} alt="thumb" className="w-full h-full object-cover rounded-xl" />
                   ) : (
                      <span className="text-xs text-gray-400">Thumb</span>
                   )}
@@ -124,12 +84,6 @@ export default function ProductDetailPage() {
 
         {/* Right Col: Details */}
         <div className="flex flex-col">
-          {product.badge && (
-            <span className="bg-[#151194] text-white text-xs font-bold px-3 py-1 rounded-full self-start mb-4">
-              {product.badge}
-            </span>
-          )}
-          
           <h1 className="text-3xl md:text-4xl font-bold mb-3">{product.name}</h1>
           
           <div className="flex items-center gap-4 mb-6">
@@ -137,33 +91,18 @@ export default function ProductDetailPage() {
               {renderStars(product.rating)}
             </div>
             <span className="ml-2 font-medium">{product.rating.toFixed(1)}</span>
-            <span className="text-gray-400 text-sm">({product.numReviews} Reviews)</span>
+            <span className="text-gray-400 text-sm">({product.reviews} Reviews)</span>
           </div>
 
           <div className="flex items-center gap-4 mb-6">
             <span className="text-3xl font-bold text-[#151194]">Rs {product.price}</span>
-            {product.originalPrice && (
-              <>
-                <span className="text-gray-400 line-through text-xl">Rs {product.originalPrice}</span>
-                <span className="text-green-600 bg-green-100 px-2 py-1 rounded text-sm font-semibold">
-                  {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% Off
-                </span>
-              </>
-            )}
           </div>
 
           <p className="text-gray-600 mb-8 leading-relaxed">
             {product.description}
           </p>
 
-          <div className="mb-8">
-             <span className="font-semibold block mb-3">Model</span>
-             <div className="flex gap-3">
-               <button className="border-2 border-[#151194] text-[#151194] px-4 py-2 rounded-lg font-medium bg-blue-50/50">
-                  {product.specifications?.model || "Standard"}
-               </button>
-             </div>
-          </div>
+
 
           <div className="flex items-center gap-6 mb-10 pt-4 border-t border-gray-100">
              <div className="flex items-center border border-gray-300 rounded-lg h-12 w-32">
@@ -183,9 +122,42 @@ export default function ProductDetailPage() {
                   +
                 </button>
              </div>
-             <button className="flex-1 bg-[#151194] hover:bg-[#0f0c6e] text-white h-12 rounded-lg font-bold flex items-center justify-center transition-colors shadow-lg shadow-[#151194]/20">
+             <button
+               onClick={() => addToCart(product, qty)}
+               className="flex-1 bg-[#151194] hover:bg-[#0f0c6e] text-white h-12 rounded-xl font-bold flex items-center justify-center transition-colors shadow-sm shadow-[#151194]/20"
+               
+             >
+                Buy Now
+             </button>
+
+             <button
+               onClick={() => addToCart(product, qty)}
+               className="flex-1 bg-gray-200 hover:bg-gray-300 text-black h-12 rounded-xl font-bold flex items-center justify-center transition-colors shadow-sm shadow-[#151194]/10 border-gray-600 border"
+             >
                 Add to Cart
              </button>
+
+             
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-3  mb-10">
+            <button
+              type="button"
+              className=" sm:w-20  rounded-xl py-3 flex items-center justify-center gap-2 text-gray-900 font-medium hover:bg-gray-50 transition cursor-pointer"
+              aria-label="Share"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Share</span>
+            </button>
+
+            <button
+              type="button"
+              className="w-full sm:w-20   rounded-xl py-3 flex items-center justify-center gap-2 text-gray-900 font-medium hover:bg-gray-50 transition cursor-pointer"
+              aria-label="Likes"
+            >
+              <Heart className="w-4 h-4" />
+              <span>25</span>
+            </button>
           </div>
 
           <div className="flex flex-col gap-4 text-sm font-medium text-gray-700">
@@ -207,7 +179,7 @@ export default function ProductDetailPage() {
       <div className="max-w-4xl">
         <h2 className="text-2xl font-bold mb-6">Immersive Sound, All Day Long</h2>
         <p className="text-gray-600 mb-8 leading-relaxed">
-           Engineered for the enthusiast, this product combines state-of-the-art features with a profile that is rich, deep, and incredibly detailed. Whether you're commuting, working from a busy cafe, or just relaxing at home, the world fades away, leaving only your experience.
+            Engineered for the enthusiast, this product combines state-of-the-art features with a profile that is rich, deep, and incredibly detailed. Whether you&apos;re commuting, working from a busy cafe, or just relaxing at home, the world fades away, leaving only your experience.
         </p>
         <ul className="space-y-4">
           <li className="flex items-center gap-3 text-gray-700">
@@ -234,11 +206,11 @@ export default function ProductDetailPage() {
               <h2 className="text-2xl font-bold mb-1">Customer Reviews</h2>
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-lg">{product.rating.toFixed(1)}</span>
-                <span className="text-gray-500">out of 5 based on {product.numReviews} review(s).</span>
+                <span className="text-gray-500">out of 5 based on {product.reviews} review(s).</span>
               </div>
             </div>
             <Link 
-              href={`/products/${id}/review`}
+              href={`/products/${product.id}/review`}
               className="text-[#151194] font-semibold border-2 border-[#151194] px-4 py-2 rounded-lg hover:bg-blue-50 transition shadow-sm inline-block"
             >
               Write a Review
@@ -247,7 +219,7 @@ export default function ProductDetailPage() {
 
          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {reviews && reviews.length > 0 ? (
-               reviews.map((review: any) => (
+              reviews.map((review) => (
                  <div key={review._id} className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm hover:shadow-md transition">
                     <div className="flex items-center gap-1 mb-3">
                        {renderStars(review.rating)}

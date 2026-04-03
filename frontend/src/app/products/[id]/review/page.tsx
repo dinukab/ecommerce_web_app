@@ -125,7 +125,7 @@ export default function WriteReviewPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-[2] px-6 py-3.5 rounded-xl font-bold text-white bg-[#151194] hover:bg-[#0c0a5c] shadow-lg shadow-[#151194]/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex-2 px-6 py-3.5 rounded-xl font-bold text-white bg-[#151194] hover:bg-[#0c0a5c] shadow-lg shadow-[#151194]/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Submitting..." : "Submit Review"}
             </button>

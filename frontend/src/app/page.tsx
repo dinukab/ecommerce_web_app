@@ -4,6 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { ArrowRight, Tag } from 'lucide-react';
+import type { Product } from '@/types';
+import { products } from 'data/products';
+import { useCart } from '@/context/CartContext';
 import {
   Carousel,
   CarouselContent,
@@ -12,25 +15,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-// TypeScript Interface
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-}
-
-// Dummy Product Data
-const trendingProducts: Product[] = [
-  { id: 1, name: 'product1', price: 200,  category: 'Category_001' },
-  { id: 2, name: 'product2', price: 500,  category: 'Category_002' },
-  { id: 3, name: 'product3', price: 830,  category: 'Category_003' },
-  { id: 4, name: 'product4', price: 150,  category: 'Category_001' },
-  { id: 5, name: 'product5', price: 999,  category: 'Category_004' },
-  { id: 6, name: 'product6', price: 450,  category: 'Category_002' },
-  { id: 7, name: 'product7', price: 310,  category: 'Category_005' },
-  { id: 8, name: 'product8', price: 720,  category: 'Category_003' },
-];
+const trendingProducts: Product[] = products.slice(0, 8);
 
 // Category Data
 const categories = [
@@ -75,11 +60,12 @@ const heroSlides = [
 ];
 
 export default function HomePage() {
-  const [cartCount, setCartCount] = useState(0);
   const [notification, setNotification] = useState('');
+  const { addToCart, getCartCount } = useCart();
+  const cartCount = getCartCount();
 
   const handleAddToCart = (product: Product) => {
-    setCartCount(prev => prev + 1);
+    addToCart(product, 1);
     setNotification(`${product.name} added to cart!`);
     setTimeout(() => setNotification(''), 2500);
   };
