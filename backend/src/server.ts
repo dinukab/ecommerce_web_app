@@ -1,12 +1,16 @@
-import express, { type Application } from 'express';
+import express, { Application } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './config/database.js';
-import productRoutes from './routes/productRoutes.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import connectDB from './config/database';
+import productRoutes from './routes/productRoutes';
+import authRoutes from './routes/authRoutes';
+import { errorHandler } from './middleware/errorHandler';
 
-// Load env variables
+// Load env variables FIRST
 dotenv.config();
+
+console.log('🚀 Starting OneShop Backend...');
+console.log('Environment:', process.env.NODE_ENV);
 
 // Connect to database
 connectDB();
@@ -20,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/products', productRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -35,5 +40,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });

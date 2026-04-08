@@ -66,6 +66,42 @@ export interface ProductFilters {
   sort?: 'featured' | 'price-low' | 'price-high' | 'rating';
 }
 
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+}
+
+export interface LoginData {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      phone?: string;
+      role: string;
+    };
+    token: string;
+  };
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+  addresses: any[];
+}
+
 class ApiService {
   private baseUrl: string;
 
@@ -138,6 +174,55 @@ class ApiService {
     return this.request<ApiResponse<Review>>(`/products/${productId}/reviews`, {
       method: 'POST',
       body: JSON.stringify(reviewData),
+    });
+  }
+
+  // Auth APIs
+  async register(data: RegisterData): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async login(data: LoginData): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getMe(token: string): Promise<ApiResponse<UserProfile>> {
+    return this.request<ApiResponse<UserProfile>>('/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async updateProfile(
+    token: string,
+    data: { name?: string; phone?: string }
+  ): Promise<ApiResponse<UserProfile>> {
+    return this.request<ApiResponse<UserProfile>>('/auth/profile', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async changePassword(
+    token: string,
+    data: { currentPassword: string; newPassword: string }
+  ): Promise<ApiResponse<string>> {
+    return this.request<ApiResponse<string>>('/auth/password', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
     });
   }
 
