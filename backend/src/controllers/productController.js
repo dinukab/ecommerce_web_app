@@ -1,4 +1,4 @@
-const products = require("../data/products");
+const products = require("../../data/products");
 
 // GET /api/products
 exports.getAllProducts = (req, res) => {
