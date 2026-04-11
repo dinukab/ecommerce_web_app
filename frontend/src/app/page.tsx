@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import { ArrowRight, Tag } from 'lucide-react';
+import CategoriesDropdown from '@/components/CategoriesDropdown';
 import {
   Carousel,
   CarouselContent,
@@ -148,36 +149,12 @@ export default function HomePage() {
         </Carousel>
       </section>
 
-      {/* ── Categories Section ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-
-        {/* Section Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900">Categories</h2>
-            <p className="text-gray-500 mt-1">Browse products by category</p>
-          </div>
-        </div>
-
-        {/* Category Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className="bg-white border-2 border-transparent hover:border-blue-900 rounded-xl p-6 text-center cursor-pointer hover:shadow-md transition-all duration-200 group"
-            >
-              <div className="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-3 flex items-center justify-center group-hover:bg-blue-900 transition-colors">
-                <span className="text-[#151194] group-hover:text-white font-bold text-lg">
-                  {category.id}
-                </span>
-              </div>
-              <h3 className="text-sm font-semibold text-gray-800 group-hover:text-blue-900 transition-colors">
-                {category.name}
-              </h3>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Categories Dropdown - Placed near Hero Section */}
+<section className="py-8 bg-gray-50">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <CategoriesDropdown />
+  </div>
+</section>
 
       {/* ── Trending Now Section ── */}
       <section className="bg-white py-16">

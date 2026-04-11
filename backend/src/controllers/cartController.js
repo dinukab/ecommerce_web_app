@@ -1,6 +1,6 @@
-const Cart = require("../models/Cart");
+import Cart from "../models/Cart.js";
 
-exports.addToCart = async (req, res) => {
+export const addToCart = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
 

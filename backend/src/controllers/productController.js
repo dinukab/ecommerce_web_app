@@ -1,4 +1,3 @@
-import type { Request, Response } from 'express';
 import Product from '../models/Product.js';
 import Review from '../models/Review.js';
 import Category from '../models/Category.js';
@@ -6,14 +5,14 @@ import Category from '../models/Category.js';
 // @desc    Get all products with filtering, sorting, and pagination
 // @route   GET /api/products
 // @access  Public
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 12;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
     // Build filter object
-    const filter: any = {};
+    const filter = {};
 
     // Category filter
     if (req.query.category) {
@@ -27,16 +26,16 @@ export const getProducts = async (req: Request, res: Response) => {
     if (req.query.minPrice || req.query.maxPrice) {
       filter.price = {};
       if (req.query.minPrice) {
-        filter.price.$gte = parseFloat(req.query.minPrice as string);
+        filter.price.$gte = parseFloat(req.query.minPrice);
       }
       if (req.query.maxPrice) {
-        filter.price.$lte = parseFloat(req.query.maxPrice as string);
+        filter.price.$lte = parseFloat(req.query.maxPrice);
       }
     }
 
     // Rating filter
     if (req.query.minRating) {
-      filter.rating = { $gte: parseFloat(req.query.minRating as string) };
+      filter.rating = { $gte: parseFloat(req.query.minRating) };
     }
 
     // Search filter
@@ -53,7 +52,7 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 
     // Sort
-    let sort: any = { createdAt: -1 }; // Default: newest first
+    let sort = { createdAt: -1 }; // Default: newest first
     if (req.query.sort === 'price-low') {
       sort = { price: 1 };
     } else if (req.query.sort === 'price-high') {
@@ -82,7 +81,7 @@ export const getProducts = async (req: Request, res: Response) => {
       pages: Math.ceil(total / limit),
       data: products,
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Error fetching products',
@@ -94,7 +93,7 @@ export const getProducts = async (req: Request, res: Response) => {
 // @desc    Get single product by ID
 // @route   GET /api/products/:id
 // @access  Public
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate('category', 'name slug');
 
@@ -115,7 +114,7 @@ export const getProductById = async (req: Request, res: Response) => {
         reviews,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Error fetching product',
@@ -127,9 +126,9 @@ export const getProductById = async (req: Request, res: Response) => {
 // @desc    Get featured products
 // @route   GET /api/products/featured
 // @access  Public
-export const getFeaturedProducts = async (req: Request, res: Response) => {
+export const getFeaturedProducts = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit as string) || 8;
+    const limit = parseInt(req.query.limit) || 8;
 
     const products = await Product.find({ featured: true })
       .populate('category', 'name slug')
@@ -141,7 +140,7 @@ export const getFeaturedProducts = async (req: Request, res: Response) => {
       count: products.length,
       data: products,
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Error fetching featured products',
@@ -153,16 +152,16 @@ export const getFeaturedProducts = async (req: Request, res: Response) => {
 // @desc    Get product reviews
 // @route   GET /api/products/:id/reviews
 // @access  Public
-export const getProductReviews = async (req: Request, res: Response) => {
+export const getProductReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ product: req.params.id as string }).sort({ createdAt: -1 });
+    const reviews = await Review.find({ product: req.params.id }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       count: reviews.length,
       data: reviews,
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Error fetching reviews',
@@ -174,11 +173,11 @@ export const getProductReviews = async (req: Request, res: Response) => {
 // @desc    Create a product review
 // @route   POST /api/products/:id/reviews
 // @access  Public (should be protected in production)
-export const createProductReview = async (req: Request, res: Response) => {
+export const createProductReview = async (req, res) => {
   try {
     const { rating, title, text, user } = req.body;
 
-    const product = await Product.findById(req.params.id as string);
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({
@@ -188,7 +187,7 @@ export const createProductReview = async (req: Request, res: Response) => {
     }
 
     const review = await Review.create({
-      product: req.params.id as string,
+      product: req.params.id,
       user,
       rating,
       title,
@@ -196,7 +195,7 @@ export const createProductReview = async (req: Request, res: Response) => {
     });
 
     // Update product rating and review count
-    const reviews = await Review.find({ product: req.params.id as string });
+    const reviews = await Review.find({ product: req.params.id });
     const avgRating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
 
     product.rating = avgRating;
@@ -207,7 +206,7 @@ export const createProductReview = async (req: Request, res: Response) => {
       success: true,
       data: review,
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Error creating review',

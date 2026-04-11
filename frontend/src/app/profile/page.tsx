@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { User, Package, Heart, MapPin, CreditCard, Settings, ChevronRight, Edit2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Package, Heart, MapPin, CreditCard, Settings, ChevronRight, Edit2, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
+import { api } from '@/lib/api';
 
 interface Order {
   id: string;
@@ -15,16 +15,114 @@ interface Order {
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [userAvatar, setUserAvatar] = useState('');
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  // Load user data from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setUserName(user.name);
+      setUserEmail(user.email);
+      
+      // Fetch full user data including avatar
+      fetchUserProfile();
+    }
+  }, []);
+
+  const fetchUserProfile = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await api.getMe(token);
+      if (response.success && response.data) {
+        setUserAvatar(response.data.avatar || '');
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image size should be less than 2MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Convert image to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Please login again');
+          return;
+        }
+
+        try {
+          const response = await api.updateAvatar(token, base64String);
+          
+          if (response.success) {
+            setUserAvatar(base64String);
+            setShowPhotoUpload(false);
+            alert('Profile photo updated successfully!');
+            
+            // Update user data in localStorage
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+              const user = JSON.parse(storedUser);
+              user.avatar = base64String;
+              localStorage.setItem('user', JSON.stringify(user));
+            }
+          }
+        } catch (error: any) {
+          alert(error.message || 'Failed to upload photo');
+        } finally {
+          setUploading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setUploading(false);
+      alert('Error processing image');
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   const userInfo = {
-    name: 'Kasun Perera',
-    email: 'kasun.perera@example.com',
+    name: userName || 'User',
+    email: userEmail || 'user@example.com',
     phone: '+94 77 123 4567',
-    avatar: 'KP',
+    avatar: getInitials(userName || 'User'),
     memberSince: 'January 2024',
   };
-  
-
 
   const recentOrders: Order[] = [
     {
@@ -54,7 +152,7 @@ export default function ProfilePage() {
     {
       id: 1,
       type: 'Home',
-      name: 'Kasun Perera',
+      name: 'John Doe',
       address: '123 Main Street, Colombo 03',
       phone: '+94 77 123 4567',
       isDefault: true,
@@ -62,7 +160,7 @@ export default function ProfilePage() {
     {
       id: 2,
       type: 'Office',
-      name: 'Kasun Perera',
+      name: 'John Doe',
       address: '456 Business Avenue, Colombo 07',
       phone: '+94 77 123 4567',
       isDefault: false,
@@ -101,6 +199,18 @@ export default function ProfilePage() {
     }
   };
 
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex space-x-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span key={star} className={star <= rating ? 'text-yellow-400' : 'text-gray-300'}>
+            ★
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -114,11 +224,32 @@ export default function ProfilePage() {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6">
-              {/* User Info */}
-              <div className="text-center mb-6 pb-6 border-b">
-                <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-                  {userInfo.avatar}
+              {/* User Info with Photo Upload */}
+              <div className="text-center mb-6 pb-6 border-b relative">
+                {/* Profile Photo */}
+                <div className="relative inline-block">
+                  {userAvatar ? (
+                    <img
+                      src={userAvatar}
+                      alt={userInfo.name}
+                      className="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
+                      {userInfo.avatar}
+                    </div>
+                  )}
+                  
+                  {/* Camera Icon Button */}
+                  <button
+                    onClick={() => setShowPhotoUpload(true)}
+                    className="absolute bottom-2 right-1/2 transform translate-x-1/2 translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"
+                    title="Change profile photo"
+                  >
+                    <Camera className="h-4 w-4 text-blue-600" />
+                  </button>
                 </div>
+
                 <h3 className="font-bold text-gray-900">{userInfo.name}</h3>
                 <p className="text-sm text-gray-600">{userInfo.email}</p>
                 <p className="text-xs text-gray-500 mt-2">Member since {userInfo.memberSince}</p>
@@ -130,8 +261,8 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('overview')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'overview'
-                      ? 'bg-blue-200 text-blue-800'
-                      : 'text-gray-900 hover:bg-gray-200'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <User className="h-5 w-5" />
@@ -142,8 +273,8 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('orders')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'orders'
-                      ? 'bg-blue-200 text-blue-800'
-                      : 'text-gray-900 hover:bg-gray-200'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <Package className="h-5 w-5" />
@@ -154,8 +285,8 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('wishlist')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'wishlist'
-                      ? 'bg-blue-200 text-blue-800'
-                      : 'text-gray-900 hover:bg-gray-200'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <Heart className="h-5 w-5" />
@@ -166,8 +297,8 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('addresses')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'addresses'
-                      ? 'bg-blue-200 text-blue-800'
-                      : 'text-gray-900 hover:bg-gray-200'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <MapPin className="h-5 w-5" />
@@ -178,8 +309,8 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('payment')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'payment'
-                      ? 'bg-blue-200 text-blue-800'
-                      : 'text-gray-900 hover:bg-gray-200'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <CreditCard className="h-5 w-5" />
@@ -190,8 +321,8 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('settings')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'settings'
-                      ? 'bg-blue-200 text-blue-800'
-                      : 'text-gray-900 hover:bg-gray-200'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <Settings className="h-5 w-5" />
@@ -211,7 +342,7 @@ export default function ProfilePage() {
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-900">Total Orders</p>
+                        <p className="text-sm text-gray-600">Total Orders</p>
                         <p className="text-2xl font-bold text-gray-900 mt-1">24</p>
                       </div>
                       <div className="bg-blue-100 p-3 rounded-lg">
@@ -223,7 +354,7 @@ export default function ProfilePage() {
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-900">Wishlist Items</p>
+                        <p className="text-sm text-gray-600">Wishlist Items</p>
                         <p className="text-2xl font-bold text-gray-900 mt-1">12</p>
                       </div>
                       <div className="bg-red-100 p-3 rounded-lg">
@@ -235,7 +366,7 @@ export default function ProfilePage() {
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-900">Total Spent</p>
+                        <p className="text-sm text-gray-600">Total Spent</p>
                         <p className="text-2xl font-bold text-gray-900 mt-1">Rs 45,600</p>
                       </div>
                       <div className="bg-green-100 p-3 rounded-lg">
@@ -345,7 +476,7 @@ export default function ProfilePage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">Saved Addresses</h2>
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700">Add New Address</Button>
+                  <Button variant="default">Add New Address</Button>
                 </div>
 
                 <div className="space-y-4">
@@ -381,7 +512,7 @@ export default function ProfilePage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">Payment Methods</h2>
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700">Add New Card</Button>
+                  <Button variant="default">Add New Card</Button>
                 </div>
 
                 <div className="space-y-4">
@@ -499,7 +630,7 @@ export default function ProfilePage() {
 
                   {/* Save Button */}
                   <div className="pt-6 border-t">
-                    <Button className="bg-blue-600 text-white hover:bg-blue-700">Save Changes</Button>
+                    <Button variant="default">Save Changes</Button>
                   </div>
                 </div>
               </div>
@@ -507,6 +638,61 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Photo Upload Modal */}
+      {showPhotoUpload && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowPhotoUpload(false)}
+        >
+          <div
+            className="bg-white rounded-lg max-w-md w-full p-8 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Change Profile Photo</h2>
+
+            <div className="mb-6">
+              <label
+                htmlFor="photo-upload"
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Camera className="h-12 w-12 text-gray-400 mb-4" />
+                  <p className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
+                </div>
+                <input
+                  id="photo-upload"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  disabled={uploading}
+                />
+              </label>
+            </div>
+
+            {uploading && (
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-600">Uploading...</p>
+              </div>
+            )}
+
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setShowPhotoUpload(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                disabled={uploading}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

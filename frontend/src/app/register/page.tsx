@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import React from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { api } from '@/lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,6 +20,9 @@ export default function RegisterPage() {
 
 const [showPassword, setShowPassword] = useState(false);
 const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+const [error, setError] = useState('');
+const [loading, setLoading] = useState(false);
+const [success, setSuccess] = useState(false);
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,10 +33,45 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration Data:", formData);
-    router.push('/login');
+    setError('');
+    setSuccess(false);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Use the API service instead of manual fetch
+      await api.register({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      setSuccess(true);
+      // Optional: Clear form on success
+      setFormData({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
+      
+      setTimeout(() => router.push('/login'), 2500);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,6 +91,20 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
             <h1 className="text-2xl font-bold text-gray-900 mb-2 mt-2">Create Account</h1>
             <p className="text-gray-500 text-sm">Join with Oneshop today</p>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-100 text-green-600 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-600" />
+              Successfully registered! Redirecting to login...
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
@@ -131,8 +184,20 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
                 I agree to the Terms of Service and Privacy Policy
               </p>
               
-              <Button type="submit" variant="default" className="w-full bg-[#151194] hover:bg-[#252661] text-white py-6 rounded-xl text-lg">
-                Create Account
+              <Button 
+                type="submit" 
+                variant="default" 
+                className="w-full bg-[#151194] hover:bg-[#252661] text-white py-6 rounded-xl text-lg flex items-center justify-center gap-2"
+                disabled={loading || success}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
               </Button>
             </div>
           </form>

@@ -67,7 +67,7 @@ export interface ProductFilters {
 }
 
 export interface RegisterData {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
   phone?: string;
@@ -84,7 +84,7 @@ export interface AuthResponse {
   data: {
     user: {
       id: string;
-      name: string;
+      fullName: string;
       email: string;
       phone?: string;
       role: string;
@@ -110,32 +110,40 @@ class ApiService {
   }
 
   private async request<T>(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
+  const url = `${this.baseUrl}${endpoint}`;
+  
+  try {
+    console.log('Making request to:', url); // Debug log
     
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options?.headers,
-        },
-      });
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
-      }
-
-      return data;
-    } catch (error: any) {
-      console.error('API Error:', error);
-      throw error;
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Received non-JSON response:', await response.text());
+      throw new Error('Server returned an invalid response. Please make sure the backend is running.');
     }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Something went wrong');
+    }
+
+    return data;
+  } catch (error: any) {
+    throw error;
   }
+}
 
   // Product APIs
   async getProducts(filters?: ProductFilters): Promise<PaginatedResponse<Product>> {
@@ -223,6 +231,19 @@ class ApiService {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
+    });
+  }
+
+  async updateAvatar(
+    token: string,
+    avatar: string
+  ): Promise<ApiResponse<{ avatar: string }>> {
+    return this.request<ApiResponse<{ avatar: string }>>('/auth/avatar', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ avatar }),
     });
   }
 

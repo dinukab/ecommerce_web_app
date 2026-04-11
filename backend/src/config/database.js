@@ -33,7 +33,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(mongoURI, connectOptions);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`✅ Database: ${conn.connection.name}`);
-  } catch (error: any) {
+  } catch (error) {
     if (error.message.includes('querySrv ECONNREFUSED')) {
       console.error('❌ MongoDB SRV DNS query failed. Retrying with public DNS servers...');
       dns.setServers(['8.8.8.8', '1.1.1.1']);
@@ -42,7 +42,7 @@ const connectDB = async () => {
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
         console.log(`✅ Database: ${conn.connection.name}`);
         return;
-      } catch (retryError: any) {
+      } catch (retryError) {
         console.error('❌ Retry failed:', retryError.message);
       }
     }

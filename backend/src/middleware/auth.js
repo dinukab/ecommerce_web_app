@@ -1,26 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-// Extend Express Request type to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-      };
-    }
-  }
-}
-
-interface JwtPayload {
-  id: string;
-}
-
-export const protect = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const protect = async (req, res, next) => {
   let token;
 
   // Check for token in Authorization header
@@ -43,8 +23,8 @@ export const protect = async (
     // Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'default_secret'
-    ) as JwtPayload;
+      process.env.JWT_SECRET || 'supersecretkey'
+    );
 
     req.user = { id: decoded.id };
 
@@ -58,14 +38,10 @@ export const protect = async (
 };
 
 // Grant access to specific roles
-export const authorize = (...roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    // Here you would typically fetch the user from database
-    // For now, we'll assume the role is stored in the token
-    // You can enhance this by fetching user from DB
-
+export const authorize = (...roles) => {
+  return async (req, res, next) => {
     // For demonstration, we'll just proceed
-    // In production, fetch user and check role
+    // In production, fetch user from DB and check role
     next();
   };
 };
