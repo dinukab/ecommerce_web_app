@@ -5,6 +5,9 @@ import connectDB from "./config/database.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
+import faqRoutes from "./routes/faqRoutes.js";
+import shippingInfoRoutes from "./routes/shipping-info.js";
 
 dotenv.config();
 connectDB();
@@ -17,9 +20,12 @@ app.use(express.json());
 app.use("/api/cart", cartRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/faqs', faqRoutes);
+app.use('/api/shipping-info', shippingInfoRoutes);
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
+});
