@@ -1,7 +1,6 @@
-const Cart = require("../models/Cart");
+import Cart from "../models/Cart.js";
 
-// ADD TO CART
-const addToCart = async (req, res) => {
+export const addToCart = async (req, res) => {
   try {
     const userIdRaw = req.body?.userId ?? req.body?.user;
     const productIdRaw = req.body?.productId ?? req.body?.product;
