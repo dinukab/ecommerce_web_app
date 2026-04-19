@@ -108,4 +108,56 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser };
+const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: user._id,
+        name: user.fullName, // Frontend expects 'name'
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        avatar: user.avatar,
+        addresses: [] // Placeholder
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+const updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar updated successfully',
+      data: { avatar: user.avatar }
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+export { registerUser, loginUser, getMe, updateAvatar };

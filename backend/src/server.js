@@ -8,6 +8,7 @@ import productRoutes from "./routes/productRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
 import shippingInfoRoutes from "./routes/shipping-info.js";
+import returnRoutes from "./routes/returns.js";
 
 dotenv.config();
 connectDB();
@@ -23,6 +24,8 @@ app.use("/api/products", productRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/faqs', faqRoutes);
 app.use('/api/shipping-info', shippingInfoRoutes);
+app.use('/api/returns', returnRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 

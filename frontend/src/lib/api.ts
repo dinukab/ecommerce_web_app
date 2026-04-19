@@ -99,8 +99,10 @@ export interface UserProfile {
   email: string;
   phone?: string;
   role: string;
+  avatar?: string;
   addresses: any[];
 }
+
 
 class ApiService {
   private baseUrl: string;

@@ -74,11 +74,7 @@ export default function Footer() {
                   Shipping Info
                 </Link>
               </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Returns
-                </a>
-              </li>
+              
             </ul>
           </div>
 
