@@ -40,18 +40,18 @@ export default function OrderSummary({
       <div className="space-y-3 text-sm">
         <div className="flex justify-between">
           <span className="text-slate-600">Subtotal</span>
-          <span className="font-semibold text-slate-800">Rs.{subtotal.toLocaleString()}</span>
+          <span className="font-semibold text-slate-800">LKR {subtotal.toLocaleString()}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="text-slate-600">Shipping estimate</span>
-          <span className="font-semibold text-slate-800">Rs.{shipping.toLocaleString()}</span>
+          <span className="font-semibold text-slate-800">LKR {shipping.toLocaleString()}</span>
         </div>
 
         {appliedDiscount > 0 && (
           <div className="flex justify-between text-green-600">
             <span>Discount Applied</span>
-            <span className="font-semibold">-Rs.{appliedDiscount.toLocaleString()}</span>
+            <span className="font-semibold">-LKR {appliedDiscount.toLocaleString()}</span>
           </div>
         )}
 
@@ -86,7 +86,7 @@ export default function OrderSummary({
         {/* Final Total */}
         <div className="flex justify-between items-center">
           <span className="font-bold text-black text-base">Order Total</span>
-          <span className="text-xl font-bold text-[#151194]">Rs.{finalTotal.toLocaleString()}</span>
+          <span className="text-xl font-bold text-[#151194]">LKR {finalTotal.toLocaleString()}</span>
         </div>
       </div>
 

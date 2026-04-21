@@ -2,13 +2,25 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ShoppingCart, User, Search, Menu, X, Heart, ShoppingBag } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { getCartCount } = useCart();
+
   const pathname = usePathname();
   const isCheckoutFlowPage = pathname.startsWith('/cart/checkout');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/category/all?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   if (pathname === '/login' || pathname === '/register') {
     return null;
@@ -30,14 +42,18 @@ export default function Navbar() {
           {/* Search Bar - Desktop */}
           {!isCheckoutFlowPage && (
             <div className="flex md:flex flex-1 max-w-2xl xl:max-w-3xl mx-4 lg:mx-10 xl:mx-16">
-              <div className="relative w-full ">
+              <form onSubmit={handleSearch} className="relative w-full ">
                 <input
                   type="text"
                   placeholder="Search for products, brands and more..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-4 pr-12 py-2.5 border border-gray-300 bg-linear-to-r from-gray-100 to-gray-300  rounded-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none    transition-all"
                 />
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-600 font-bold" />
-              </div>
+                <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 hover:scale-110 transition-transform">
+                  <Search className="w-4.5 h-4.5 text-gray-600 font-bold" />
+                </button>
+              </form>
             </div>
           )}
 
@@ -59,10 +75,12 @@ export default function Navbar() {
                 className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
               >
                 <div className="relative">
-                  <ShoppingCart className="w-5.5 h-5.5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
-                  <span className="absolute -top-1.5 -right-2 bg-[#151194] text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white box-content">
-                    2
-                  </span>
+                  <ShoppingCart className="w-5.5 h-5.5 fill-current text-[#151194] hover:text-[#0c0a5c]" />
+                  {getCartCount() > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-[#151194] text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white box-content">
+                      {getCartCount()}
+                    </span>
+                  )}
                 </div>
                 <span className="font-bold text-sm ml-1">Cart</span>
               </Link>

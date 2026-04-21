@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import ProductCard from '@/components/ProductCard';
-import { ArrowRight, Tag } from 'lucide-react';
+import ProductCard from '@/components/category/ProductCard';
+import { ArrowRight, Tag, Sparkles, Clock } from 'lucide-react';
 import CategoriesDropdown from '@/components/CategoriesDropdown';
+import { fetchProducts, type Product } from '@/api/Productapi';
 import {
   Carousel,
   CarouselContent,
@@ -13,34 +14,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-// TypeScript Interface
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-}
-
-// Dummy Product Data
-const trendingProducts: Product[] = [
-  { id: 1, name: 'product1', price: 200,  category: 'Category_001' },
-  { id: 2, name: 'product2', price: 500,  category: 'Category_002' },
-  { id: 3, name: 'product3', price: 830,  category: 'Category_003' },
-  { id: 4, name: 'product4', price: 150,  category: 'Category_001' },
-  { id: 5, name: 'product5', price: 999,  category: 'Category_004' },
-  { id: 6, name: 'product6', price: 450,  category: 'Category_002' },
-  { id: 7, name: 'product7', price: 310,  category: 'Category_005' },
-  { id: 8, name: 'product8', price: 720,  category: 'Category_003' },
-];
-
-// Category Data
-const categories = [
-  { id: 1, name: 'Category_001' },
-  { id: 2, name: 'Category_002' },
-  { id: 3, name: 'Category_003' },
-  { id: 4, name: 'Category_004' },
-  { id: 5, name: 'Category_005' },
-];
+export const dynamic = 'force-dynamic';
 
 const heroSlides = [
   {
@@ -76,18 +50,35 @@ const heroSlides = [
 ];
 
 export default function HomePage() {
+  const [trending, setTrending] = useState<Product[]>([]);
+  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [notification, setNotification] = useState('');
 
-  const handleAddToCart = (product: Product) => {
-    setCartCount(prev => prev + 1);
-    setNotification(`${product.name} added to cart!`);
-    setTimeout(() => setNotification(''), 2500);
-  };
+  useEffect(() => {
+    const loadAll = async () => {
+      try {
+        setLoading(true);
+        const [trendingRes, newRes] = await Promise.all([
+          fetchProducts({ limit: 8, sort: 'rating' }),
+          fetchProducts({ limit: 8, sort: 'newest' })
+        ]);
+        setTrending(trendingRes.data || []);
+        setNewArrivals(newRes.data || []);
+      } catch (err) {
+        console.error('Error fetching home products:', err);
+        setError('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAll();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* Cart Notification Toast */}
       {notification && (
         <div className="fixed top-20 right-4 z-50 bg-green-900 text-white px-5 py-3 rounded-lg shadow-lg text-xs font-medium ">
@@ -122,7 +113,7 @@ export default function HomePage() {
 
                       <div className="flex flex-wrap gap-4">
                         <Link
-                          href="/products"
+                          href="/category/all"
                           className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#151194] font-bold hover:bg-blue-50 transition-colors"
                         >
                           Shop Now
@@ -150,42 +141,106 @@ export default function HomePage() {
       </section>
 
       {/* Categories Dropdown - Placed near Hero Section */}
-<section className="py-8 bg-gray-50">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <CategoriesDropdown />
-  </div>
-</section>
+      <section className="py-8 bg-gray-50 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
+            <h3 className="text-lg font-bold text-gray-900">Browse by Category</h3>
+            <p className="text-sm text-gray-500">Find exactly what you need</p>
+          </div>
+          <CategoriesDropdown />
+        </div>
+      </section>
 
       {/* ── Trending Now Section ── */}
       <section className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
           {/* Section Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900">Trending Now</h2>
-              <p className="text-gray-500 mt-1">Most popular products this week</p>
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">Trending Now</h2>
+                <p className="text-gray-500 mt-1">Our most popular grocery picks</p>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">
-                Cart: {cartCount} item{cartCount !== 1 ? 's' : ''}
-              </span>
-            </div>
+            <Link href="/category/all" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 group">
+              View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trendingProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {loading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="bg-gray-100 h-80 rounded-2xl animate-pulse"></div>
+              ))
+            ) : trending.length > 0 ? (
+              trending.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-400 py-10">No trending products found.</p>
+            )}
           </div>
         </div>
       </section>
 
+      {/* ── New Arrivals Section ── */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                <Clock className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">New Arrivals</h2>
+                <p className="text-gray-500 mt-1">Fresh items added recently</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {loading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="bg-gray-100 h-80 rounded-2xl animate-pulse"></div>
+              ))
+            ) : newArrivals.length > 0 ? (
+              newArrivals.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-400 py-10">No new arrivals found.</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-linear-to-br from-[#151194] to-indigo-600 rounded-[2.5rem] p-12 text-center text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+            <div className="relative z-10">
+              <h2 className="text-4xl font-bold mb-4">Can't find what you're looking for?</h2>
+              <p className="text-indigo-100 mb-8 max-w-xl mx-auto">
+                Explore our full catalog of 50+ fresh grocery products across all categories.
+              </p>
+              <Link
+                href="/category/all"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#151194] font-bold rounded-2xl hover:bg-blue-50 transition-all hover:scale-105"
+              >
+                Explore Full Catalog
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

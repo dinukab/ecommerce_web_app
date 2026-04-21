@@ -11,9 +11,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('oneshop-cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
+    try {
+      const savedCart = localStorage.getItem('oneshop-cart');
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+    } catch (error) {
+      console.error('Failed to load cart:', error);
     }
     setIsLoaded(true);
   }, []);
@@ -27,11 +31,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCart(prevCart => {
-      const existingItem = prevCart.filter(item => item.id === product.id)[0];
+      const existingItem = prevCart.find(item => item._id === product._id);
       
       if (existingItem) {
         return prevCart.map(item =>
-          item.id === product.id
+          item._id === product._id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
@@ -41,11 +45,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeFromCart = (productId: number) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== productId));
+  const removeFromCart = (productId: string) => {
+    setCart(prevCart => prevCart.filter(item => item._id !== productId));
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
@@ -53,7 +57,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
     setCart(prevCart =>
       prevCart.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+        item._id === productId ? { ...item, quantity } : item
       )
     );
   };
@@ -63,7 +67,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cart.reduce((total, item) => total + item.sellingPrice * item.quantity, 0);
   };
 
   const getCartCount = () => {

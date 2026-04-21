@@ -1,14 +1,18 @@
 export interface Product {
-  id: number;
+  _id: string;
   name: string;
-  price: number;
-  image: string;
+  sellingPrice: number;
+  costPrice?: number;
+  images: string[];
   category: string;
   description: string;
   rating: number;
-  reviews: number;
+  numReviews: number;
   stock: number;
-  images: string[];
+  lowStockThreshold?: number;
+  status?: 'in-stock' | 'out-of-stock' | 'low-stock';
+  badge?: string;
+  brand?: string;
 }
 
 export interface CartItem extends Product {
@@ -35,8 +39,8 @@ export interface ShippingInfo {
 export interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;

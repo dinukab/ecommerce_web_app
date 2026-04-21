@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import User from '../models/Customer.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'supersecretkey', {
@@ -11,9 +11,9 @@ const generateToken = (id) => {
 const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const fullName = req.body.fullName || req.body.name;
+    const name = req.body.name || req.body.fullName;
 
-    if (!fullName || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({ 
         success: false,
         message: 'All fields are required.' 
@@ -30,7 +30,7 @@ const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ 
-      fullName, 
+      name, 
       email, 
       password: hashedPassword 
     });
@@ -41,7 +41,7 @@ const registerUser = async (req, res) => {
       data: {
         user: {
           id: user._id,
-          fullName: user.fullName,
+          name: user.name,
           email: user.email,
           role: 'user'
         },
@@ -91,7 +91,7 @@ const loginUser = async (req, res) => {
       data: {
         user: {
           id: user._id,
-          fullName: user.fullName,
+          name: user.name,
           email: user.email,
           role: 'user'
         },
@@ -122,7 +122,7 @@ const getMe = async (req, res) => {
       success: true,
       data: {
         id: user._id,
-        name: user.fullName, // Frontend expects 'name'
+        name: user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,

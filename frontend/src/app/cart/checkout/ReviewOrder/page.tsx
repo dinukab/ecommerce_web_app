@@ -248,7 +248,7 @@ export default function ReviewOrderPage() {
                     <div className="flex-1 text-sm">
                       <p className="font-semibold text-gray-800">{item.name}</p>
                       <p className="text-gray-600">Qty {item.quantity}</p>
-                      <p className="font-semibold text-gray-800">Rs.{item.total.toLocaleString()}</p>
+                      <p className="font-semibold text-gray-800">LKR {item.total.toLocaleString()}</p>
                     </div>
                   </div>
                 ))}
@@ -258,24 +258,24 @@ export default function ReviewOrderPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold text-gray-900">Rs.{orderTotals.subtotal.toLocaleString()}</span>
+                  <span className="font-semibold text-gray-900">LKR {orderTotals.subtotal.toLocaleString()}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="font-semibold text-gray-900">Rs.{orderTotals.shipping.toLocaleString()}</span>
+                  <span className="font-semibold text-gray-900">LKR {orderTotals.shipping.toLocaleString()}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Taxes</span>
-                  <span className="font-semibold text-gray-900">Rs.0</span>
+                  <span className="font-semibold text-gray-900">LKR 0</span>
                 </div>
 
                 <div className="border-t border-gray-200 pt-3 mt-3"></div>
 
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-base text-black">Total</span>
-                  <span className="text-xl font-bold text-blue-900">Rs.{orderTotals.orderTotal.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-blue-900">LKR {orderTotals.orderTotal.toLocaleString()}</span>
                 </div>
               </div>
 

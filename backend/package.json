@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "dev": "nodemon src/server.js",
     "build": "tsc",
-    "seed": "node src/seed.js"
+    "seed": "node src/seed.js",
+    "seedProducts": "node src/seedProducts.js"
   },
   "keywords": [
     "ecommerce",

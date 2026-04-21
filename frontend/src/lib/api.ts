@@ -20,7 +20,9 @@ export interface Product {
   _id: string;
   name: string;
   description: string;
-  price: number;
+  price?: number;
+  sellingPrice: number;
+  costPrice?: number;
   originalPrice?: number;
   category: {
     _id: string;

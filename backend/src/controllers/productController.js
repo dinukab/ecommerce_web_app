@@ -1,216 +1,90 @@
 import Product from '../models/Product.js';
-import Review from '../models/Review.js';
 import Category from '../models/Category.js';
 
-// @desc    Get all products with filtering, sorting, and pagination
-// @route   GET /api/products
-// @access  Public
+const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+// GET /api/products?category=slug&page=1&limit=20&sort=name&search=
 export const getProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const skip = (page - 1) * limit;
+    const {
+      category,
+      page = 1,
+      limit = 20,
+      sort = 'name',
+      search = '',
+      storeId = 'STORE-2025-001',
+    } = req.query;
 
-    // Build filter object
-    const filter = {};
+    const filter = { storeId };
 
-    // Category filter
-    if (req.query.category) {
-      const category = await Category.findOne({ slug: req.query.category });
-      if (category) {
-        filter.category = category._id;
+    if (category) {
+      // Try finding by slug field first, then fall back to name-derived slug
+      let categoryDoc = await Category.findOne({ slug: category, storeId }).lean();
+      if (!categoryDoc) {
+        const all = await Category.find({ storeId }).lean();
+        categoryDoc = all.find((c) => toSlug(c.name) === category) || null;
+      }
+
+      if (categoryDoc) {
+        filter.category = { $regex: new RegExp(`^${categoryDoc.name}$`, 'i') };
+      } else {
+        return res.json({
+          success: true,
+          data: [],
+          pagination: { total: 0, page: Number(page), limit: Number(limit), totalPages: 0 },
+        });
       }
     }
 
-    // Price range filter
-    if (req.query.minPrice || req.query.maxPrice) {
-      filter.price = {};
-      if (req.query.minPrice) {
-        filter.price.$gte = parseFloat(req.query.minPrice);
-      }
-      if (req.query.maxPrice) {
-        filter.price.$lte = parseFloat(req.query.maxPrice);
-      }
-    }
-
-    // Rating filter
-    if (req.query.minRating) {
-      filter.rating = { $gte: parseFloat(req.query.minRating) };
-    }
-
-    // Search filter
-    if (req.query.search) {
+    if (search) {
       filter.$or = [
-        { name: { $regex: req.query.search, $options: 'i' } },
-        { description: { $regex: req.query.search, $options: 'i' } },
+        { name: { $regex: new RegExp(search, 'i') } },
+        { category: { $regex: new RegExp(search, 'i') } },
+        { brand: { $regex: new RegExp(search, 'i') } },
       ];
     }
 
-    // Badge filter
-    if (req.query.badge) {
-      filter.badge = req.query.badge;
-    }
+    const sortMap = {
+      name: { name: 1 },
+      'price-asc': { sellingPrice: 1 },
+      'price-desc': { sellingPrice: -1 },
+      newest: { createdAt: -1 },
+      rating: { rating: -1 },
+    };
+    const sortQuery = sortMap[sort] || { name: 1 };
 
-    // Sort
-    let sort = { createdAt: -1 }; // Default: newest first
-    if (req.query.sort === 'price-low') {
-      sort = { price: 1 };
-    } else if (req.query.sort === 'price-high') {
-      sort = { price: -1 };
-    } else if (req.query.sort === 'rating') {
-      sort = { rating: -1 };
-    } else if (req.query.sort === 'featured') {
-      sort = { featured: -1, createdAt: -1 };
-    }
-
-    // Execute query
-    const products = await Product.find(filter)
-      .populate('category', 'name slug')
-      .sort(sort)
-      .limit(limit)
-      .skip(skip);
-
-    // Get total count for pagination
+    const skip = (Number(page) - 1) * Number(limit);
     const total = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(Number(limit));
 
-    res.status(200).json({
+    res.json({
       success: true,
-      count: products.length,
-      total,
-      page,
-      pages: Math.ceil(total / limit),
       data: products,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching products',
-      error: error.message,
-    });
-  }
-};
-
-// @desc    Get single product by ID
-// @route   GET /api/products/:id
-// @access  Public
-export const getProductById = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id).populate('category', 'name slug');
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found',
-      });
-    }
-
-    // Get reviews for this product
-    const reviews = await Review.find({ product: product._id }).sort({ createdAt: -1 });
-
-    res.status(200).json({
-      success: true,
-      data: {
-        product,
-        reviews,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
       },
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching product',
-      error: error.message,
-    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// @desc    Get featured products
-// @route   GET /api/products/featured
-// @access  Public
-export const getFeaturedProducts = async (req, res) => {
+// GET /api/products/:id
+export const getProductById = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 8;
-
-    const products = await Product.find({ featured: true })
-      .populate('category', 'name slug')
-      .sort({ createdAt: -1 })
-      .limit(limit);
-
-    res.status(200).json({
-      success: true,
-      count: products.length,
-      data: products,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching featured products',
-      error: error.message,
-    });
-  }
-};
-
-// @desc    Get product reviews
-// @route   GET /api/products/:id/reviews
-// @access  Public
-export const getProductReviews = async (req, res) => {
-  try {
-    const reviews = await Review.find({ product: req.params.id }).sort({ createdAt: -1 });
-
-    res.status(200).json({
-      success: true,
-      count: reviews.length,
-      data: reviews,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching reviews',
-      error: error.message,
-    });
-  }
-};
-
-// @desc    Create a product review
-// @route   POST /api/products/:id/reviews
-// @access  Public (should be protected in production)
-export const createProductReview = async (req, res) => {
-  try {
-    const { rating, title, text, user } = req.body;
-
     const product = await Product.findById(req.params.id);
-
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found',
-      });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
-
-    const review = await Review.create({
-      product: req.params.id,
-      user,
-      rating,
-      title,
-      text,
-    });
-
-    // Update product rating and review count
-    const reviews = await Review.find({ product: req.params.id });
-    const avgRating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
-
-    product.rating = avgRating;
-    product.numReviews = reviews.length;
-    await product.save();
-
-    res.status(201).json({
-      success: true,
-      data: review,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error creating review',
-      error: error.message,
-    });
+    res.json({ success: true, data: product });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
+
