@@ -11,7 +11,23 @@ const customerSchema = new mongoose.Schema(
     phone:    { type: String, trim: true },
     password: { type: String, select: false },  // hashed, for website login
     avatar:   { type: String, default: '' },
-    address:  { type: String, trim: true, default: '' },
+    addresses: [
+      {
+        type: { type: String, enum: ['Home', 'Office', 'Other'], default: 'Home' },
+        name: { type: String, required: true },
+        address: { type: String, required: true },
+        phone: { type: String, required: true },
+        isDefault: { type: Boolean, default: false }
+      }
+    ],
+    paymentMethods: [
+      {
+        type: { type: String, required: true }, // e.g. Visa, Mastercard
+        last4: { type: String, required: true },
+        expiry: { type: String, required: true },
+        isDefault: { type: Boolean, default: false }
+      }
+    ],
 
     // Updated automatically when orders are placed
     totalOrders: { type: Number, default: 0, min: 0 },

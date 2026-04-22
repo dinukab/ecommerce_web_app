@@ -1,8 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Heart, Star } from 'lucide-react';
+import { api } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   id: string;
@@ -13,6 +15,8 @@ interface ProductCardProps {
   reviews: number;
   badge?: string;
   image?: string;
+  initialWishlisted?: boolean;
+  onWishlistRemove?: (id: string) => void;
 }
 
 export default function ProductCard({
@@ -24,10 +28,37 @@ export default function ProductCard({
   reviews,
   badge,
   image,
+  initialWishlisted = false,
+  onWishlistRemove,
 }: ProductCardProps) {
   const discount = originalPrice
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : 0;
+
+  const router = useRouter();
+  const [isWishlisted, setIsWishlisted] = useState(initialWishlisted);
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      alert('Please login to add to wishlist');
+      router.push('/login');
+      return;
+    }
+    try {
+      if (isWishlisted) {
+        await api.removeFromWishlist(token, id);
+        setIsWishlisted(false);
+        if (onWishlistRemove) onWishlistRemove(id);
+      } else {
+        await api.addToWishlist(token, id);
+        setIsWishlisted(true);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Format price in LKR
   const formatPrice = (amount: number) => {
@@ -57,13 +88,16 @@ export default function ProductCard({
 
           {/* Wishlist Icon */}
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              // Add wishlist functionality
-            }}
-            className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:bg-red-50 transition-colors"
+            onClick={handleWishlist}
+            className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:bg-red-50 transition-colors z-10 group/heart"
           >
-            <Heart className="h-5 w-5 text-gray-600 hover:text-red-500" />
+            <Heart 
+              className={`h-5 w-5 transition-colors ${
+                isWishlisted 
+                  ? 'text-red-500 fill-red-500' 
+                  : 'text-gray-600 group-hover/heart:text-red-500 group-hover/heart:fill-red-500'
+              }`} 
+            />
           </button>
 
           {/* Badge */}

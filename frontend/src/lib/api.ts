@@ -96,13 +96,20 @@ export interface AuthResponse {
 }
 
 export interface UserProfile {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
   email: string;
   phone?: string;
-  role: string;
+  role?: string;
   avatar?: string;
   addresses: any[];
+  paymentMethods?: any[];
+  totalOrders?: number;
+  totalSpent?: number;
+  lastPurchase?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 
@@ -248,6 +255,88 @@ class ApiService {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ avatar }),
+    });
+  }
+
+  async getOrders(token: string): Promise<any> {
+    return this.request<any>('/orders/myorders', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async createOrder(token: string, orderData: any): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/orders', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(orderData),
+    });
+  }
+
+  async addAddress(token: string, addressData: any): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/auth/address', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(addressData),
+    });
+  }
+
+  async removeAddress(token: string, addressId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/auth/address/${addressId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  async updateAddress(token: string, addressId: string, addressData: any): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/auth/address/${addressId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(addressData),
+    });
+  }
+
+  async addPaymentMethod(token: string, paymentData: any): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/auth/payment-method', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(paymentData),
+    });
+  }
+
+  async removePaymentMethod(token: string, paymentId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/auth/payment-method/${paymentId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  // Wishlist APIs
+  async getWishlist(token: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/wishlist', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async addToWishlist(token: string, productId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/wishlist', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ productId }),
+    });
+  }
+
+  async removeFromWishlist(token: string, productId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/wishlist/${productId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
   }
 

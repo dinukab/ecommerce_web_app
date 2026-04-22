@@ -16,12 +16,14 @@ import {
 } from 'lucide-react';
 import { fetchProductById, type Product } from '@/api/Productapi';
 import { fetchProductReviews, submitReview, type Review } from '@/api/Reviewapi';
+import { api } from '@/lib/api';
 import { useCart } from '@/context/CartContext';
 
 const PLACEHOLDER = 'https://placehold.co/600x600/f8fafc/6366f1?text=No+Image';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const { addToCart } = useCart();
   
   const [product, setProduct] = useState<Product | null>(null);
@@ -30,6 +32,7 @@ export default function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [isWishlisted, setIsWishlisted] = useState(false);
   
   // Review Form State
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -46,6 +49,20 @@ export default function ProductDetailPage() {
       ]);
       setProduct(prodData);
       setReviews(reviewData);
+
+      // Check if item is wishlisted
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const wishlistRes = await api.getWishlist(token);
+          if (wishlistRes.success && wishlistRes.data?.products) {
+            const isWl = wishlistRes.data.products.some((p: any) => p._id === id);
+            setIsWishlisted(isWl);
+          }
+        } catch (e) {
+          console.error('Error fetching wishlist', e);
+        }
+      }
     } catch (err) {
       setError('Product not found');
     } finally {
@@ -70,6 +87,27 @@ export default function ProductDetailPage() {
       alert('Failed to submit review');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleWishlist = async () => {
+    if (!product) return;
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      alert('Please login to add to wishlist');
+      router.push('/login');
+      return;
+    }
+    try {
+      if (isWishlisted) {
+        await api.removeFromWishlist(token, product._id);
+        setIsWishlisted(false);
+      } else {
+        await api.addToWishlist(token, product._id);
+        setIsWishlisted(true);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -109,8 +147,18 @@ export default function ProductDetailPage() {
                   {product.badge}
                 </span>
               )}
-              <button className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
-                <Heart size={20} />
+              <button 
+                onClick={handleWishlist}
+                className="absolute top-4 right-4 text-gray-300 transition-colors z-10 group/heart"
+              >
+                <Heart 
+                  size={24} 
+                  className={`transition-colors ${
+                    isWishlisted 
+                      ? 'text-red-500 fill-red-500' 
+                      : 'group-hover/heart:text-red-500 group-hover/heart:fill-red-500'
+                  }`} 
+                />
               </button>
             </div>
             

@@ -22,6 +22,7 @@ const orderSchema = new mongoose.Schema(
     customerName:  { type: String, required: true, trim: true },
     customerEmail: { type: String, trim: true },
     customerPhone: { type: String, trim: true },
+    customerId:    { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
 
     items:    { type: [orderItemSchema], required: true },
     subtotal: { type: Number, required: true, min: 0 },

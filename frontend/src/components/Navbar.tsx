@@ -1,25 +1,70 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ShoppingCart, User, Search, Menu, X, Heart, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { api } from '@/lib/api';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const { getCartCount } = useCart();
 
   const pathname = usePathname();
   const isCheckoutFlowPage = pathname.startsWith('/cart/checkout');
 
+  // Fetch suggestions as user types
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.trim().length === 0) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+
+      try {
+        setIsLoadingSuggestions(true);
+        const response = await api.getProducts({ 
+          search: searchQuery.trim(),
+          limit: 8 
+        });
+        
+        if (response.data && Array.isArray(response.data)) {
+          setSuggestions(response.data.slice(0, 8));
+          setShowSuggestions(true);
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/category/all?search=${encodeURIComponent(searchQuery.trim())}`);
+      setShowSuggestions(false);
+      setSearchQuery('');
     }
+  };
+
+  const handleSuggestionClick = (productId: string, productName: string) => {
+    router.push(`/product/${productId}`);
+    setShowSuggestions(false);
+    setSearchQuery('');
+    setSuggestions([]);
   };
 
   if (pathname === '/login' || pathname === '/register') {
@@ -42,17 +87,61 @@ export default function Navbar() {
           {/* Search Bar - Desktop */}
           {!isCheckoutFlowPage && (
             <div className="flex md:flex flex-1 max-w-2xl xl:max-w-3xl mx-4 lg:mx-10 xl:mx-16">
-              <form onSubmit={handleSearch} className="relative w-full ">
+              <form onSubmit={handleSearch} className="relative w-full">
                 <input
                   type="text"
                   placeholder="Search for products, brands and more..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-4 pr-12 py-2.5 border border-gray-300 bg-linear-to-r from-gray-100 to-gray-300  rounded-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none    transition-all"
+                  onFocus={() => searchQuery.trim().length > 0 && setShowSuggestions(true)}
+                  className="w-full pl-4 pr-12 py-2.5 border border-gray-300 bg-linear-to-r from-gray-100 to-gray-300 rounded-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none transition-all"
                 />
                 <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 hover:scale-110 transition-transform">
                   <Search className="w-4.5 h-4.5 text-gray-600 font-bold" />
                 </button>
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && searchQuery.trim().length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                    {isLoadingSuggestions ? (
+                      <div className="p-4 text-center text-gray-500 text-sm">
+                        <div className="inline-block">
+                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                        <p className="mt-2">Searching...</p>
+                      </div>
+                    ) : suggestions.length > 0 ? (
+                      <div className="divide-y divide-gray-100">
+                        {suggestions.map((product) => (
+                          <button
+                            key={product._id}
+                            onClick={() => handleSuggestionClick(product._id, product.name)}
+                            className="w-full px-4 py-3 hover:bg-blue-50 transition-colors text-left flex items-center gap-3"
+                          >
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                              <img
+                                src={product.images?.[0] || 'https://placehold.co/48x48/e8eaff/6366f1?text=Product'}
+                                alt={product.name}
+                                className="w-full h-full object-contain p-1"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
+                              <p className="text-blue-600 font-semibold text-sm">
+                                LKR {product.sellingPrice?.toLocaleString() || product.price?.toLocaleString()}
+                              </p>
+                            </div>
+                            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 text-center text-gray-500 text-sm">
+                        No products found for "{searchQuery}"
+                      </div>
+                    )}
+                  </div>
+                )}
               </form>
             </div>
           )}

@@ -1,7 +1,10 @@
-const express = require("express");
+import express from 'express';
+import { createOrder, getOrderHistory } from '../controllers/orderController.js';
+import { protect } from '../middleware/auth.js';
+
 const router = express.Router();
-const orderController = require("../controllers/orderController");
 
-router.get("/:userId", orderController.getOrderHistory);
+router.post('/', protect, createOrder);
+router.get('/myorders', protect, getOrderHistory);
 
-module.exports = router;
+export default router;

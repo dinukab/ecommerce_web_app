@@ -10,6 +10,8 @@ import faqRoutes from "./routes/faqRoutes.js";
 import shippingInfoRoutes from "./routes/shipping-info.js";
 import categoryRoutes from "./routes/Categoryroutes.js";
 import reviewRoutes from "./routes/ReviewRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 // import returnRoutes from "./routes/returns.js";
 
 dotenv.config();
@@ -31,6 +33,8 @@ app.use('/api/faqs', faqRoutes);
 app.use('/api/shipping-info', shippingInfoRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/orders', orderRoutes);
 // app.use('/api/returns', returnRoutes);
 
 

@@ -162,46 +162,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="relative mt-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-400">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            <button type="button" className="relative w-full flex items-center justify-center px-4 py-3 border border-[#d1d5db] rounded-xl hover:bg-[#f9fafb] transition-colors">
-              <div className="absolute left-4">
-                <svg width="22" height="22" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-２．0９V７．０７H２．１８C１．４３ ８．５５ １ １０．２２ １ １２s．４３ ３．４５ １．１８ ４．９３l２．８５-２．２２．８１-.６２z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-              </div>
-              <span className="text-gray-900 font-bold text-base">google</span>
-            </button>
-
-            <button type="button" className="relative w-full flex items-center justify-center px-4 py-3 border border-[#d1d5db] rounded-xl hover:bg-[#f9fafb] transition-colors">
-              <div className="absolute left-4">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="#1877F2">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-              </div>
-              <span className="text-gray-900 font-bold text-base">facebook</span>
-            </button>
-
-            <button type="button" className="relative w-full flex items-center justify-center px-4 py-3 border border-[#d1d5db] rounded-xl hover:bg-[#f9fafb] transition-colors">
-              <div className="absolute left-4">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="black">
-                  <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.62-1.496 3.603-2.998 1.156-1.666 1.635-3.282 1.661-3.366-.035-.015-3.149-1.206-3.184-4.815-.027-3.02 2.457-4.475 2.571-4.545-1.41-2.062-3.606-2.34-4.385-2.378-2-.132-4.004 1.04-4.55 1.04zm-.556-1.503c.833-1.01 1.393-2.41 1.24-3.811-1.192.048-2.658.795-3.518 1.803-.767.88-1.442 2.308-1.266 3.687 1.332.104 2.711-.669 3.544-1.679z"/>
-                </svg>
-              </div>
-              <span className="text-gray-900 font-bold text-base">apple</span>
-            </button>
-          </div>
 
           <div className="mt-8 text-center text-sm">
             <p className="text-gray-500">

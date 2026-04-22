@@ -2,10 +2,35 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchCategories } from '@/api/Categoryapi';
+
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  productCount?: number;
+}
 
 export default function Footer() {
   const pathname = usePathname();
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data.slice(0, 5)); // Show top 5 categories
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   if (pathname === '/login' || pathname === '/register') {
     return null;
@@ -37,21 +62,16 @@ export default function Footer() {
                   All Products
                 </Link>
               </li>
-              <li>
-                <Link href="/" className="hover:text-white transition-colors">
-                  Electronics
-                </Link>
-              </li>
-              <li>
-                <Link href="/" className="hover:text-white transition-colors">
-                  Accessories
-                </Link>
-              </li>
-              <li>
-                <Link href="/" className="hover:text-white transition-colors">
-                  Home & Living
-                </Link>
-              </li>
+              {categories.map((category) => (
+                <li key={category._id}>
+                  <Link 
+                    href={`/category/${category.slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -74,7 +94,6 @@ export default function Footer() {
                   Shipping Info
                 </Link>
               </li>
-              
             </ul>
           </div>
 
@@ -98,9 +117,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Order History
-                </a>
+                <Link href="/profile" className="hover:text-white transition-colors">
+                  My Profile
+                </Link>
+              </li>
+              <li>
+                <Link href="/wishlist" className="hover:text-white transition-colors">
+                  My Wishlist
+                </Link>
               </li>
             </ul>
           </div>
