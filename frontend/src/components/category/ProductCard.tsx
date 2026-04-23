@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { type Product, type ProductStatus } from '../../api/Productapi';
+import { useCart } from '@/context/CartContext';
+import { Plus, Check } from 'lucide-react';
 
 const PLACEHOLDER = 'https://placehold.co/400x400/e8eaff/6366f1?text=No+Image';
 
@@ -29,6 +31,8 @@ interface Props {
 export default function ProductCard({ product }: Props) {
   const [imgSrc, setImgSrc] = useState<string>(product.images?.[0] || PLACEHOLDER);
   const [wishlisted, setWishlisted] = useState<boolean>(false);
+  const [added, setAdded] = useState<boolean>(false);
+  const { addToCart } = useCart();
 
   const status: ProductStatus =
     product.status ??
@@ -42,6 +46,15 @@ export default function ProductCard({ product }: Props) {
     product.costPrice > 0
       ? Math.round(((product.costPrice - product.sellingPrice) / product.costPrice) * 100)
       : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (status === 'out-of-stock') return;
+    
+    addToCart(product as any); // Type assertion if needed
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   return (
     <Link
@@ -96,6 +109,29 @@ export default function ProductCard({ product }: Props) {
 
       {/* Info */}
       <div className="p-4 flex flex-col gap-1 flex-1">
+        {/* Quick Add Button */}
+        <button
+          onClick={handleAddToCart}
+          disabled={status === 'out-of-stock'}
+          className={`mb-3 w-full py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 ${
+            added 
+              ? 'bg-emerald-500 text-white' 
+              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200'
+          } ${status === 'out-of-stock' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+        >
+          {added ? (
+            <>
+              <Check className="w-4 h-4" />
+              <span>Added</span>
+            </>
+          ) : (
+            <>
+              <Plus className="w-4 h-4" />
+              <span>Add</span>
+            </>
+          )}
+        </button>
+
         <p className="text-xs text-indigo-500 font-medium uppercase tracking-wide">
           {product.brand || 'OneShop'}
         </p>

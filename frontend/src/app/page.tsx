@@ -228,7 +228,7 @@ export default function HomePage() {
             <div className="relative z-10">
               <h2 className="text-4xl font-bold mb-4">Can't find what you're looking for?</h2>
               <p className="text-indigo-100 mb-8 max-w-xl mx-auto">
-                Explore our full catalog of 50+ fresh grocery products across all categories.
+                Explore our full catalog of over 250+ fresh grocery products across all categories.
               </p>
               <Link
                 href="/category/all"

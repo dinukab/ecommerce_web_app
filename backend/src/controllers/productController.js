@@ -12,16 +12,15 @@ export const getProducts = async (req, res) => {
       limit = 20,
       sort = 'name',
       search = '',
-      storeId = 'STORE-2025-001',
     } = req.query;
 
-    const filter = { storeId };
+    const filter = {};
 
     if (category) {
       // Try finding by slug field first, then fall back to name-derived slug
-      let categoryDoc = await Category.findOne({ slug: category, storeId }).lean();
+      let categoryDoc = await Category.findOne({ slug: category }).lean();
       if (!categoryDoc) {
-        const all = await Category.find({ storeId }).lean();
+        const all = await Category.find().lean();
         categoryDoc = all.find((c) => toSlug(c.name) === category) || null;
       }
 

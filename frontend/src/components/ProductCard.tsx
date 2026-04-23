@@ -1,10 +1,9 @@
-'use client';
-
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Heart, Star } from 'lucide-react';
+import { Heart, Star, Plus, Check } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   id: string;
@@ -37,6 +36,8 @@ export default function ProductCard({
 
   const router = useRouter();
   const [isWishlisted, setIsWishlisted] = useState(initialWishlisted);
+  const [added, setAdded] = useState(false);
+  const { addToCart } = useCart();
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -60,6 +61,24 @@ export default function ProductCard({
     }
   };
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart({
+      _id: id,
+      name,
+      sellingPrice: price,
+      costPrice: originalPrice || price,
+      images: image ? [image] : [],
+      rating,
+      numReviews: reviews,
+      stock: 99, // Fallback
+      category: 'General', // Fallback
+      description: name, // Fallback
+    } as any);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
+
   // Format price in LKR
   const formatPrice = (amount: number) => {
     if (amount === undefined || amount === null) return 'LKR 0.00';
@@ -71,7 +90,7 @@ export default function ProductCard({
 
   return (
     <Link href={`/product/${id}`}>
-      <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer">
+      <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group cursor-pointer h-full flex flex-col">
         {/* Image Container */}
         <div className="relative aspect-square bg-gray-100">
           {image ? (
@@ -128,7 +147,29 @@ export default function ProductCard({
         </div>
 
         {/* Product Info */}
-        <div className="p-4">
+        <div className="p-4 flex flex-col flex-1">
+          {/* Quick Add Button */}
+          <button
+            onClick={handleAddToCart}
+            className={`mb-3 w-full py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-all active:scale-95 ${
+              added 
+                ? 'bg-emerald-500 text-white' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+            }`}
+          >
+            {added ? (
+              <>
+                <Check className="h-4 w-4" />
+                <span className="text-sm">Added</span>
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                <span className="text-sm">Add</span>
+              </>
+            )}
+          </button>
+
           <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
             {name}
           </h3>
@@ -151,7 +192,7 @@ export default function ProductCard({
           </div>
 
           {/* Price */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 mt-auto">
             <span className="text-xl font-bold text-gray-900">
               {formatPrice(price)}
             </span>
