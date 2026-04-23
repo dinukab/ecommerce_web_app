@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingCart, User, Search, Menu, X, Heart, ShoppingBag } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, Heart, ShoppingBag, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
 
@@ -174,6 +174,22 @@ export default function Navbar() {
                 <span className="font-bold text-sm ml-1">Cart</span>
               </Link>
             )}
+
+            <Link
+              href="/orders"
+              className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
+            >
+              <ShoppingBag className="w-5 h-5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
+              <span className="font-bold text-sm">Orders</span>
+            </Link>
+
+            <Link
+              href="/track"
+              className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
+            >
+              <Truck className="w-5 h-5 text-[#3b3b3b] hover:text-[#151194]" />
+              <span className="font-bold text-sm">Track</span>
+            </Link>
 
             <Link
               href="/profile"

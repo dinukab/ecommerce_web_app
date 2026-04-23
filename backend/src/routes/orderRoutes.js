@@ -1,10 +1,19 @@
 import express from 'express';
-import { createOrder, getOrderHistory } from '../controllers/orderController.js';
-import { protect } from '../middleware/auth.js';
+import {
+  createOrder,
+  getMyOrders,
+  getOrderById,
+  updateOrderStatus,
+  trackOrder
+} from '../controllers/orderController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.post('/', protect, createOrder);
-router.get('/myorders', protect, getOrderHistory);
+router.get('/my-orders', protect, getMyOrders);
+router.get('/track/:trackingNumber', trackOrder); // Public
+router.get('/:id', protect, getOrderById);
+router.put('/:id/status', protect, admin, updateOrderStatus);
 
 export default router;

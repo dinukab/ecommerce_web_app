@@ -12,6 +12,7 @@ import categoryRoutes from "./routes/Categoryroutes.js";
 import reviewRoutes from "./routes/ReviewRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import deliveryRoutes from "./routes/deliveryRoutes.js";
 // import returnRoutes from "./routes/returns.js";
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/delivery', deliveryRoutes);
 // app.use('/api/returns', returnRoutes);
 
 

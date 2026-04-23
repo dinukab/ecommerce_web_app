@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
+import User from '../models/Customer.js';
 
 export const protect = async (req, res, next) => {
   let token;
 
-  // Check for token in Authorization header
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -11,7 +11,6 @@ export const protect = async (req, res, next) => {
     token = req.headers.authorization.split(' ')[1];
   }
 
-  // Make sure token exists
   if (!token) {
     return res.status(401).json({
       success: false,
@@ -20,14 +19,20 @@ export const protect = async (req, res, next) => {
   }
 
   try {
-    // Verify token
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || 'supersecretkey'
     );
 
-    req.user = { id: decoded.id };
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'The user belonging to this token no longer exists',
+      });
+    }
 
+    req.user = user;
     next();
   } catch (error) {
     return res.status(401).json({
@@ -37,11 +42,26 @@ export const protect = async (req, res, next) => {
   }
 };
 
+export const admin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'Not authorized as an admin',
+    });
+  }
+};
+
 // Grant access to specific roles
 export const authorize = (...roles) => {
-  return async (req, res, next) => {
-    // For demonstration, we'll just proceed
-    // In production, fetch user from DB and check role
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `User role ${req.user.role} is not authorized to access this route`,
+      });
+    }
     next();
   };
 };

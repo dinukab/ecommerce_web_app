@@ -34,6 +34,7 @@ const customerSchema = new mongoose.Schema(
     totalSpent:  { type: Number, default: 0, min: 0 },
     lastPurchase:{ type: Date },
 
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
     storeId: { type: String, required: true, default: 'STORE-2025-001' },
   },
   { timestamps: true }

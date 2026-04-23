@@ -112,6 +112,64 @@ export interface UserProfile {
   updatedAt?: string;
 }
 
+export interface DeliveryZone {
+  _id: string;
+  name: string;
+  districts: string[];
+  deliveryFee: number;
+  estimatedDays: number;
+  isActive: boolean;
+}
+
+export interface OrderItem {
+  product: string;
+  name: string;
+  quantity: number;
+  price: number;
+  image: string;
+}
+
+export interface Order {
+  _id: string;
+  user: string | any;
+  orderItems: OrderItem[];
+  shippingAddress: {
+    fullName: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    district: string;
+    postalCode: string;
+    phone: string;
+  };
+  deliveryZone?: string;
+  deliveryMethod: 'standard' | 'express' | 'pickup';
+  paymentMethod: 'cash-on-delivery' | 'card' | 'bank-transfer';
+  paymentStatus: 'pending' | 'paid' | 'failed';
+  itemsPrice: number;
+  deliveryFee: number;
+  totalPrice: number;
+  orderStatus: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  trackingNumber: string;
+  estimatedDeliveryDate: string;
+  deliveredAt?: string;
+  cancelledAt?: string;
+  cancelReason?: string;
+  orderNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderTracking {
+  trackingNumber: string;
+  status: string;
+  estimatedDeliveryDate: string;
+  createdAt: string;
+  city: string;
+  district: string;
+  itemsCount: number;
+}
+
 
 class ApiService {
   private baseUrl: string;
@@ -258,19 +316,51 @@ class ApiService {
     });
   }
 
-  async getOrders(token: string): Promise<any> {
-    return this.request<any>('/orders/myorders', {
+  async getOrders(token: string): Promise<ApiResponse<Order[]>> {
+    return this.request<ApiResponse<Order[]>>('/orders/my-orders', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
   }
 
-  async createOrder(token: string, orderData: any): Promise<ApiResponse<any>> {
-    return this.request<ApiResponse<any>>('/orders', {
+  async getMyOrders(token: string): Promise<ApiResponse<Order[]>> {
+    return this.request<ApiResponse<Order[]>>('/orders/my-orders', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async getOrderById(token: string, id: string): Promise<ApiResponse<Order>> {
+    return this.request<ApiResponse<Order>>(`/orders/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async createOrder(token: string, orderData: any): Promise<ApiResponse<Order>> {
+    return this.request<ApiResponse<Order>>('/orders', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(orderData),
+    });
+  }
+
+  async trackOrder(trackingNumber: string): Promise<ApiResponse<OrderTracking>> {
+    return this.request<ApiResponse<OrderTracking>>(`/orders/track/${trackingNumber}`);
+  }
+
+  // Delivery APIs
+  async getDeliveryZones(): Promise<ApiResponse<DeliveryZone[]>> {
+    return this.request<ApiResponse<DeliveryZone[]>>('/delivery/zones');
+  }
+
+  async calculateDeliveryFee(data: { district: string; deliveryMethod: string }): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/delivery/calculate', {
+      method: 'POST',
+      body: JSON.stringify(data),
     });
   }
 
