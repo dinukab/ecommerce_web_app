@@ -13,12 +13,14 @@ interface OrderItem {
 
 interface OrderSummaryProps {
   items: OrderItem[];
-  deliveryFee: number;
+  deliveryFee?: number;
   subtotal: number;
+  isCart?: boolean;
+  onCheckout?: () => void;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ items, deliveryFee, subtotal }) => {
-  const total = subtotal + deliveryFee;
+const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, subtotal, isCart, onCheckout }) => {
+  const total = subtotal + (deliveryFee || 0);
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-fit sticky top-24">
@@ -53,7 +55,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items, deliveryFee, subtota
         <div className="flex justify-between items-center text-sm">
           <span className="text-gray-500">Delivery Fee</span>
           <span className="font-bold text-gray-900">
-            {deliveryFee === 0 ? 'FREE' : `LKR ${deliveryFee.toLocaleString()}`}
+            {deliveryFee === undefined ? (
+              <span className="text-blue-600 text-xs font-medium">Calculated at checkout</span>
+            ) : deliveryFee === 0 ? (
+              'FREE'
+            ) : (
+              `LKR ${deliveryFee.toLocaleString()}`
+            )}
           </span>
         </div>
         <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
@@ -72,6 +80,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items, deliveryFee, subtota
           Prices include all applicable taxes and service charges.
         </p>
       </div>
+
+      {isCart && (
+        <button
+          onClick={onCheckout}
+          className="w-full mt-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 transition-all active:scale-[0.98]"
+        >
+          Proceed to Checkout
+        </button>
+      )}
     </div>
   );
 };

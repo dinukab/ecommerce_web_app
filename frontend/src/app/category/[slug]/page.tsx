@@ -57,9 +57,9 @@ export default function CategoryPage() {
   const [loading, setLoading]               = useState<boolean>(true);
   const [error, setError]                   = useState<string | null>(null);
 
-  const sort   = searchParams.get('sort')   || 'name';
-  const search = searchParams.get('search') || '';
-  const page   = Number(searchParams.get('page') || 1);
+  const sort   = searchParams?.get('sort')   || 'name';
+  const search = searchParams?.get('search') || '';
+  const page   = Number(searchParams?.get('page') || 1);
 
   // Fetch sidebar categories once
   useEffect(() => {
@@ -107,7 +107,7 @@ export default function CategoryPage() {
   const router = useRouter();
 
   const updateParam = (key: string, value: string | number) => {
-    const next = new URLSearchParams(searchParams.toString());
+    const next = new URLSearchParams(searchParams?.toString() || '');
     next.set(key, String(value));
     if (key !== 'page') next.set('page', '1');
     router.push(`?${next.toString()}`);

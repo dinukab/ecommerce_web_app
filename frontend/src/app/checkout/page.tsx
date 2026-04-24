@@ -153,22 +153,22 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <User className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="Enter your full name"
-                      className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Mail className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
                       type="email"
@@ -176,21 +176,21 @@ export default function CheckoutPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Phone Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Phone className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+94 7X XXX XXXX"
-                      className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
                     />
                   </div>
                 </div>
@@ -209,70 +209,80 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Address Line 1</label>
-                  <div className="relative">
-                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
                       name="addressLine1"
                       value={formData.addressLine1}
                       onChange={handleChange}
                       placeholder="Street name, building number..."
-                      className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
                     />
                   </div>
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Address Line 2 (Optional)</label>
-                  <div className="relative">
-                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       name="addressLine2"
                       value={formData.addressLine2}
                       onChange={handleChange}
                       placeholder="Apartment, suite, unit, etc."
-                      className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">District</label>
-                  <div className="relative">
-                    <LocateFixed className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all relative">
+                    <LocateFixed className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <select
                       required
                       name="district"
                       value={formData.district}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm appearance-none"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer"
                     >
                       <option value="">Select District</option>
                       {DISTRICTS.map(d => (
                         <option key={d} value={d}>{d}</option>
                       ))}
                     </select>
+                    {/* Custom Arrow */}
+                    <div className="absolute right-4 pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">City</label>
-                  <input
-                    required
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="Enter City"
-                    className="w-full px-5 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                  />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <input
+                      required
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      placeholder="Enter City"
+                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Postal Code</label>
-                  <input
-                    required
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleChange}
-                    placeholder="E.g. 10000"
-                    className="w-full px-5 py-3.5 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                  />
+                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <input
+                      required
+                      name="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleChange}
+                      placeholder="E.g. 10000"
+                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

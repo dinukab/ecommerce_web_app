@@ -22,8 +22,7 @@ export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, getCartTotal } = useCart();
 
   const subtotal = getCartTotal();
-  const shipping = cart.length > 0 ? 400 : 0;
-  const orderTotal = subtotal + shipping;
+  const orderTotal = subtotal;
 
   // Recommended products can stay hardcoded or we could fetch them later
   const recommendedProducts = [
@@ -141,7 +140,7 @@ export default function CartPage() {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingBag className="w-8 h-8 text-gray-400" />
                 </div>
-                <p className="text-gray-600 font-medium text-base mb-4">You have 3 items in your cart</p>
+                <p className="text-gray-600 font-medium text-base mb-4">Your cart is empty</p>
                 <Link
                   href="/"
                   className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
@@ -168,9 +167,9 @@ export default function CartPage() {
           <div className="sticky top-24">
             <OrderSummary
               subtotal={subtotal}
-              shipping={shipping}
-              orderTotal={orderTotal}
-              cartItems={cart as any}
+              items={cart as any}
+              isCart={true}
+              onCheckout={() => router.push('/checkout')}
             />
           </div>
         </div>

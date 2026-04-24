@@ -101,8 +101,8 @@ export default function ProfilePage() {
       }
 
       const ordersRes = await api.getOrders(token);
-      if (ordersRes) {
-        setOrders(ordersRes);
+      if (ordersRes.success && Array.isArray(ordersRes.data)) {
+        setOrders(ordersRes.data);
       }
 
       const wishlistRes = await api.getWishlist(token);
@@ -466,11 +466,11 @@ export default function ProfilePage() {
   };
 
   const recentOrders = (orders || []).map(o => ({
-    id: o.orderId || o._id,
+    id: o._id,
     date: new Date(o.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-    total: o.total,
-    status: o.status.charAt(0).toUpperCase() + o.status.slice(1),
-    items: o.items?.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) || 0,
+    total: o.totalPrice,
+    status: (o.orderStatus || 'pending').charAt(0).toUpperCase() + (o.orderStatus || 'pending').slice(1),
+    items: o.orderItems?.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) || 0,
   }));
 
   const addresses = (userData?.addresses || []).map((a: any) => ({
