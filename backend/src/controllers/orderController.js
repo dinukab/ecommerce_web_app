@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import DeliveryZone from '../models/DeliveryZone.js';
+import crypto from 'crypto';
 
 // POST /api/orders
 export const createOrder = async (req, res) => {
@@ -99,7 +100,26 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    return res.status(201).json({ success: true, data: createdOrder });
+    // Generate PayHere Hash
+    const merchantId = process.env.PAYHERE_MERCHANT_ID || '1228499';
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || '';
+    
+    let payhereHash = '';
+    if (merchantSecret) {
+      const amountFormatted = parseFloat(createdOrder.totalPrice).toFixed(2);
+      const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
+      const hashData = merchantId + createdOrder._id.toString() + amountFormatted + 'LKR' + hashedSecret;
+      payhereHash = crypto.createHash('md5').update(hashData).digest('hex').toUpperCase();
+    }
+
+    return res.status(201).json({ 
+      success: true, 
+      data: { 
+        ...createdOrder._doc, 
+        payhereHash, 
+        payhereMerchantId: merchantId 
+      } 
+    });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }

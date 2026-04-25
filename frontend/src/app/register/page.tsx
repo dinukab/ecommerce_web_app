@@ -66,7 +66,11 @@ const [success, setSuccess] = useState(false);
         confirmPassword: '',
       });
       
-      setTimeout(() => router.push('/login'), 2500);
+      setTimeout(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        router.push(redirect ? `/login?redirect=${redirect}` : '/login');
+      }, 2500);
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -207,6 +211,10 @@ const [success, setSuccess] = useState(false);
               Already have an account?{' '}
               <Link
                 href="/login"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(`/login${window.location.search}`);
+                }}
                 className="text-[#151194] hover:text-[#2a2b5b] font-bold"
               >
                 Sign in
