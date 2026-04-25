@@ -64,7 +64,7 @@ export default function CheckoutPage() {
           district: formData.district, 
           deliveryMethod: formData.deliveryMethod 
         });
-        if (res.success) {
+        if (res.success && res.data) {
           setDeliveryData({ fee: res.data.fee, days: res.data.estimatedDays });
         }
       } catch (err) {
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
       };
 
       const res = await api.createOrder(token, orderData);
-      if (res.success) {
+      if (res.success && res.data) {
         clearCart();
         router.push(`/orders/confirmation/${res.data._id}`);
       }

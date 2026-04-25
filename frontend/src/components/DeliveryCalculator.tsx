@@ -27,7 +27,7 @@ const DeliveryCalculator: React.FC<DeliveryCalculatorProps> = ({ onCalculate }) 
     setLoading(true);
     try {
       const res = await api.calculateDeliveryFee({ district, deliveryMethod: method });
-      if (res.success) {
+      if (res.success && res.data) {
         setResult(res.data);
         if (onCalculate) {
           onCalculate(res.data.fee, res.data.estimatedDays, district);

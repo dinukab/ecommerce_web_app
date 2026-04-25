@@ -191,8 +191,12 @@ export const trackOrder = async (req, res) => {
     res.json({ success: true, data: publicData });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
-const { z } = require("zod");
-const Order = require("../models/OrderModels");
+  }
+};
+
+import { z } from "zod";
+import OrderModel from "../models/Order.js"; 
+// Renamed to OrderModel to avoid conflict with 'Order' imported on line 1
 
 const toNumber = () => z.coerce.number().finite();
 
@@ -300,7 +304,7 @@ const buildOrderFromCheckoutFlow = (payload) => {
 
 // POST /api/orders/checkout
 // Also accepts POST /api/orders with the same body.
-exports.createCheckoutOrder = async (req, res) => {
+export const createCheckoutOrder = async (req, res) => {
   try {
     // Accept either normalized shape or the frontend checkout-flow shape.
     const normalizedParse = createOrderSchema.safeParse(req.body);
@@ -348,7 +352,7 @@ exports.createCheckoutOrder = async (req, res) => {
       ? normalizedParse.data
       : buildOrderFromCheckoutFlow(checkoutParse.data);
 
-    const created = await Order.create(orderPayload);
+    const created = await OrderModel.create(orderPayload);
 
     return res.status(201).json({
       orderId: created._id,
@@ -360,7 +364,7 @@ exports.createCheckoutOrder = async (req, res) => {
 };
 
 // GET /api/orders/id/:orderId
-exports.getOrderById = async (req, res) => {
+export const getOrderByIdLegacy = async (req, res) => {
   try {
     const { orderId } = req.params;
     const order = await Order.findById(orderId);
@@ -372,14 +376,14 @@ exports.getOrderById = async (req, res) => {
 };
 
 // GET /api/orders?email=...&userId=...
-exports.listOrders = async (req, res) => {
+export const listOrders = async (req, res) => {
   try {
     const { email, userId } = req.query;
     const filter = {};
     if (typeof email === "string" && email.trim() !== "") filter.email = email.trim();
     if (typeof userId === "string" && userId.trim() !== "") filter.userId = Number(userId);
 
-    const orders = await Order.find(filter).sort({ createdAt: -1 });
+    const orders = await OrderModel.find(filter).sort({ createdAt: -1 });
     return res.json(orders);
   } catch (error) {
     return res.status(500).json({ message: "Failed to list orders", error: error.message });
@@ -387,14 +391,14 @@ exports.listOrders = async (req, res) => {
 };
 
 // GET /api/orders/:userId (legacy)
-exports.getOrderHistory = async (req, res) => {
+export const getOrderHistory = async (req, res) => {
   const userId = Number(req.params.userId);
   if (!Number.isFinite(userId)) {
     return res.status(400).json({ message: "userId must be a number" });
   }
 
   try {
-    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+    const orders = await OrderModel.find({ userId }).sort({ createdAt: -1 });
     return res.json(orders);
   } catch (error) {
     return res.status(500).json({ message: "Failed to load order history", error: error.message });

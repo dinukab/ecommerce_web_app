@@ -9,12 +9,16 @@ import {
   Package, 
   ChevronRight, 
   Search,
-  Inbox
+  Inbox,
+  Calendar,
+  DollarSign,
+  ArrowRight
 } from 'lucide-react';
 
 export default function MyOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -34,26 +38,34 @@ export default function MyOrdersPage() {
     fetchOrders();
   }, []);
 
+  const filteredOrders = orders.filter(order => 
+    order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.trackingNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-5xl mx-auto px-4">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-100">
-              <ShoppingBag className="w-7 h-7" />
+    <div className="min-h-screen bg-[#F8FAFC] py-16">
+      <div className="max-w-6xl mx-auto px-6">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-200">
+                <ShoppingBag className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">Customer Portal</span>
             </div>
-            <div>
-              <h1 className="text-4xl font-black text-gray-900">My Orders</h1>
-              <p className="text-sm text-gray-500 mt-1">Manage and track your recent purchases</p>
-            </div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Order History</h1>
+            <p className="text-slate-500 mt-2 font-medium">Keep track of all your OneShop purchases in one place.</p>
           </div>
           
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+          <div className="relative group w-full lg:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
             <input 
-              placeholder="Search by order ID..." 
-              className="pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-gray-100 focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64 text-sm shadow-sm transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by order ID or tracking..." 
+              className="pl-12 pr-6 py-4 rounded-2xl bg-white border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none w-full text-sm font-medium shadow-sm transition-all"
             />
           </div>
         </div>
@@ -61,89 +73,116 @@ export default function MyOrdersPage() {
         {loading ? (
           <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-40 bg-white rounded-3xl animate-pulse shadow-sm border border-gray-100"></div>
+              <div key={i} className="h-48 bg-white rounded-[2rem] animate-pulse shadow-sm border border-slate-100"></div>
             ))}
           </div>
-        ) : orders.length === 0 ? (
-          <div className="bg-white rounded-[2.5rem] p-20 text-center shadow-sm border border-gray-100">
-            <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
-              <Inbox className="w-10 h-10 text-gray-200" />
+        ) : filteredOrders.length === 0 ? (
+          <div className="bg-white rounded-[3rem] p-24 text-center shadow-xl shadow-slate-200/50 border border-slate-100">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8 ring-8 ring-slate-50/50">
+              <Inbox className="w-10 h-10 text-slate-300" />
             </div>
-            <h2 className="text-2xl font-black text-gray-900 mb-3">No orders yet</h2>
-            <p className="text-gray-500 mb-10 max-w-sm mx-auto">
-              Looks like you haven't placed any orders. Start exploring our amazing collection!
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">No orders found</h2>
+            <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium leading-relaxed">
+              We couldn't find any orders matching your criteria. Start shopping to build your history!
             </p>
             <Link 
               href="/category/all" 
-              className="inline-flex items-center gap-3 px-10 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-100"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 active:scale-95"
             >
-              Start Shopping
-              <ChevronRight className="w-5 h-5" />
+              Discover Products
+              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
-            {orders.map((order) => (
+          <div className="space-y-8">
+            {filteredOrders.map((order) => (
               <div 
                 key={order._id} 
-                className="group bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all duration-300 overflow-hidden"
+                className="group bg-white rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 hover:border-blue-200 transition-all duration-500 overflow-hidden"
               >
-                <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                  {/* Order Meta */}
-                  <div className="flex gap-6 items-center">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-blue-600 border border-gray-100">
+                {/* Order Summary Bar */}
+                <div className="p-8 pb-4 flex flex-wrap items-center justify-between gap-6">
+                  <div className="flex items-center gap-6">
+                    <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-blue-50 items-center justify-center text-blue-600 ring-1 ring-blue-100 group-hover:scale-110 transition-transform duration-500">
                       <Package className="w-7 h-7" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-lg">
-                          #{order._id.slice(-8).toUpperCase()}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-slate-400 font-mono">
+                          ID: {order._id.slice(-8).toUpperCase()}
                         </span>
                         <OrderStatusBadge status={order.orderStatus} />
                       </div>
-                      <p className="text-lg font-bold text-gray-900">
-                        {new Date(order.createdAt).toLocaleDateString('en-US', {
-                          month: 'long',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {order.orderItems.length} {order.orderItems.length === 1 ? 'Product' : 'Products'} • LKR {order.totalPrice.toLocaleString()}
-                      </p>
+                      <div className="flex items-center gap-4">
+                         <div className="flex items-center gap-1.5 text-slate-900 font-bold">
+                           <Calendar className="w-4 h-4 text-slate-400" />
+                           {new Date(order.createdAt).toLocaleDateString('en-US', {
+                             month: 'short',
+                             day: 'numeric',
+                             year: 'numeric'
+                           })}
+                         </div>
+                         <div className="flex items-center gap-1.5 text-slate-900 font-bold">
+                           <DollarSign className="w-4 h-4 text-slate-400" />
+                           LKR {order.totalPrice.toLocaleString()}
+                         </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-3 w-full md:w-auto border-t md:border-0 pt-6 md:pt-0">
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
                     <Link 
                       href={`/orders/${order._id}`}
-                      className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all active:scale-95 text-sm"
+                      className="flex-1 sm:flex-none px-8 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 text-sm flex items-center justify-center gap-2"
                     >
-                      View Details
+                      Details
                       <ChevronRight className="w-4 h-4" />
                     </Link>
                     <Link 
                       href={`/track?trackingNumber=${order.trackingNumber}`}
-                      className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-50 text-gray-600 font-bold rounded-xl hover:bg-gray-100 transition-all text-sm"
+                      className="flex-1 sm:flex-none px-8 py-3.5 bg-white text-slate-600 font-bold border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-sm text-center"
                     >
-                      Track
+                      Track Order
                     </Link>
                   </div>
                 </div>
 
-                {/* Items Preview Strip */}
-                <div className="px-8 pb-8 flex gap-3 overflow-x-auto custom-scrollbar">
-                  {order.orderItems.map((item, idx) => (
-                    <div key={idx} className="w-14 h-14 rounded-xl border border-gray-100 bg-gray-50 flex-shrink-0 p-2">
-                      <img src={item.image} alt="" className="w-full h-full object-contain" />
-                    </div>
-                  ))}
-                  {order.orderItems.length > 5 && (
-                    <div className="w-14 h-14 rounded-xl border border-dashed border-gray-200 bg-gray-50 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-400">
-                      +{order.orderItems.length - 5}
-                    </div>
-                  )}
+                {/* Items Divider */}
+                <div className="px-8 py-2">
+                  <div className="h-px bg-slate-100 w-full"></div>
+                </div>
+
+                {/* Items Strip */}
+                <div className="p-8 pt-4 flex items-center justify-between">
+                  <div className="flex -space-x-3 overflow-hidden">
+                    {order.orderItems.slice(0, 4).map((item, idx) => (
+                      <div 
+                        key={idx} 
+                        className="w-14 h-14 rounded-xl border-4 border-white bg-white shadow-sm ring-1 ring-slate-100 overflow-hidden flex-shrink-0"
+                        title={item.name}
+                      >
+                        <img 
+                          src={item.image || 'https://via.placeholder.com/100?text=Product'} 
+                          alt={item.name} 
+                          className="w-full h-full object-contain p-1" 
+                        />
+                      </div>
+                    ))}
+                    {order.orderItems.length > 4 && (
+                      <div className="w-14 h-14 rounded-xl border-4 border-white bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 ring-1 ring-slate-100">
+                        +{order.orderItems.length - 4}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="text-right hidden md:block">
+                    <p className="text-sm font-bold text-slate-900">
+                      {order.orderItems.length} {order.orderItems.length === 1 ? 'item' : 'items'} in this order
+                    </p>
+                    <p className="text-xs text-slate-400 font-medium mt-1">
+                      Shipped to {order.shippingAddress.city}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}

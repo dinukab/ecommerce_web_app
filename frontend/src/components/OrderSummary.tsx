@@ -5,9 +5,9 @@ interface OrderItem {
   product?: string;
   name: string;
   quantity: number;
-  price: number;
+  price?: number;
   sellingPrice?: number;
-  image: string;
+  image?: string;
   images?: string[];
 }
 

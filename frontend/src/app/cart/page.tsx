@@ -167,7 +167,7 @@ export default function CartPage() {
           <div className="sticky top-24">
             <OrderSummary
               subtotal={subtotal}
-              items={cart as any}
+              items={cart}
               isCart={true}
               onCheckout={() => router.push('/checkout')}
             />

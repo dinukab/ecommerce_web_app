@@ -229,16 +229,7 @@ export default function ProductDetailPage() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-8 pt-4">
-                <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600">
-                  <Truck size={16} className="text-[#151194]" />
-                  Free Shipping
-                </div>
-                <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600">
-                  <RotateCcw size={16} className="text-[#151194]" />
-                  30 Day Returns
-                </div>
-              </div>
+
             </div>
           </div>
         </div>
