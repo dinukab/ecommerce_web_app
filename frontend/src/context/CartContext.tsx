@@ -67,7 +67,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.sellingPrice * item.quantity, 0);
+    return cart.reduce((total, item) => {
+      const price = item.sellingPrice || (item as any).price || 0;
+      return total + price * item.quantity;
+    }, 0);
   };
 
   const getCartCount = () => {
