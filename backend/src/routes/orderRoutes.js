@@ -1,19 +1,19 @@
-const express = require("express");
+import express from 'express';
+import {
+  createOrder,
+  getMyOrders,
+  getOrderById,
+  updateOrderStatus,
+  trackOrder,
+} from '../controllers/orderController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const orderController = require("../controllers/orderController");
 
-// Create order from checkout (stores shippingAddress + totals + items)
-router.post("/checkout", orderController.createCheckoutOrder);
-// Alias: allow POST /api/orders as well
-router.post("/", orderController.createCheckoutOrder);
+router.post('/', protect, createOrder);
+router.get('/my-orders', protect, getMyOrders);
+router.get('/track/:trackingNumber', trackOrder);
+router.get('/:id', protect, getOrderById);
+router.put('/:id/status', protect, admin, updateOrderStatus);
 
-// Query orders (optional filters via query string)
-router.get("/", orderController.listOrders);
-
-// Fetch single order by Mongo id
-router.get("/id/:orderId", orderController.getOrderById);
-
-// Legacy: GET /api/orders/:userId
-router.get("/:userId", orderController.getOrderHistory);
-
-module.exports = router;
+export default router;

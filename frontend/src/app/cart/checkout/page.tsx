@@ -278,11 +278,8 @@ export default function CheckoutPage() {
 
             <OrderSummary
               subtotal={subtotal}
-              shipping={shipping}
-              orderTotal={orderTotal}
-              cartItems={cartItems}
-              hideCheckoutButton
-              hidePromoCode
+              deliveryFee={shipping}
+              items={cartItems.map(item => ({ ...item, image: '' })) as any}
             />
 
           </div>

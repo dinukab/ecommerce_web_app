@@ -1,117 +1,96 @@
-'use client';
+import React from 'react';
 
-import { useState } from 'react';
-import Link from "next/link";
+interface OrderItem {
+  _id?: string;
+  product?: string;
+  name: string;
+  quantity: number;
+  price?: number;
+  sellingPrice?: number;
+  image?: string;
+  images?: string[];
+}
 
-type Props = {
+interface OrderSummaryProps {
+  items: OrderItem[];
+  deliveryFee?: number;
   subtotal: number;
-  shipping: number; 
-  orderTotal: number;
-  cartItems?: any[]; // optional
-  hideCheckoutButton?: boolean;
-  hidePromoCode?: boolean;
-};
+  isCart?: boolean;
+  onCheckout?: () => void;
+}
 
-export default function OrderSummary({
-  subtotal,
-  shipping,
-  orderTotal,
-  hideCheckoutButton = false,
-  hidePromoCode = false,
-}: Props) {
-  const [promoCode, setPromoCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
-
-  const handleApplyPromo = () => {
-    if (promoCode.toUpperCase() === 'SAVE10') {
-      setAppliedDiscount(Math.round(subtotal * 0.1));
-      alert('Promo code SAVE10 applied! 🎉');
-    } else {
-      alert('Invalid promo code');
-    }
-  };
-
-  const finalTotal = orderTotal - appliedDiscount;
+const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, subtotal, isCart, onCheckout }) => {
+  const total = subtotal + (deliveryFee || 0);
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-md sticky top-6 border border-slate-200">
-      <h2 className="text-xl font-bold text-black mb-5">Order Summary</h2>
-
-      <div className="space-y-3 text-sm">
-        <div className="flex justify-between">
-          <span className="text-slate-600">Subtotal</span>
-          <span className="font-semibold text-slate-800">Rs.{subtotal.toLocaleString()}</span>
-        </div>
-
-        <div className="flex justify-between">
-          <span className="text-slate-600">Shipping estimate</span>
-          <span className="font-semibold text-slate-800">Rs.{shipping.toLocaleString()}</span>
-        </div>
-
-        {appliedDiscount > 0 && (
-          <div className="flex justify-between text-green-600">
-            <span>Discount Applied</span>
-            <span className="font-semibold">-Rs.{appliedDiscount.toLocaleString()}</span>
-          </div>
-        )}
-
-        {/* Promo Code */}
-        {!hidePromoCode && (
-          <div className="pt-2">
-            <div className="text-sm font-semibold text-slate-700 mb-2">Apply Promo Code</div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-                placeholder="Enter code"
-                className="flex-1 border bg-slate-100 border-slate-400 rounded-xl px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-fit sticky top-24">
+      <h3 className="text-lg font-bold text-gray-900 mb-6">Order Summary</h3>
+      
+      <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar mb-6">
+        {items.map((item, idx) => (
+          <div key={item._id || idx} className="flex gap-4">
+            <div className="w-16 h-16 rounded-xl bg-gray-50 flex-shrink-0 overflow-hidden border border-gray-100">
+              <img 
+                src={item.image || (item.images && item.images[0]) || '/placeholder.png'} 
+                alt={item.name} 
+                className="w-full h-full object-contain p-2"
               />
-              <button
-                onClick={handleApplyPromo}
-                className="px-5 py-2 bg-slate-100 border border-slate-400 rounded-xl hover:bg-slate-200 font-medium text-slate-900 text-sm"
-              >
-                Apply
-              </button>
             </div>
-            {appliedDiscount > 0 && (
-              <p className="text-xs text-green-600 mt-1">✓ SAVE10 applied!</p>
-            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-800 truncate">{item.name}</p>
+              <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+              <p className="text-sm font-bold text-blue-600 mt-1">
+                LKR {((item.price || item.sellingPrice || 0) * item.quantity).toLocaleString()}
+              </p>
+            </div>
           </div>
-        )}
+        ))}
+      </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-200 pt-4 mt-4"></div>
-
-        {/* Final Total */}
-        <div className="flex justify-between items-center">
-          <span className="font-bold text-black text-base">Order Total</span>
-          <span className="text-xl font-bold text-[#151194]">Rs.{finalTotal.toLocaleString()}</span>
+      <div className="pt-6 border-t border-dashed border-gray-200 space-y-3">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-500">Subtotal</span>
+          <span className="font-bold text-gray-900">LKR {subtotal.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-500">Delivery Fee</span>
+          <span className="font-bold text-gray-900">
+            {deliveryFee === undefined ? (
+              <span className="text-blue-600 text-xs font-medium">Calculated at checkout</span>
+            ) : deliveryFee === 0 ? (
+              'FREE'
+            ) : (
+              `LKR ${deliveryFee.toLocaleString()}`
+            )}
+          </span>
+        </div>
+        <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
+          <span className="text-base font-bold text-gray-900">Total</span>
+          <span className="text-xl font-black text-blue-600">
+            LKR {total.toLocaleString()}
+          </span>
         </div>
       </div>
 
-      {/* Checkout Button */}
-      {!hideCheckoutButton && (
-        <Link href="/cart/checkout">
-          <button className="mt-6 w-full bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition ">
-            Proceed to Checkout
-          </button>
-        </Link>
+      <div className="mt-6 p-3 bg-blue-50 rounded-xl flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">
+          !
+        </div>
+        <p className="text-[10px] text-blue-700 font-medium">
+          Prices include all applicable taxes and service charges.
+        </p>
+      </div>
+
+      {isCart && (
+        <button
+          onClick={onCheckout}
+          className="w-full mt-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 transition-all active:scale-[0.98]"
+        >
+          Proceed to Checkout
+        </button>
       )}
-
-      {/* Secure Checkout */}
-      <div className="flex items-center justify-center gap-1 mt-4 text-xs text-slate-500">
-        <span>🔒</span>
-        <span>Secure Checkout</span>
-      </div>
-
-      {/* Payment Icons */}
-      <div className="flex justify-center gap-2 mt-4">
-        <div className="w-10 h-6 bg-gray-200 rounded"></div>
-        <div className="w-10 h-6 bg-gray-200 rounded"></div>
-        <div className="w-10 h-6 bg-gray-200 rounded"></div>
-        <div className="w-10 h-6 bg-gray-200 rounded"></div>
-      </div>
     </div>
   );
-}
+};
+
+export default OrderSummary;

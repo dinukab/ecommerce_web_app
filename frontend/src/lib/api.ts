@@ -20,7 +20,9 @@ export interface Product {
   _id: string;
   name: string;
   description: string;
-  price: number;
+  price?: number;
+  sellingPrice: number;
+  costPrice?: number;
   originalPrice?: number;
   category: {
     _id: string;
@@ -94,13 +96,80 @@ export interface AuthResponse {
 }
 
 export interface UserProfile {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
   email: string;
   phone?: string;
-  role: string;
+  role?: string;
+  avatar?: string;
   addresses: any[];
+  paymentMethods?: any[];
+  totalOrders?: number;
+  totalSpent?: number;
+  lastPurchase?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+export interface DeliveryZone {
+  _id: string;
+  name: string;
+  districts: string[];
+  deliveryFee: number;
+  estimatedDays: number;
+  isActive: boolean;
+}
+
+export interface OrderItem {
+  product: string;
+  name: string;
+  quantity: number;
+  price: number;
+  image: string;
+}
+
+export interface Order {
+  _id: string;
+  user: string | any;
+  orderItems: OrderItem[];
+  shippingAddress: {
+    fullName: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    district: string;
+    postalCode: string;
+    phone: string;
+  };
+  deliveryZone?: string;
+  deliveryMethod: 'standard' | 'express' | 'pickup';
+  paymentMethod: 'cash-on-delivery' | 'card' | 'bank-transfer';
+  paymentStatus: 'pending' | 'paid' | 'failed';
+  itemsPrice: number;
+  deliveryFee: number;
+  totalPrice: number;
+  orderStatus: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  trackingNumber: string;
+  estimatedDeliveryDate: string;
+  deliveredAt?: string;
+  cancelledAt?: string;
+  cancelReason?: string;
+  orderNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderTracking {
+  trackingNumber: string;
+  status: string;
+  estimatedDeliveryDate: string;
+  createdAt: string;
+  city: string;
+  district: string;
+  itemsCount: number;
+}
+
 
 class ApiService {
   private baseUrl: string;
@@ -244,6 +313,120 @@ class ApiService {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ avatar }),
+    });
+  }
+
+  async getOrders(token: string): Promise<ApiResponse<Order[]>> {
+    return this.request<ApiResponse<Order[]>>('/orders/my-orders', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async getMyOrders(token: string): Promise<ApiResponse<Order[]>> {
+    return this.request<ApiResponse<Order[]>>('/orders/my-orders', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async getOrderById(token: string, id: string): Promise<ApiResponse<Order>> {
+    return this.request<ApiResponse<Order>>(`/orders/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async createOrder(token: string, orderData: any): Promise<ApiResponse<Order>> {
+    return this.request<ApiResponse<Order>>('/orders', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(orderData),
+    });
+  }
+
+  async trackOrder(trackingNumber: string): Promise<ApiResponse<OrderTracking>> {
+    return this.request<ApiResponse<OrderTracking>>(`/orders/track/${trackingNumber}`);
+  }
+
+  // Delivery APIs
+  async getDeliveryZones(): Promise<ApiResponse<DeliveryZone[]>> {
+    return this.request<ApiResponse<DeliveryZone[]>>('/delivery/zones');
+  }
+
+  async calculateDeliveryFee(data: { district: string; deliveryMethod: string }): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/delivery/calculate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async addAddress(token: string, addressData: any): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/auth/address', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(addressData),
+    });
+  }
+
+  async removeAddress(token: string, addressId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/auth/address/${addressId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  async updateAddress(token: string, addressId: string, addressData: any): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/auth/address/${addressId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(addressData),
+    });
+  }
+
+  async addPaymentMethod(token: string, paymentData: any): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/auth/payment-method', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(paymentData),
+    });
+  }
+
+  async removePaymentMethod(token: string, paymentId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/auth/payment-method/${paymentId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  // Wishlist APIs
+  async getWishlist(token: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/wishlist', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async addToWishlist(token: string, productId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/wishlist', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ productId }),
+    });
+  }
+
+  async removeFromWishlist(token: string, productId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/wishlist/${productId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
   }
 

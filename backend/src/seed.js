@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Product from './models/Product.js';
-import Category from './models/Category.js';
-import Review from './models/Review.js';
 import connectDB from './config/database.js';
 
 dotenv.config();
@@ -11,156 +9,240 @@ const seedData = async () => {
   try {
     await connectDB();
 
-    // Clear existing data
+    // Clear existing products
     await Product.deleteMany({});
-    await Category.deleteMany({});
-    await Review.deleteMany({});
+    console.log('✅ Cleared existing products');
 
-    console.log('Cleared existing data');
-
-    // Create categories
-    const categories = await Category.insertMany([
-      {
-        name: 'Electronics',
-        slug: 'electronics',
-        description: 'Electronic devices and gadgets',
-      },
-      {
-        name: 'Headphones',
-        slug: 'headphones',
-        description: 'Audio headphones and earbuds',
-      },
-      {
-        name: 'Speakers',
-        slug: 'speakers',
-        description: 'Portable and home speakers',
-      },
-    ]);
-
-    console.log('Created categories');
-
-    // Create products
+    // Create products with correct schema
     const products = await Product.insertMany([
       {
-        name: 'Product_001',
-        description: 'Premium wireless headphones with active noise cancellation. Experience exceptional sound quality with our latest audio technology.',
-        price: 1800,
-        originalPrice: 2000,
-        category: categories[1]._id,
+        name: 'Wireless Bluetooth Headphones',
+        slug: 'wireless-bluetooth-headphones',
+        sku: 'HDN-001-BLK',
+        description: 'Premium wireless headphones with active noise cancellation. Experience exceptional sound quality with our latest audio technology. Perfect for music lovers.',
+        sellingPrice: 1999,
+        costPrice: 1200,
         stock: 50,
-        rating: 5,
+        lowStockThreshold: 10,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Wireless+Headphones'],
+        brand: 'OneShop',
+        featured: true,
+        badge: 'Best Seller',
+        rating: 4.8,
         numReviews: 245,
-        badge: 'Best Seller',
-        featured: true,
-        specifications: {
-          brand: 'OneShop',
-          model: 'Product_001',
-          weight: '250g',
-          dimensions: '20 x 18 x 8 cm',
-        },
+        storeId: 'STORE-2025-001',
       },
       {
-        name: 'Product_002',
-        description: 'High-performance portable speaker with 360-degree sound. Perfect for parties and outdoor adventures.',
-        price: 2100,
-        originalPrice: 2400,
-        category: categories[2]._id,
+        name: 'Portable Bluetooth Speaker',
+        slug: 'portable-bluetooth-speaker',
+        sku: 'SPK-002-SLV',
+        description: 'High-performance portable speaker with 360-degree sound. Perfect for parties and outdoor adventures with 12-hour battery life.',
+        sellingPrice: 2499,
+        costPrice: 1500,
         stock: 30,
-        rating: 4,
-        numReviews: 189,
+        lowStockThreshold: 10,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Bluetooth+Speaker'],
+        brand: 'OneShop',
         featured: true,
-        specifications: {
-          brand: 'OneShop',
-          model: 'Product_002',
-          weight: '500g',
-          dimensions: '15 x 15 x 20 cm',
-        },
-      },
-      {
-        name: 'Product_003',
-        description: 'Professional studio monitor headphones. Crystal clear audio for music production.',
-        price: 3200,
-        category: categories[1]._id,
-        stock: 20,
-        rating: 5,
-        numReviews: 312,
         badge: 'New Arrival',
+        rating: 4.6,
+        numReviews: 189,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'Studio Monitor Headphones',
+        slug: 'studio-monitor-headphones',
+        sku: 'STD-003-PRO',
+        description: 'Professional studio monitor headphones. Crystal clear audio for music production. Flat frequency response and premium materials.',
+        sellingPrice: 3999,
+        costPrice: 2400,
+        stock: 20,
+        lowStockThreshold: 5,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Studio+Headphones'],
+        brand: 'OneShop',
         featured: true,
-        specifications: {
-          brand: 'OneShop',
-          model: 'Product_003',
-          weight: '300g',
-          dimensions: '22 x 20 x 10 cm',
-        },
-      },
-      {
-        name: 'Product_004',
-        description: 'Compact Bluetooth earbuds with charging case. Comfortable fit for all-day wear.',
-        price: 1500,
-        originalPrice: 1800,
-        category: categories[1]._id,
-        stock: 100,
-        rating: 4,
-        numReviews: 156,
-        specifications: {
-          brand: 'OneShop',
-          model: 'Product_004',
-          weight: '50g',
-          dimensions: '5 x 5 x 3 cm',
-        },
-      },
-      {
-        name: 'Product_005',
-        description: 'Experience premium quality with our latest product. Designed with cutting-edge technology.',
-        price: 2300,
-        originalPrice: 2500,
-        category: categories[0]._id,
-        stock: 40,
-        rating: 5,
-        numReviews: 428,
         badge: 'Best Seller',
+        rating: 5.0,
+        numReviews: 312,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'True Wireless Earbuds',
+        slug: 'true-wireless-earbuds',
+        sku: 'EAR-004-WHT',
+        description: 'Compact Bluetooth earbuds with charging case. Comfortable fit for all-day wear with noise isolation technology.',
+        sellingPrice: 1499,
+        costPrice: 800,
+        stock: 100,
+        lowStockThreshold: 20,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Wireless+Earbuds'],
+        brand: 'OneShop',
+        featured: false,
+        badge: '',
+        rating: 4.4,
+        numReviews: 156,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'USB Type-C Hub with 7 Ports',
+        slug: 'usb-type-c-hub',
+        sku: 'HUB-005-BLK',
+        description: 'Experience premium connectivity with our 7-in-1 USB Type-C hub. Designed with cutting-edge technology for maximum compatibility.',
+        sellingPrice: 2299,
+        costPrice: 1300,
+        stock: 40,
+        lowStockThreshold: 10,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=USB+Hub'],
+        brand: 'OneShop',
         featured: true,
-        specifications: {
-          brand: 'OneShop',
-          model: 'Product_005',
-          weight: '500g',
-          dimensions: '20 x 15 x 5 cm',
-        },
+        badge: 'Sale',
+        rating: 4.7,
+        numReviews: 428,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'Wireless Keyboard',
+        slug: 'wireless-keyboard',
+        sku: 'KBD-006-SLV',
+        description: 'Ultra-thin wireless keyboard with silent keys. Perfect for productivity with rechargeable battery lasting up to 90 days.',
+        sellingPrice: 1799,
+        costPrice: 900,
+        stock: 35,
+        lowStockThreshold: 10,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Wireless+Keyboard'],
+        brand: 'OneShop',
+        featured: false,
+        badge: '',
+        rating: 4.5,
+        numReviews: 98,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'Wireless Mouse',
+        slug: 'wireless-mouse',
+        sku: 'MSE-007-BLK',
+        description: 'Precision wireless mouse with ergonomic design. 2.4GHz connection with 18-month battery life.',
+        sellingPrice: 999,
+        costPrice: 450,
+        stock: 60,
+        lowStockThreshold: 15,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Wireless+Mouse'],
+        brand: 'OneShop',
+        featured: false,
+        badge: 'New Arrival',
+        rating: 4.3,
+        numReviews: 67,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'Phone Stand with Adjustable Angle',
+        slug: 'phone-stand-adjustable',
+        sku: 'STD-008-GLD',
+        description: 'Foldable aluminum phone stand with adjustable angle. Compatible with all phones and tablets up to 12 inches.',
+        sellingPrice: 599,
+        costPrice: 250,
+        stock: 120,
+        lowStockThreshold: 30,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Phone+Stand'],
+        brand: 'OneShop',
+        featured: false,
+        badge: '',
+        rating: 4.6,
+        numReviews: 234,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'USB-C Charging Cable 3-Pack',
+        slug: 'usb-c-charging-cable',
+        sku: 'CBL-009-BLK',
+        description: '3-pack of high-speed USB-C cables. Fast charging and data transfer up to 480Mbps. Durable nylon braided design.',
+        sellingPrice: 799,
+        costPrice: 300,
+        stock: 200,
+        lowStockThreshold: 50,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=USB+Cable'],
+        brand: 'OneShop',
+        featured: false,
+        badge: '',
+        rating: 4.4,
+        numReviews: 512,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'Screen Protector Tempered Glass',
+        slug: 'screen-protector-tempered',
+        sku: 'PRO-010-CLR',
+        description: 'Ultra-clear tempered glass screen protector. 9H hardness rating with anti-fingerprint coating.',
+        sellingPrice: 399,
+        costPrice: 120,
+        stock: 300,
+        lowStockThreshold: 100,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Screen+Protector'],
+        brand: 'OneShop',
+        featured: false,
+        badge: '',
+        rating: 4.5,
+        numReviews: 890,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'Laptop Cooling Pad',
+        slug: 'laptop-cooling-pad',
+        sku: 'PAD-011-BLK',
+        description: 'Aluminum laptop cooling pad with dual quiet fans. Supports laptops up to 17 inches.',
+        sellingPrice: 1499,
+        costPrice: 700,
+        stock: 25,
+        lowStockThreshold: 8,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Cooling+Pad'],
+        brand: 'OneShop',
+        featured: false,
+        badge: 'Sale',
+        rating: 4.7,
+        numReviews: 145,
+        storeId: 'STORE-2025-001',
+      },
+      {
+        name: 'Portable Power Bank 20000mAh',
+        slug: 'portable-power-bank',
+        sku: 'PWR-012-BLK',
+        description: 'Compact 20000mAh power bank with dual USB ports. Fast charging technology with LED display.',
+        sellingPrice: 1799,
+        costPrice: 900,
+        stock: 45,
+        lowStockThreshold: 15,
+        category: 'Electronics',
+        images: ['https://via.placeholder.com/500x500?text=Power+Bank'],
+        brand: 'OneShop',
+        featured: true,
+        badge: '',
+        rating: 4.6,
+        numReviews: 678,
+        storeId: 'STORE-2025-001',
       },
     ]);
 
-    console.log('Created products');
+    console.log(`✅ Created ${products.length} products successfully!`);
+    console.log('📦 Products seeded:');
+    products.forEach((p, i) => {
+      console.log(`  ${i + 1}. ${p.name} - ₹${p.sellingPrice}`);
+    });
 
-    // Create reviews
-    const reviews = await Review.insertMany([
-      {
-        product: products[0]._id,
-        user: 'John Doe',
-        rating: 5,
-        title: 'Excellent Product!',
-        text: 'This product exceeded my expectations. The quality is outstanding and it works perfectly.',
-      },
-      {
-        product: products[0]._id,
-        user: 'Jane Smith',
-        rating: 4,
-        title: 'Great value for money',
-        text: 'Very satisfied with this purchase. Good quality and fast delivery.',
-      },
-      {
-        product: products[0]._id,
-        user: 'Mike Johnson',
-        rating: 5,
-        title: 'Highly recommended',
-        text: 'Amazing product! Would definitely buy again.',
-      },
-    ]);
-
-    console.log('Created reviews');
-    console.log('Seed data inserted successfully!');
+    console.log('\n✅ Seed data inserted successfully!');
     process.exit(0);
   } catch (error) {
-    console.error('Error seeding data:', error);
+    console.error('❌ Error seeding data:', error);
     process.exit(1);
   }
 };
