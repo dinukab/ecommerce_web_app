@@ -1197,7 +1197,8 @@ async function seed() {
     const orders = await Order.find({ customerEmail: c.email, storeId: STORE_ID });
     if (orders.length === 0) continue;
     const totalOrders  = orders.length;
-    const totalSpent   = orders.reduce((sum, o) => sum + o.total, 0);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const totalSpent   = orders.reduce((sum, o) => sum + (o as any).total, 0);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lastPurchase = orders.reduce((latest, o) => {
       const d = (o as any).createdAt as Date;
