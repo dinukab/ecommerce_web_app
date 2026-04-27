@@ -8,6 +8,7 @@ declare global {
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
 import OrderSummary from '@/components/OrderSummary';
@@ -53,20 +54,6 @@ export default function CheckoutPage() {
     paymentMethod: 'cash-on-delivery',
     orderNotes: ''
   });
-
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://www.payhere.lk/lib/payhere.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      const existingScript = document.querySelector('script[src="https://www.payhere.lk/lib/payhere.js"]');
-      if (existingScript) {
-        document.body.removeChild(existingScript);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (cart.length === 0) {
@@ -135,18 +122,84 @@ export default function CheckoutPage() {
 
       const res = await api.createOrder(token, orderData);
       if (res.success && res.data) {
-        clearCart();
-        router.push(`/orders/confirmation/${res.data._id}`);
+        const order = res.data;
+        
+        // Check if PayHere is selected and if params are available
+        if (formData.paymentMethod === 'payhere') {
+          const payhere = (window as any).payhere;
+          if (payhere) {
+            // Setup PayHere callbacks
+            payhere.onCompleted = function onCompleted(orderId: string) {
+              console.log("Payment completed. OrderID:" + orderId);
+              clearCart();
+              router.push(`/orders/confirmation/${order._id}?payment=success`);
+            };
+
+            payhere.onDismissed = function onDismissed() {
+              console.log("Payment dismissed");
+              setLoading(false);
+            };
+
+            payhere.onError = function onError(error: any) {
+              console.log("Error:"  + error);
+              setError("Payment failed: " + error);
+              setLoading(false);
+            };
+
+            // Prepare PayHere payment object
+            // Note: In a real app, these params should come from the backend (res.data.payhereParams)
+            // If they are missing, we fallback to confirmation or show error
+            if (order.payhereParams) {
+              payhere.startPayment(order.payhereParams);
+            } else if (order.payhereHash) {
+              // Alternative structure if hash is returned directly
+              const payment = {
+                "sandbox": true,
+                "merchant_id": order.payhereMerchantId || "1228499",
+                "hash": order.payhereHash,
+                "return_url": window.location.origin + `/orders/confirmation/${order._id}`,
+                "cancel_url": window.location.origin + `/checkout`,
+                "notify_url": process.env.NEXT_PUBLIC_API_URL + "/api/orders/payhere-notify",
+                "order_id": order._id,
+                "items": "Ecommerce Order",
+                "amount": (subtotal + deliveryData.fee).toFixed(2),
+                "currency": "LKR",
+                "first_name": formData.fullName.split(' ')[0],
+                "last_name": formData.fullName.split(' ').slice(1).join(' ') || "User",
+                "email": formData.email,
+                "phone": formData.phone,
+                "address": formData.addressLine1,
+                "city": formData.city || formData.district,
+                "country": "Sri Lanka"
+              };
+              payhere.startPayment(payment);
+            } else {
+              // If no PayHere data, just proceed to confirmation (e.g. for testing)
+              clearCart();
+              router.push(`/orders/confirmation/${order._id}`);
+            }
+          } else {
+            setError("Payment gateway is not loaded correctly.");
+            setLoading(false);
+          }
+        } else {
+          // Default: Clear cart and go to confirmation
+          clearCart();
+          router.push(`/orders/confirmation/${order._id}`);
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Failed to place order');
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      <Script 
+        src="https://www.payhere.lk/lib/payhere.js" 
+        strategy="lazyOnload"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center gap-3 mb-10">
           <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
@@ -363,7 +416,12 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   {[
                     { id: 'cash-on-delivery', label: 'Cash on Delivery', desc: 'Pay when you receive' },
-                    { id: 'card', label: 'Credit / Debit Card', desc: 'Secure online payment' },
+                    { 
+                      id: 'payhere', 
+                      label: 'PayHere', 
+                      desc: 'Secure online payment', 
+                      logo: 'https://www.payhere.lk/downloads/images/payhere_short_banner.png' 
+                    },
                     { id: 'bank-transfer', label: 'Bank Transfer', desc: 'Manual bank deposit' }
                   ].map((p) => (
                     <label
@@ -387,7 +445,14 @@ export default function CheckoutPage() {
                           <p className="text-[10px] text-gray-500">{p.desc}</p>
                         </div>
                       </div>
-                      {formData.paymentMethod === p.id && <CheckCircle2 className="w-5 h-5 text-blue-600" />}
+                      <div className="flex items-center gap-3">
+                        {p.logo && (
+                          <div className="bg-white px-2 py-1 rounded-md border border-gray-100 shadow-sm">
+                            <img src={p.logo} alt={p.label} className="h-5 object-contain" />
+                          </div>
+                        )}
+                        {formData.paymentMethod === p.id && <CheckCircle2 className="w-5 h-5 text-blue-600" />}
+                      </div>
                     </label>
                   ))}
                 </div>

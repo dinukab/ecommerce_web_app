@@ -146,6 +146,8 @@ export interface Order {
   deliveryMethod: 'standard' | 'express' | 'pickup';
   paymentMethod: 'cash-on-delivery' | 'card' | 'bank-transfer' | 'payhere';
   payhereParams?: any;
+  payhereHash?: string;
+  payhereMerchantId?: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
   itemsPrice: number;
   deliveryFee: number;
