@@ -69,4 +69,5 @@ orderSchema.pre('save', function (next) {
   next();
 });
 
-export default mongoose.model('Order', orderSchema);
+export const Order = mongoose.model('Order', orderSchema);
+export default Order;
