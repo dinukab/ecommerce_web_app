@@ -144,7 +144,10 @@ export interface Order {
   };
   deliveryZone?: string;
   deliveryMethod: 'standard' | 'express' | 'pickup';
-  paymentMethod: 'cash-on-delivery' | 'card' | 'bank-transfer';
+  paymentMethod: 'cash-on-delivery' | 'card' | 'bank-transfer' | 'payhere';
+  payhereParams?: any;
+  payhereHash?: string;
+  payhereMerchantId?: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
   itemsPrice: number;
   deliveryFee: number;
@@ -179,45 +182,45 @@ class ApiService {
   }
 
   private async request<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const url = `${this.baseUrl}${endpoint}`;
-  
-  try {
-    console.log('Making request to:', url); // Debug log
-    
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-    });
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
 
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.error('Received non-JSON response:', await response.text());
-      throw new Error('Server returned an invalid response. Please make sure the backend is running.');
+    try {
+      console.log('Making request to:', url); // Debug log
+
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options?.headers,
+        },
+      });
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Received non-JSON response:', await response.text());
+        throw new Error('Server returned an invalid response. Please make sure the backend is running.');
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+
+      return data;
+    } catch (error: any) {
+      throw error;
     }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Something went wrong');
-    }
-
-    return data;
-  } catch (error: any) {
-    throw error;
   }
-}
 
   // Product APIs
   async getProducts(filters?: ProductFilters): Promise<PaginatedResponse<Product>> {
     const queryParams = new URLSearchParams();
-    
+
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -228,7 +231,7 @@ class ApiService {
 
     const queryString = queryParams.toString();
     const endpoint = `/products${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<PaginatedResponse<Product>>(endpoint);
   }
 
