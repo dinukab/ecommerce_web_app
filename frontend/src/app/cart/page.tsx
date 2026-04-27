@@ -40,7 +40,7 @@ export default function CartPage() {
         const categories = [...new Set(cart.map(item => item.category).filter(Boolean))];
         
         // 1. Fetch Related Products (same category)
-        let related = [];
+        let related: Product[] = [];
         if (categories.length > 0) {
           const categorySlug = categories[0]
             .toLowerCase()
@@ -167,7 +167,7 @@ export default function CartPage() {
                 <p className="text-gray-600 font-medium text-base mb-4">Your cart is empty</p>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-8 px-6 py-5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-8 px-6 py-12 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Continue Shopping
                 </Link>
@@ -202,7 +202,7 @@ export default function CartPage() {
       {/* Recommended Section */}
       {relatedProducts.length > 0 && (
         <div className="mt-16">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">You may also like</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">You may also like...</h2>
 
           <Carousel opts={{ align: "start" }} className="w-full">
             <CarouselContent className="-ml-2">

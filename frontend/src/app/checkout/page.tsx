@@ -152,23 +152,23 @@ export default function CheckoutPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Full Name</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
-                    <User className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Full Name</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <User className="ml-4 w-4 h-4 text-gray-500 flex-shrink-0" />
                     <input
                       required
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
-                      placeholder="Enter your full name"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      placeholder ="Enter your full name"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Email Address</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
-                    <Mail className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Mail className="ml-4 w-4 h-4 text-gray-500 flex-shrink-0" />
                     <input
                       required
                       type="email"
@@ -176,21 +176,21 @@ export default function CheckoutPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Phone Number</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
-                    <Phone className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Phone Number</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Phone className="ml-4 w-4 h-4 text-gray-500 flex-shrink-0" />
                     <input
                       required
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+94 7X XXX XXXX"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -208,46 +208,48 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Address Line 1</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
-                    <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Address Line 1</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Building2 className="ml-4 w-4 h-4 text-gray-500 flex-shrink-0" />
                     <input
                       required
                       name="addressLine1"
                       value={formData.addressLine1}
                       onChange={handleChange}
                       placeholder="Street name, building number..."
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Address Line 2 (Optional)</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
-                    <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Address Line 2 (Optional)</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <Building2 className="ml-4 w-4 h-4 text-gray-500 flex-shrink-0" />
                     <input
                       name="addressLine2"
                       value={formData.addressLine2}
                       onChange={handleChange}
                       placeholder="Apartment, suite, unit, etc."
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">District</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all relative">
-                    <LocateFixed className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">District</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all relative">
+                    <LocateFixed className="ml-4 w-4 h-4 text-gray-500 flex-shrink-0" />
                     <select
                       required
                       name="district"
                       value={formData.district}
                       onChange={handleChange}
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer"
+                      className={`w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer ${
+                        !formData.district ? "text-gray-500" : "text-gray-900"
+                      }`}
                     >
-                      <option value="">Select District</option>
+                      <option value="" disabled>Select District</option>
                       {DISTRICTS.map(d => (
-                        <option key={d} value={d}>{d}</option>
+                        <option key={d} value={d} className="text-gray-900">{d}</option>
                       ))}
                     </select>
                     {/* Custom Arrow */}
@@ -259,28 +261,28 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">City</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">City</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
                     <input
                       required
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
                       placeholder="Enter City"
-                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Postal Code</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Postal Code</label>
+                  <div className="flex items-center rounded-2xl border border-gray-400 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
                     <input
                       required
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleChange}
                       placeholder="E.g. 10000"
-                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -383,7 +385,7 @@ export default function CheckoutPage() {
                 onChange={handleChange}
                 rows={3}
                 placeholder="Any special instructions for delivery..."
-                className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm resize-none"
+                className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-100 focus:ring-5 focus:ring-blue-500 focus:border-transparent outline-1 transition-all text-sm resize-none placeholder-gray-300"
               />
             </div>
           </div>
@@ -394,36 +396,38 @@ export default function CheckoutPage() {
               items={cart} 
               deliveryFee={deliveryData.fee} 
               subtotal={subtotal} 
-            />
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-2xl flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                <p className="text-xs font-bold leading-relaxed">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-5 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3 ${
-                loading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 active:scale-95'
-              }`}
             >
-              {loading ? (
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <>
-                  <span>Place Order Now</span>
-                  <CheckCircle2 className="w-6 h-6" />
-                </>
-              )}
-            </button>
-            <p className="text-[10px] text-gray-400 text-center uppercase font-bold tracking-widest">
-              Guaranteed Secure Checkout
-            </p>
+              <div className="mt-6 space-y-6">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-2xl flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <p className="text-xs font-bold leading-relaxed">{error}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full py-5 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3 ${
+                    loading 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 active:scale-95'
+                  }`}
+                >
+                  {loading ? (
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <span>Place Order Now</span>
+                      <CheckCircle2 className="w-6 h-6" />
+                    </>
+                  )}
+                </button>
+                <p className="text-[10px] text-gray-400 text-center uppercase font-bold tracking-widest">
+                  Guaranteed Secure Checkout
+                </p>
+              </div>
+            </OrderSummary>
           </div>
         </form>
       </div>
