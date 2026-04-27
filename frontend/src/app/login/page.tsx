@@ -49,7 +49,9 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
       setTimeout(() => {
-        router.push('/');
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect') || '/';
+        router.push(redirect);
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Invalid email or password. Please try again.');
@@ -168,6 +170,10 @@ export default function LoginPage() {
               Don't have an account?{' '}
               <Link
                 href="/register"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(`/register${window.location.search}`);
+                }}
                 className="text-[#151194] hover:text-[#2a2b5b] font-semibold"
               >
                 Sign up
