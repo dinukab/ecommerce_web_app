@@ -52,6 +52,7 @@ const heroSlides = [
 export default function HomePage() {
   const [trending, setTrending] = useState<Product[]>([]);
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notification, setNotification] = useState('');
@@ -60,12 +61,14 @@ export default function HomePage() {
     const loadAll = async () => {
       try {
         setLoading(true);
-        const [trendingRes, newRes] = await Promise.all([
-          fetchProducts({ limit: 8, sort: 'rating' }),
-          fetchProducts({ limit: 8, sort: 'newest' })
+        const [trendingRes, newRes, allRes] = await Promise.all([
+          fetchProducts({ limit: 12, sort: 'rating' }),
+          fetchProducts({ limit: 12, sort: 'newest' }),
+          fetchProducts({ limit: 40, sort: 'name' })
         ]);
         setTrending(trendingRes.data || []);
         setNewArrivals(newRes.data || []);
+        setAllProducts(allRes.data || []);
       } catch (err) {
         console.error('Error fetching home products:', err);
         setError('Failed to load products');
@@ -215,6 +218,49 @@ export default function HomePage() {
             ) : (
               <p className="col-span-full text-center text-gray-400 py-10">No new arrivals found.</p>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Explore Our Collection Section ── */}
+      <section className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <Tag className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">Explore Our Collection</h2>
+                <p className="text-gray-500 mt-1">Our full range of fresh products</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {loading ? (
+              [...Array(8)].map((_, i) => (
+                <div key={i} className="bg-gray-100 h-80 rounded-2xl animate-pulse"></div>
+              ))
+            ) : allProducts.length > 0 ? (
+              allProducts.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-400 py-10">No products found.</p>
+            )}
+          </div>
+
+          <div className="mt-16 text-center">
+            <Link
+              href="/category/all"
+              className="inline-flex items-center gap-2 px-10 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-gray-800 transition-all hover:scale-105"
+            >
+              View Entire Catalog
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
         </div>
       </section>

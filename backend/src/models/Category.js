@@ -23,4 +23,5 @@ categorySchema.pre('save', function (next) {
   next();
 });
 
-export default mongoose.model('Category', categorySchema);
+export const Category = mongoose.model('Category', categorySchema);
+export default Category;

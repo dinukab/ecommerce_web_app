@@ -52,4 +52,5 @@ productSchema.virtual('status').get(function () {
   return 'in-stock';
 });
 
-export default mongoose.model('Product', productSchema);
+export const Product = mongoose.model('Product', productSchema);
+export default Product;

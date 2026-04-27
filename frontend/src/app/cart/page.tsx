@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import QuantityPicker from "@/components/quantity-picker";
-import { ArrowLeft, ShoppingBag, Trash2, ShoppingCart } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Trash2, ShoppingCart, Plus } from "lucide-react";
 import Link from 'next/link';
 import {
   Carousel,
@@ -14,43 +15,66 @@ import {
 
 import OrderSummary from '@/components/OrderSummary';
 import { useCart } from "@/context/CartContext";
+import { fetchProducts, type Product } from '@/api/Productapi';
+import ProductCard from '@/components/category/ProductCard';
 
 const PLACEHOLDER = 'https://placehold.co/400x400/e8eaff/6366f1?text=No+Image';
 
 export default function CartPage() {
   const router = useRouter();
-  const { cart, removeFromCart, updateQuantity, getCartTotal } = useCart();
+  const { cart, addToCart, removeFromCart, updateQuantity, getCartTotal } = useCart();
 
   const subtotal = getCartTotal();
   const orderTotal = subtotal;
 
-  // Recommended products can stay hardcoded or we could fetch them later
-  const recommendedProducts = [
-    {
-      id: "009",
-      name: "Fresh Milk (1L)",
-      price: 450,
-      image: "https://placehold.co/400x400/e3f2fd/1565c0?text=Milk",
-    },
-    {
-      id: "010",
-      name: "Organic Honey",
-      price: 1800,
-      image: "https://placehold.co/400x400/fff8e1/ffa000?text=Honey",
-    },
-    {
-      id: "011",
-      name: "Whole Wheat Bread",
-      price: 220,
-      image: "https://placehold.co/400x400/efebe9/5d4037?text=Bread",
-    },
-    {
-      id: "012",
-      name: "Brown Eggs (10pk)",
-      price: 650,
-      image: "https://placehold.co/400x400/fbe9e7/d84315?text=Eggs",
-    }
-  ];
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [moreProducts, setMoreProducts] = useState<Product[]>([]);
+  const [loadingRelated, setLoadingRelated] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (cart.length === 0) return;
+      
+      try {
+        setLoadingRelated(true);
+        const categories = [...new Set(cart.map(item => item.category).filter(Boolean))];
+        
+        // 1. Fetch Related Products (same category)
+        let related: Product[] = [];
+        if (categories.length > 0) {
+          const categorySlug = categories[0]
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+
+          const res = await fetchProducts({ category: categorySlug, limit: 10 });
+          const cartIds = cart.map(c => c._id);
+          related = (res.data || []).filter((p: Product) => !cartIds.includes(p._id));
+        }
+
+        // Fallback for related if empty
+        if (related.length === 0) {
+          const fallbackRes = await fetchProducts({ sort: 'rating', limit: 10 });
+          const cartIds = cart.map(c => c._id);
+          related = (fallbackRes.data || []).filter((p: Product) => !cartIds.includes(p._id));
+        }
+        setRelatedProducts(related);
+
+        // 2. Fetch "More Products" (random/newest) for the grid below
+        const moreRes = await fetchProducts({ limit: 12, sort: 'newest' });
+        const usedIds = [...cart.map(c => c._id), ...related.map(r => r._id)];
+        const filteredMore = (moreRes.data || []).filter((p: Product) => !usedIds.includes(p._id));
+        setMoreProducts(filteredMore);
+
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      } finally {
+        setLoadingRelated(false);
+      }
+    };
+
+    loadData();
+  }, [cart]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-gray-50 min-h-screen">
@@ -143,7 +167,7 @@ export default function CartPage() {
                 <p className="text-gray-600 font-medium text-base mb-4">Your cart is empty</p>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-8 px-6 py-12 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Continue Shopping
                 </Link>
@@ -176,38 +200,44 @@ export default function CartPage() {
       </div>
 
       {/* Recommended Section */}
-      {cart.length > 0 && (
+      {relatedProducts.length > 0 && (
         <div className="mt-16">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">You may also like</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">You may also like...</h2>
 
           <Carousel opts={{ align: "start" }} className="w-full">
             <CarouselContent className="-ml-2">
-              {recommendedProducts.map((product) => (
-                <CarouselItem key={product.id} className="pl-2 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
-                  <div className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow border border-gray-200 h-full">
-                    <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-contain p-2"
-                      />
-                    </div>
-                    <h3 className="font-medium text-gray-900 text-xs line-clamp-2 mb-2">{product.name}</h3>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-blue-600 font-bold text-sm">LKR {product.price.toLocaleString()}</span>
-                      <button className="w-8 h-8 rounded-md bg-blue-100 flex items-center justify-center text-blue-600 hover:bg-blue-600 hover:text-white transition-colors flex-shrink-0">
-                        <ShoppingCart className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
+              {relatedProducts.map((product) => (
+                <CarouselItem key={product._id} className="pl-2 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
+                  <ProductCard product={product} />
                 </CarouselItem>
               ))}
             </CarouselContent>
             <div className="hidden sm:block">
-              <CarouselPrevious className="-left-3 h-8 w-8 bg-white border-gray-200" />
-              <CarouselNext className="-right-3 h-8 w-8 bg-white border-gray-200" />
+              <CarouselPrevious className="-left-3 h-8 w-8 bg-white border-gray-200 shadow-sm" />
+              <CarouselNext className="-right-3 h-8 w-8 bg-white border-gray-200 shadow-sm" />
             </div>
           </Carousel>
+        </div>
+      )}
+
+      {/* This is not suggetion .show some products for sale. Other Great Picks Section (Vertical Grid) .t*/}
+      {moreProducts.length > 0 && (
+        <div className="mt-20">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Other Great Picks</h2>
+              
+            </div>
+            <Link href="/category/all" className="text-sm font-bold text-blue-600 hover:text-blue-500">
+              See All Products
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {moreProducts.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
         </div>
       )}
     </div>
