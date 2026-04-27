@@ -1,20 +1,26 @@
 'use client';
 
+declare global {
+  interface Window {
+    payhere: any;
+  }
+}
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
 import OrderSummary from '@/components/OrderSummary';
-import { 
-  Truck, 
-  CreditCard, 
-  MapPin, 
-  Phone, 
-  User, 
-  Mail, 
-  Building2, 
-  LocateFixed, 
+import {
+  Truck,
+  CreditCard,
+  MapPin,
+  Phone,
+  User,
+  Mail,
+  Building2,
+  LocateFixed,
   ShoppingBag,
   CheckCircle2,
   AlertCircle
@@ -50,6 +56,20 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://www.payhere.lk/lib/payhere.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      const existingScript = document.querySelector('script[src="https://www.payhere.lk/lib/payhere.js"]');
+      if (existingScript) {
+        document.body.removeChild(existingScript);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (cart.length === 0) {
       router.push('/');
     }
@@ -61,12 +81,13 @@ export default function CheckoutPage() {
     const calculateFee = async () => {
       if (!formData.district) return;
       try {
-        const res = await api.calculateDeliveryFee({ 
-          district: formData.district, 
-          deliveryMethod: formData.deliveryMethod 
+        const res = await api.calculateDeliveryFee({
+          district: formData.district,
+          deliveryMethod: formData.deliveryMethod
         });
         if (res.success && res.data) {
-          setDeliveryData({ fee: res.data.fee, days: res.data.estimatedDays });
+          const data = res.data;
+          setDeliveryData({ fee: data.fee, days: data.estimatedDays });
         }
       } catch (err) {
         console.error('Fee calculation error:', err);
@@ -115,59 +136,30 @@ export default function CheckoutPage() {
 
       const res = await api.createOrder(token, orderData);
       if (res.success && res.data) {
-        if (formData.paymentMethod === 'card') {
-          // Initialize PayHere
-          const payment = {
-            "sandbox": true,
-            "merchant_id": res.data.payhereMerchantId || process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID || "1228499",
-            "hash": res.data.payhereHash,
-            "return_url": window.location.origin + `/orders/confirmation/${res.data._id}`,
-            "cancel_url": window.location.origin + `/checkout`,
-            "notify_url": process.env.NEXT_PUBLIC_API_URL + "/api/payments/payhere/notify",
-            "order_id": res.data._id,
-            "items": "Ecommerce Order",
-            "amount": subtotal + deliveryData.fee,
-            "currency": "LKR",
-            "first_name": formData.fullName.split(' ')[0],
-            "last_name": formData.fullName.split(' ').slice(1).join(' ') || formData.fullName.split(' ')[0],
-            "email": formData.email,
-            "phone": formData.phone,
-            "address": formData.addressLine1,
-            "city": formData.city || formData.district,
-            "country": "Sri Lanka"
+        const order = res.data;
+        if (formData.paymentMethod === 'payhere' && order.payhereParams) {
+          window.payhere.onCompleted = function onCompleted(orderId: string) {
+            console.log("Payment completed. OrderID:" + orderId);
+            clearCart();
+            router.push(`/orders/confirmation/${order._id}`);
           };
 
-          const payhere = (window as any).payhere;
-          if (payhere) {
-            payhere.onCompleted = function onCompleted(orderId: string) {
-              console.log("Payment completed. OrderID:" + orderId);
-              clearCart();
-              router.push(`/orders/confirmation/${res.data._id}?payment=success`);
-            };
-
-            payhere.onDismissed = function onDismissed() {
-              console.log("Payment dismissed");
-              setLoading(false);
-            };
-
-            payhere.onError = function onError(error: any) {
-              console.log("Error:"  + error);
-              setError("Payment failed: " + error);
-              setLoading(false);
-            };
-
-            payhere.startPayment(payment);
-            // DO NOT clear loading state here, let the popup handle it
-          } else {
-            setError("Payment gateway is not loaded correctly.");
+          window.payhere.onDismissed = function onDismissed() {
+            console.log("Payment dismissed");
             setLoading(false);
-          }
+          };
+
+          window.payhere.onError = function onError(error: string) {
+            console.log("Payment error", error);
+            setError("Payment failed. Please try again.");
+            setLoading(false);
+          };
+
+          window.payhere.startPayment(order.payhereParams);
         } else {
           clearCart();
-          router.push(`/orders/confirmation/${res.data._id}`);
+          router.push(`/orders/confirmation/${order._id}`);
         }
-      } else {
-        setLoading(false);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to place order');
@@ -192,7 +184,7 @@ export default function CheckoutPage() {
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Left Column: Form Sections */}
           <div className="lg:col-span-2 space-y-8">
-            
+
             {/* Section 1: Contact Information */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
@@ -201,7 +193,7 @@ export default function CheckoutPage() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Contact Information</h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Full Name</label>
@@ -212,7 +204,7 @@ export default function CheckoutPage() {
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
-                      placeholder ="Enter your full name"
+                      placeholder="Enter your full name"
                       className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
@@ -295,9 +287,8 @@ export default function CheckoutPage() {
                       name="district"
                       value={formData.district}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer ${
-                        !formData.district ? "text-gray-500" : "text-gray-900"
-                      }`}
+                      className={`w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer ${!formData.district ? "text-gray-500" : "text-gray-900"
+                        }`}
                     >
                       <option value="" disabled>Select District</option>
                       {DISTRICTS.map(d => (
@@ -357,13 +348,12 @@ export default function CheckoutPage() {
                     { id: 'express', label: 'Express Delivery', desc: 'Faster delivery (+50% fee)' },
                     { id: 'pickup', label: 'Store Pickup', desc: 'Pick up at store (FREE)' }
                   ].map((m) => (
-                    <label 
-                      key={m.id} 
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                        formData.deliveryMethod === m.id 
-                          ? 'border-blue-600 bg-blue-50/50' 
-                          : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
-                      }`}
+                    <label
+                      key={m.id}
+                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.deliveryMethod === m.id
+                        ? 'border-blue-600 bg-blue-50/50'
+                        : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <input
@@ -397,15 +387,15 @@ export default function CheckoutPage() {
                   {[
                     { id: 'cash-on-delivery', label: 'Cash on Delivery', desc: 'Pay when you receive' },
                     { id: 'card', label: 'PayHere', desc: 'Secure online payment', logo: 'https://www.payhere.lk/downloads/images/payhere_short_banner.png' },
+                    { id: 'payhere', label: 'PayHere', desc: 'Secure online payment' },
                     { id: 'bank-transfer', label: 'Bank Transfer', desc: 'Manual bank deposit' }
                   ].map((p) => (
-                    <label 
-                      key={p.id} 
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                        formData.paymentMethod === p.id 
-                          ? 'border-blue-600 bg-blue-50/50' 
-                          : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
-                      }`}
+                    <label
+                      key={p.id}
+                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === p.id
+                        ? 'border-blue-600 bg-blue-50/50'
+                        : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <input
@@ -451,10 +441,10 @@ export default function CheckoutPage() {
 
           {/* Right Column: Order Summary */}
           <div className="space-y-8">
-            <OrderSummary 
-              items={cart} 
-              deliveryFee={deliveryData.fee} 
-              subtotal={subtotal} 
+            <OrderSummary
+              items={cart}
+              deliveryFee={deliveryData.fee}
+              subtotal={subtotal}
             >
               <div className="mt-6 space-y-6">
                 {error && (
@@ -467,11 +457,10 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full py-5 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3 ${
-                    loading 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 active:scale-95'
-                  }`}
+                  className={`w-full py-5 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3 ${loading
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 active:scale-95'
+                    }`}
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

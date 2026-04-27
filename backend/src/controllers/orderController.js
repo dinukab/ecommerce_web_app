@@ -219,3 +219,49 @@ export const trackOrder = async (req, res) => {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// POST /api/orders/payhere-notify
+export const payhereNotify = async (req, res) => {
+  try {
+    const {
+      merchant_id,
+      order_id,
+      payhere_amount,
+      payhere_currency,
+      status_code,
+      md5sig,
+    } = req.body;
+
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+    const hashedSecret = crypto
+      .createHash('md5')
+      .update(merchantSecret)
+      .digest('hex')toUpperCase();
+
+    const expectedMd5Sig = crypto
+      .createHash('md5')
+      .update(
+        merchant_id +
+          order_id +
+          payhere_amount +
+          payhere_currency +
+          status_code +
+          hashedSecret
+      )
+      .digest('hex')
+      .toUpperCase();
+
+    if (md5sig === expectedMd5Sig && status_code === '2') {
+      // Payment success (status_code 2 means success in PayHere)
+      await Order.findByIdAndUpdate(order_id, {
+        paymentStatus: 'paid',
+        paymentMethod: 'payhere',
+      });
+    }
+
+    return res.status(200).send();
+  } catch (err) {
+    console.error('PayHere Notify Error:', err);
+    return res.status(500).send();
+  }
+};

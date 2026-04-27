@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod: { 
       type: String, 
-      enum: ['cash-on-delivery', 'card', 'bank-transfer'], 
+      enum: ['cash-on-delivery', 'bank-transfer', 'payhere'], 
       required: true 
     },
     paymentStatus: { 
@@ -70,4 +70,4 @@ orderSchema.pre('save', function (next) {
 });
 
 export const Order = mongoose.model('Order', orderSchema);
-export default Order;
+export default Order;
