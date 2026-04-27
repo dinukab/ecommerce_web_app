@@ -8,7 +8,6 @@ declare global {
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import Script from 'next/script';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
 import OrderSummary from '@/components/OrderSummary';
@@ -136,40 +135,18 @@ export default function CheckoutPage() {
 
       const res = await api.createOrder(token, orderData);
       if (res.success && res.data) {
-        const order = res.data;
-        if (formData.paymentMethod === 'payhere' && order.payhereParams) {
-          window.payhere.onCompleted = function onCompleted(orderId: string) {
-            console.log("Payment completed. OrderID:" + orderId);
-            clearCart();
-            router.push(`/orders/confirmation/${order._id}`);
-          };
-
-          window.payhere.onDismissed = function onDismissed() {
-            console.log("Payment dismissed");
-            setLoading(false);
-          };
-
-          window.payhere.onError = function onError(error: string) {
-            console.log("Payment error", error);
-            setError("Payment failed. Please try again.");
-            setLoading(false);
-          };
-
-          window.payhere.startPayment(order.payhereParams);
-        } else {
-          clearCart();
-          router.push(`/orders/confirmation/${order._id}`);
-        }
+        clearCart();
+        router.push(`/orders/confirmation/${res.data._id}`);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to place order');
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <Script src="https://www.payhere.lk/lib/payhere.js" strategy="lazyOnload" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center gap-3 mb-10">
           <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
@@ -386,8 +363,7 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   {[
                     { id: 'cash-on-delivery', label: 'Cash on Delivery', desc: 'Pay when you receive' },
-                    { id: 'card', label: 'PayHere', desc: 'Secure online payment', logo: 'https://www.payhere.lk/downloads/images/payhere_short_banner.png' },
-                    { id: 'payhere', label: 'PayHere', desc: 'Secure online payment' },
+                    { id: 'card', label: 'Credit / Debit Card', desc: 'Secure online payment' },
                     { id: 'bank-transfer', label: 'Bank Transfer', desc: 'Manual bank deposit' }
                   ].map((p) => (
                     <label
@@ -411,14 +387,7 @@ export default function CheckoutPage() {
                           <p className="text-[10px] text-gray-500">{p.desc}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        {p.logo && (
-                          <div className="bg-white px-2 py-1 rounded-md border border-gray-100 shadow-sm">
-                            <img src={p.logo} alt={p.label} className="h-5 object-contain" />
-                          </div>
-                        )}
-                        {formData.paymentMethod === p.id && <CheckCircle2 className="w-5 h-5 text-blue-600" />}
-                      </div>
+                      {formData.paymentMethod === p.id && <CheckCircle2 className="w-5 h-5 text-blue-600" />}
                     </label>
                   ))}
                 </div>

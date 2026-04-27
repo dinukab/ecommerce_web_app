@@ -135,7 +135,7 @@ export default function CartPage() {
                     {/* Price */}
                     <div className="md:col-span-2 md:text-center">
                       <span className="text-sm font-semibold text-gray-900">
-                        LKR {(item.sellingPrice || (item as any).price || 0).toLocaleString()}
+                        LKR {item.sellingPrice.toLocaleString()}
                       </span>
                     </div>
 
@@ -151,7 +151,7 @@ export default function CartPage() {
                     {/* Total */}
                     <div className="md:col-span-2 md:text-right">
                       <span className="text-sm font-bold text-blue-600">
-                        LKR {((item.sellingPrice || (item as any).price || 0) * item.quantity).toLocaleString()}
+                        LKR {(item.sellingPrice * item.quantity).toLocaleString()}
                       </span>
                     </div>
                   </div>
