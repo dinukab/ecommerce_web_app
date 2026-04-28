@@ -1,20 +1,26 @@
 'use client';
 
+declare global {
+  interface Window {
+    payhere: any;
+  }
+}
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
 import OrderSummary from '@/components/OrderSummary';
-import { 
-  Truck, 
-  CreditCard, 
-  MapPin, 
-  Phone, 
-  User, 
-  Mail, 
-  Building2, 
-  LocateFixed, 
+import {
+  Truck,
+  CreditCard,
+  MapPin,
+  Phone,
+  User,
+  Mail,
+  Building2,
+  LocateFixed,
   ShoppingBag,
   CheckCircle2,
   AlertCircle
@@ -94,12 +100,13 @@ export default function CheckoutPage() {
     const calculateFee = async () => {
       if (!formData.district) return;
       try {
-        const res = await api.calculateDeliveryFee({ 
-          district: formData.district, 
-          deliveryMethod: formData.deliveryMethod 
+        const res = await api.calculateDeliveryFee({
+          district: formData.district,
+          deliveryMethod: formData.deliveryMethod
         });
         if (res.success && res.data) {
-          setDeliveryData({ fee: res.data.fee, days: res.data.estimatedDays });
+          const data = res.data;
+          setDeliveryData({ fee: data.fee, days: data.estimatedDays });
         }
       } catch (err) {
         console.error('Fee calculation error:', err);
@@ -192,6 +199,7 @@ export default function CheckoutPage() {
             payhere.onCompleted = function onCompleted(pOrderId: string) {
               clearCart();
               router.push(`/orders/confirmation/${order._id}?payment=success`);
+              router.push(`/orders/confirmation/${order._id}?payment=success`);
             };
             payhere.onDismissed = function onDismissed() {
               setLoading(false);
@@ -206,8 +214,9 @@ export default function CheckoutPage() {
             setLoading(false);
           }
         } else {
+          // Default: Clear cart and go to confirmation
           clearCart();
-          router.push(`/orders/confirmation/${res.data._id}`);
+          router.push(`/orders/confirmation/${order._id}`);
         }
       } else {
         // Backend returned success:false — show the reason
@@ -236,7 +245,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <Script src="https://www.payhere.lk/lib/payhere.js" strategy="lazyOnload" />
+      <Script 
+        src="https://www.payhere.lk/lib/payhere.js" 
+        strategy="lazyOnload"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center gap-3 mb-10">
           <div className="w-12 h-12 rounded-2xl bg-brand flex items-center justify-center text-white shadow-lg shadow-brand-light">
@@ -251,7 +263,7 @@ export default function CheckoutPage() {
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Left Column: Form Sections */}
           <div className="lg:col-span-2 space-y-8">
-            
+
             {/* Section 1: Contact Information */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
@@ -260,7 +272,7 @@ export default function CheckoutPage() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Contact Information</h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Full Name</label>
@@ -272,7 +284,7 @@ export default function CheckoutPage() {
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="Enter your full name"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -287,7 +299,7 @@ export default function CheckoutPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -301,7 +313,7 @@ export default function CheckoutPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+94 7X XXX XXXX"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -328,7 +340,7 @@ export default function CheckoutPage() {
                       value={formData.addressLine1}
                       onChange={handleChange}
                       placeholder="Street name, building number..."
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -341,7 +353,7 @@ export default function CheckoutPage() {
                       value={formData.addressLine2}
                       onChange={handleChange}
                       placeholder="Apartment, suite, unit, etc."
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -354,11 +366,12 @@ export default function CheckoutPage() {
                       name="district"
                       value={formData.district}
                       onChange={handleChange}
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer"
+                      className={`w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer ${!formData.district ? "text-gray-500" : "text-gray-900"
+                        }`}
                     >
-                      <option value="">Select District</option>
+                      <option value="" disabled>Select District</option>
                       {DISTRICTS.map(d => (
-                        <option key={d} value={d}>{d}</option>
+                        <option key={d} value={d} className="text-gray-900">{d}</option>
                       ))}
                     </select>
                     {/* Custom Arrow */}
@@ -378,7 +391,7 @@ export default function CheckoutPage() {
                       value={formData.city}
                       onChange={handleChange}
                       placeholder="Enter City"
-                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -391,7 +404,7 @@ export default function CheckoutPage() {
                       value={formData.postalCode}
                       onChange={handleChange}
                       placeholder="E.g. 10000"
-                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm"
+                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
                     />
                   </div>
                 </div>

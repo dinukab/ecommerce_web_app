@@ -18,9 +18,10 @@ interface OrderSummaryProps {
   isCart?: boolean;
   loading?: boolean;
   onCheckout?: () => void;
+  children?: React.ReactNode;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, subtotal, isCart, loading, onCheckout }) => {
+const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, subtotal, isCart, loading, onCheckout, children }) => {
   const total = subtotal + (deliveryFee || 0);
 
   return (
@@ -99,6 +100,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
           )}
         </button>
       )}
+
+      {children}
     </div>
   );
 };

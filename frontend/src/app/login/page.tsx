@@ -52,9 +52,7 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
       setTimeout(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirect = urlParams.get('redirect') || '/';
-        router.push(redirect);
+        router.push('/');
       }, 1500);
     } catch (err: any) {
       setError(err.message || 'Invalid email or password. Please try again.');
