@@ -118,38 +118,68 @@ export const createOrder = async (req: any, res: Response) => {
       }
     } catch (stockError) {
       console.error('Error updating stock:', stockError);
-      // Note: Order is already saved, but log this error for manual review
       console.error(`Order ${createdOrder._id} created but stock deduction failed for some items`);
     }
 
-    // Generate PayHere Hash
-    const merchantId = process.env.PAYHERE_MERCHANT_ID || '1228499';
-    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || '';
-    
-    let payhereHash = '';
-    if (merchantSecret) {
-      const amountFormatted = createdOrder.totalPrice.toFixed(2);
-      const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
-      const hashData = merchantId + createdOrder._id.toString() + amountFormatted + 'LKR' + hashedSecret;
-      payhereHash = crypto.createHash('md5').update(hashData).digest('hex').toUpperCase();
+    // PayHere Logic
+    if (paymentMethod === 'payhere') {
+      const merchantId = process.env.PAYHERE_MERCHANT_ID || '1228499';
+      const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+      const orderId = createdOrder._id.toString();
+      const amount = createdOrder.totalPrice.toFixed(2);
+      const currency = 'LKR';
+
+      let hash = '';
+      if (merchantSecret) {
+        const hashedSecret = crypto
+          .createHash('md5')
+          .update(merchantSecret)
+          .digest('hex')
+          .toUpperCase();
+
+        hash = crypto
+          .createHash('md5')
+          .update(merchantId + orderId + amount + currency + hashedSecret)
+          .digest('hex')
+          .toUpperCase();
+      }
+
+      const payhereParams = {
+        sandbox: true,
+        merchant_id: merchantId,
+        return_url: `${process.env.FRONTEND_URL}/orders/confirmation/${orderId}`,
+        cancel_url: `${process.env.FRONTEND_URL}/checkout`,
+        notify_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/orders/payhere-notify`,
+        order_id: orderId,
+        items: createdOrder.orderItems.map((i: any) => i.name).join(', '),
+        amount: amount,
+        currency: currency,
+        hash: hash,
+        first_name: shippingAddress.fullName.split(' ')[0],
+        last_name: shippingAddress.fullName.split(' ').slice(1).join(' ') || 'User',
+        email: req.user.email,
+        phone: shippingAddress.phone,
+        address: shippingAddress.addressLine1,
+        city: shippingAddress.city,
+        country: 'Sri Lanka',
+      };
+
+      return res.status(201).json({
+        success: true,
+        message: 'Order placed successfully and saved to database',
+        data: {
+          ...createdOrder.toObject(),
+          payhereParams,
+          payhereHash: hash, // For backward compatibility if needed
+          payhereMerchantId: merchantId
+        }
+      });
     }
 
-    console.log('✅ Order successfully created and saved to database:');
-    console.log(`   Order ID: ${createdOrder._id}`);
-    console.log(`   Tracking Number: ${createdOrder.trackingNumber}`);
-    console.log(`   User ID: ${createdOrder.user}`);
-    console.log(`   Total Price: ${createdOrder.totalPrice}`);
-    console.log(`   Order Status: ${createdOrder.orderStatus}`);
-    console.log(`   Payment Status: ${createdOrder.paymentStatus}`);
-
     return res.status(201).json({ 
-      success: true,
+      success: true, 
       message: 'Order placed successfully and saved to database',
-      data: { 
-        ...createdOrder.toObject(), 
-        payhereHash, 
-        payhereMerchantId: merchantId 
-      } 
+      data: createdOrder 
     });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });

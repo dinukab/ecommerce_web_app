@@ -275,8 +275,8 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Full Name</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Full Name</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <User className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
@@ -284,13 +284,13 @@ export default function CheckoutPage() {
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="Enter your full name"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
+                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Email Address</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <Mail className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
@@ -299,13 +299,13 @@ export default function CheckoutPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
+                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Phone Number</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Phone Number</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <Phone className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+94 7X XXX XXXX"
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
+                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -331,8 +331,8 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Address Line 1</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Address Line 1</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
@@ -340,33 +340,33 @@ export default function CheckoutPage() {
                       value={formData.addressLine1}
                       onChange={handleChange}
                       placeholder="Street name, building number..."
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
+                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Address Line 2 (Optional)</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Address Line 2 (Optional)</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       name="addressLine2"
                       value={formData.addressLine2}
                       onChange={handleChange}
                       placeholder="Apartment, suite, unit, etc."
-                      className="w-full px-4 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
+                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">District</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all relative">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">District</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300 relative">
                     <LocateFixed className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <select
                       required
                       name="district"
                       value={formData.district}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3.5 bg-transparent outline-none text-sm appearance-none cursor-pointer ${!formData.district ? "text-gray-500" : "text-gray-900"
+                      className={`w-full px-4 py-4 bg-transparent outline-none text-sm font-medium appearance-none cursor-pointer ${!formData.district ? "text-gray-400" : "text-gray-900"
                         }`}
                     >
                       <option value="" disabled>Select District</option>
@@ -383,28 +383,28 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">City</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">City</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <input
                       required
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
                       placeholder="Enter City"
-                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
+                      className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Postal Code</label>
-                  <div className="flex items-center rounded-2xl border border-gray-100 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-light0 transition-all">
+                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Postal Code</label>
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <input
                       required
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleChange}
                       placeholder="E.g. 10000"
-                      className="w-full px-5 py-3.5 bg-transparent outline-none text-sm placeholder:text-gray-500"
+                      className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -506,6 +506,7 @@ export default function CheckoutPage() {
 
             {/* Section 4: Additional Notes */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+                    
               <label className="block text-sm font-bold text-gray-900 mb-4">Order Notes (Optional)</label>
               <textarea
                 name="orderNotes"
@@ -513,7 +514,7 @@ export default function CheckoutPage() {
                 onChange={handleChange}
                 rows={3}
                 placeholder="Any special instructions for delivery..."
-                className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:ring-2 focus:ring-brand-light0 focus:border-transparent outline-none transition-all text-sm resize-none"
+                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 text-gray-900 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300"
               />
             </div>
           </div>
