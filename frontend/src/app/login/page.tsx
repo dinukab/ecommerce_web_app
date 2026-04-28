@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,14 @@ export default function LoginPage() {
   const [success, setSuccess] = useState(false);
   const router = useRouter();
 
+  // Load remembered email on mount
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem('remembered_email');
+    if (rememberedEmail) {
+      setFormData(prev => ({ ...prev, email: rememberedEmail, rememberMe: true }));
+    }
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -42,10 +50,18 @@ export default function LoginPage() {
       const response = await api.login({
         email: formData.email,
         password: formData.password,
+        rememberMe: formData.rememberMe,
       });
 
       // Handle successful login
       setSuccess(true);
+      
+      // Store "Remember Me" preference
+      if (formData.rememberMe) {
+        localStorage.setItem('remembered_email', formData.email);
+      } else {
+        localStorage.removeItem('remembered_email');
+      }
       
       // Store token (this would ideally be handled in an AuthContext)
       localStorage.setItem('auth_token', response.data.token);

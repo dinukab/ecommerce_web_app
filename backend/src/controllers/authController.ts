@@ -4,9 +4,9 @@ import crypto from 'crypto';
 import User from '../models/Customer.js';
 import sendEmail from '../utils/sendEmail.js';
 
-const generateToken = (id) => {
+const generateToken = (id, rememberMe = false) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'supersecretkey', {
-    expiresIn: '30d',
+    expiresIn: rememberMe ? '30d' : '24h',
   });
 };
 
@@ -61,7 +61,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ 
@@ -96,7 +96,7 @@ const loginUser = async (req, res) => {
           email: user.email,
           role: 'user'
         },
-        token: generateToken(user._id)
+        token: generateToken(user._id, rememberMe)
       }
     });
 

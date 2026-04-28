@@ -1,9 +1,10 @@
+import { Request, Response } from "express";
 import Wishlist from "../models/Wishlist.js";
 
 // @desc    Get user wishlist
 // @route   GET /api/wishlist
 // @access  Private
-export const getWishlist = async (req, res) => {
+export const getWishlist = async (req: any, res: Response) => {
   try {
     let wishlist = await Wishlist.findOne({ userId: req.user.id }).populate('products');
     
@@ -27,7 +28,7 @@ export const getWishlist = async (req, res) => {
 // @desc    Add product to wishlist
 // @route   POST /api/wishlist
 // @access  Private
-export const addToWishlist = async (req, res) => {
+export const addToWishlist = async (req: any, res: Response) => {
   try {
     const { productId } = req.body;
 
@@ -68,7 +69,7 @@ export const addToWishlist = async (req, res) => {
 // @desc    Remove product from wishlist
 // @route   DELETE /api/wishlist/:productId
 // @access  Private
-export const removeFromWishlist = async (req, res) => {
+export const removeFromWishlist = async (req: any, res: Response) => {
   try {
     const { productId } = req.params;
 

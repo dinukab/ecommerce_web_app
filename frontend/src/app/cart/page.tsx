@@ -197,7 +197,7 @@ export default function CartPage() {
                 <p className="text-gray-600 font-medium text-base mb-4">Your cart is empty</p>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-8 px-6 py-12 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-brand text-white font-bold rounded-2xl hover:bg-brand-dark transition-all shadow-lg shadow-brand-light active:scale-95"
                 >
                   Continue Shopping
                 </Link>

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import ShippingInfo from '../models/shippingInfo.js';
 
 const router = express.Router();
@@ -6,10 +6,10 @@ const router = express.Router();
 // @route   GET /api/shipping-info
 // @desc    Get all shipping information (with filtering)
 // @access  Public
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, type } = req.query;
-    let query = { isActive: true };
+    let query: any = { isActive: true };
 
     // Filter by category
     if (category) {
@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
       count: shippingInfo.length,
       data: shippingInfo
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message || 'Error fetching shipping information'
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
 // @route   GET /api/shipping-info/categories
 // @desc    Get all shipping info categories
 // @access  Public
-router.get('/categories', async (req, res) => {
+router.get('/categories', async (req: Request, res: Response) => {
   try {
     const categories = [
       'Shipping Options',
@@ -69,7 +69,7 @@ router.get('/categories', async (req, res) => {
       success: true,
       data: categoryCounts
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -80,7 +80,7 @@ router.get('/categories', async (req, res) => {
 // @route   GET /api/shipping-info/:id
 // @desc    Get single shipping info by ID
 // @access  Public
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const shippingInfo = await ShippingInfo.findById(req.params.id);
 
@@ -95,7 +95,7 @@ router.get('/:id', async (req, res) => {
       success: true,
       data: shippingInfo
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -108,7 +108,7 @@ router.get('/:id', async (req, res) => {
 // @route   POST /api/shipping-info
 // @desc    Create new shipping info (Admin only)
 // @access  Private
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const { title, description, category, type, content, metadata, order } =
       req.body;
@@ -138,7 +138,7 @@ router.post('/', async (req, res) => {
       message: 'Shipping information created successfully',
       data: shippingInfo
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -149,7 +149,7 @@ router.post('/', async (req, res) => {
 // @route   PATCH /api/shipping-info/:id
 // @desc    Update shipping info (Admin only)
 // @access  Private
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { title, description, category, type, content, metadata, order, isActive } =
       req.body;
@@ -181,7 +181,7 @@ router.patch('/:id', async (req, res) => {
       message: 'Shipping information updated successfully',
       data: shippingInfo
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -192,7 +192,7 @@ router.patch('/:id', async (req, res) => {
 // @route   DELETE /api/shipping-info/:id
 // @desc    Delete shipping info (Admin only)
 // @access  Private
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const shippingInfo = await ShippingInfo.findByIdAndDelete(req.params.id);
 
@@ -207,7 +207,7 @@ router.delete('/:id', async (req, res) => {
       success: true,
       message: 'Shipping information deleted successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message

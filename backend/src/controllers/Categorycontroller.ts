@@ -1,12 +1,13 @@
+import { Request, Response } from 'express';
 import Category from '../models/Category.js';
 import Product from '../models/Product.js';
 
 // Generate a URL-safe slug from a category name
-const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const toSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 // GET /api/categories
 // Returns all categories with dynamically computed productCount
-export const getAllCategories = async (req, res) => {
+export const getAllCategories = async (req: Request, res: Response) => {
   try {
     const categories = await Category.find().sort({ name: 1 }).lean();
 
@@ -23,13 +24,13 @@ export const getAllCategories = async (req, res) => {
     );
 
     res.json({ success: true, data: categoriesWithCount });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // GET /api/categories/:slug
-export const getCategoryBySlug = async (req, res) => {
+export const getCategoryBySlug = async (req: Request, res: Response) => {
   try {
     const reqSlug = req.params.slug;
 
@@ -53,7 +54,7 @@ export const getCategoryBySlug = async (req, res) => {
     });
 
     res.json({ success: true, data: { ...category, slug, productCount } });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };

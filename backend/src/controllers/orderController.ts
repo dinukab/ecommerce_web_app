@@ -1,10 +1,11 @@
+import { Request, Response } from 'express';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import DeliveryZone from '../models/DeliveryZone.js';
 import crypto from 'crypto';
 
 // POST /api/orders
-export const createOrder = async (req, res) => {
+export const createOrder = async (req: any, res: Response) => {
   try {
     const {
       orderItems,
@@ -127,7 +128,7 @@ export const createOrder = async (req, res) => {
     
     let payhereHash = '';
     if (merchantSecret) {
-      const amountFormatted = parseFloat(createdOrder.totalPrice).toFixed(2);
+      const amountFormatted = createdOrder.totalPrice.toFixed(2);
       const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
       const hashData = merchantId + createdOrder._id.toString() + amountFormatted + 'LKR' + hashedSecret;
       payhereHash = crypto.createHash('md5').update(hashData).digest('hex').toUpperCase();
@@ -145,28 +146,28 @@ export const createOrder = async (req, res) => {
       success: true,
       message: 'Order placed successfully and saved to database',
       data: { 
-        ...createdOrder._doc, 
+        ...createdOrder.toObject(), 
         payhereHash, 
         payhereMerchantId: merchantId 
       } 
     });
-  } catch (err) {
+  } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // GET /api/orders/my-orders
-export const getMyOrders = async (req, res) => {
+export const getMyOrders = async (req: any, res: Response) => {
   try {
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     return res.json({ success: true, data: orders });
-  } catch (err) {
+  } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // GET /api/orders/:id
-export const getOrderById = async (req, res) => {
+export const getOrderById = async (req: any, res: Response) => {
   try {
     const order = await Order.findById(req.params.id).populate('user', 'name email');
     if (!order) {
@@ -181,13 +182,13 @@ export const getOrderById = async (req, res) => {
     }
 
     return res.json({ success: true, data: order });
-  } catch (err) {
+  } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // PUT /api/orders/:id/status (admin)
-export const updateOrderStatus = async (req, res) => {
+export const updateOrderStatus = async (req: any, res: Response) => {
   try {
     const { orderStatus } = req.body;
     const order = await Order.findById(req.params.id);
@@ -200,12 +201,12 @@ export const updateOrderStatus = async (req, res) => {
     order.status = orderStatus;
 
     if (orderStatus === 'delivered') {
-      order.deliveredAt = Date.now();
+      order.deliveredAt = new Date();
       order.paymentStatus = 'paid';
     }
 
     if (orderStatus === 'cancelled') {
-      order.cancelledAt = Date.now();
+      order.cancelledAt = new Date();
       order.cancelReason = req.body.cancelReason || 'Cancelled by admin';
 
       for (const item of order.orderItems) {
@@ -217,13 +218,13 @@ export const updateOrderStatus = async (req, res) => {
 
     const updatedOrder = await order.save();
     return res.json({ success: true, data: updatedOrder });
-  } catch (err) {
+  } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // GET /api/orders/track/:trackingNumber
-export const trackOrder = async (req, res) => {
+export const trackOrder = async (req: Request, res: Response) => {
   try {
     const order = await Order.findOne({
       trackingNumber: req.params.trackingNumber.toUpperCase(),
@@ -241,20 +242,20 @@ export const trackOrder = async (req, res) => {
       status: order.status || order.orderStatus,
       estimatedDeliveryDate: order.estimatedDeliveryDate,
       createdAt: order.createdAt,
-      city: order.shippingAddress.city,
-      district: order.shippingAddress.district,
+      city: order.shippingAddress?.city,
+      district: order.shippingAddress?.district,
       itemsCount: order.items?.length || order.orderItems?.length || 0,
       trackingNumber: order.trackingNumber,
     };
 
     return res.json({ success: true, data: publicData });
-  } catch (err) {
+  } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // POST /api/orders/payhere-notify
-export const payhereNotify = async (req, res) => {
+export const payhereNotify = async (req: Request, res: Response) => {
   try {
     const {
       merchant_id,
@@ -265,7 +266,7 @@ export const payhereNotify = async (req, res) => {
       md5sig,
     } = req.body;
 
-    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || '';
     const hashedSecret = crypto
       .createHash('md5')
       .update(merchantSecret)
@@ -294,7 +295,7 @@ export const payhereNotify = async (req, res) => {
     }
 
     return res.status(200).send();
-  } catch (err) {
+  } catch (err: any) {
     console.error('PayHere Notify Error:', err);
     return res.status(500).send();
   }

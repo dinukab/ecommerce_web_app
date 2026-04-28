@@ -1,17 +1,18 @@
+import { Request, Response } from 'express';
 import DeliveryZone from '../models/DeliveryZone.js';
 
 // GET /api/delivery/zones
-export const getDeliveryZones = async (req, res) => {
+export const getDeliveryZones = async (req: Request, res: Response) => {
   try {
     const zones = await DeliveryZone.find({ isActive: true }).sort({ name: 1 });
     res.json({ success: true, data: zones });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // POST /api/delivery/calculate
-export const calculateDeliveryFee = async (req, res) => {
+export const calculateDeliveryFee = async (req: Request, res: Response) => {
   try {
     const { district, deliveryMethod } = req.body;
     
@@ -59,17 +60,17 @@ export const calculateDeliveryFee = async (req, res) => {
         zoneId: zone._id
       } 
     });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 // POST /api/delivery/zones (Admin Only)
-export const createDeliveryZone = async (req, res) => {
+export const createDeliveryZone = async (req: Request, res: Response) => {
   try {
     const zone = await DeliveryZone.create(req.body);
     res.status(201).json({ success: true, data: zone });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };

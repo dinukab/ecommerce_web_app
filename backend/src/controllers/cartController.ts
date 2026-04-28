@@ -1,7 +1,8 @@
+import { Request, Response } from "express";
 import Cart from "../models/Cart.js";
 
 // Add a single item to the cart
-export const addToCart = async (req, res) => {
+export const addToCart = async (req: Request, res: Response) => {
   try {
     const userId    = String(req.body?.userId ?? req.body?.user ?? '');
     const productId = String(req.body?.productId ?? req.body?.product ?? '');
@@ -33,13 +34,13 @@ export const addToCart = async (req, res) => {
 
     await cart.save();
     res.json({ message: "Product added to cart", cart });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };
 
 // Sync (replace) entire cart — called when customer clicks "Proceed to Checkout"
-export const syncCart = async (req, res) => {
+export const syncCart = async (req: Request, res: Response) => {
   try {
     const userId = String(req.body?.userId ?? '');
     const items  = req.body?.items;
@@ -60,7 +61,7 @@ export const syncCart = async (req, res) => {
     );
 
     res.json({ message: "Cart synced successfully", cart });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };

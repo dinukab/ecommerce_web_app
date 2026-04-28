@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import FAQ from '../models/faq.js';
 
 const router = express.Router();
@@ -6,14 +6,14 @@ const router = express.Router();
 // @route   GET /api/faqs
 // @desc    Get all FAQs (with filtering and sorting)
 // @access  Public
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, search, page = 1, limit = 10 } = req.query;
-    let query = { isActive: true };
+    let query: any = { isActive: true };
 
     // Filter by category
     if (category && category !== 'All') {
-      query.category = category;
+      query.category = category as string;
     }
 
     // Search functionality
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
     }
 
     // Calculate pagination
-    const skip = (page - 1) * limit;
+    const skip = (Number(page) - 1) * Number(limit);
 
     // Get total count
     const total = await FAQ.countDocuments(query);
@@ -31,20 +31,20 @@ router.get('/', async (req, res) => {
     const faqs = await FAQ.find(query)
       .sort({ order: 1, createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit as string));
 
     res.status(200).json({
       success: true,
       count: faqs.length,
       total,
-      page: parseInt(page),
-      pages: Math.ceil(total / limit),
+      page: Number(page),
+      pages: Math.ceil(total / Number(limit)),
       data: faqs
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Error fetching FAQs'
+      message: (error as any).message || 'Error fetching FAQs'
     });
   }
 });
@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
 // @route   GET /api/faqs/categories
 // @desc    Get all FAQ categories
 // @access  Public
-router.get('/categories', async (req, res) => {
+router.get('/categories', async (req: Request, res: Response) => {
   try {
     const categories = [
       'General',
@@ -77,7 +77,7 @@ router.get('/categories', async (req, res) => {
       success: true,
       data: categoryCounts
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -88,7 +88,7 @@ router.get('/categories', async (req, res) => {
 // @route   GET /api/faqs/:id
 // @desc    Get single FAQ and increment views
 // @access  Public
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const faq = await FAQ.findByIdAndUpdate(
       req.params.id,
@@ -107,7 +107,7 @@ router.get('/:id', async (req, res) => {
       success: true,
       data: faq
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -118,7 +118,7 @@ router.get('/:id', async (req, res) => {
 // @route   POST /api/faqs/helpful/:id
 // @desc    Mark FAQ as helpful
 // @access  Public
-router.post('/helpful/:id', async (req, res) => {
+router.post('/helpful/:id', async (req: Request, res: Response) => {
   try {
     const { helpful } = req.body; // true for helpful, false for not helpful
 
@@ -142,7 +142,7 @@ router.post('/helpful/:id', async (req, res) => {
       message: 'Thank you for your feedback!',
       data: faq
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -155,7 +155,7 @@ router.post('/helpful/:id', async (req, res) => {
 // @route   POST /api/faqs
 // @desc    Create new FAQ (Admin only)
 // @access  Private
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const { question, answer, category, order } = req.body;
 
@@ -181,7 +181,7 @@ router.post('/', async (req, res) => {
       message: 'FAQ created successfully',
       data: faq
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -192,7 +192,7 @@ router.post('/', async (req, res) => {
 // @route   PATCH /api/faqs/:id
 // @desc    Update FAQ (Admin only)
 // @access  Private
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { question, answer, category, order, isActive } = req.body;
 
@@ -214,7 +214,7 @@ router.patch('/:id', async (req, res) => {
       message: 'FAQ updated successfully',
       data: faq
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -225,7 +225,7 @@ router.patch('/:id', async (req, res) => {
 // @route   DELETE /api/faqs/:id
 // @desc    Delete FAQ (Admin only)
 // @access  Private
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const faq = await FAQ.findByIdAndDelete(req.params.id);
 
@@ -240,7 +240,7 @@ router.delete('/:id', async (req, res) => {
       success: true,
       message: 'FAQ deleted successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message

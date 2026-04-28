@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import ContactMessage from '../models/contactMessage.js';
 
 const router = express.Router();
@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
       message: 'Your message has been sent successfully. We will get back to you soon!',
       data: contactMessage
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Contact form error:', error);
     res.status(500).json({
       success: false,
@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
       count: messages.length,
       data: messages
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -86,7 +86,7 @@ router.get('/:id', async (req, res) => {
       success: true,
       data: message
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -119,7 +119,7 @@ router.patch('/:id', async (req, res) => {
       message: 'Message updated successfully',
       data: message
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -145,7 +145,7 @@ router.delete('/:id', async (req, res) => {
       success: true,
       message: 'Contact message deleted successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message

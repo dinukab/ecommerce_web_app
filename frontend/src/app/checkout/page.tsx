@@ -173,7 +173,7 @@ export default function CheckoutPage() {
 
       if (res.success && res.data) {
         const order = res.data;
-        if (formData.paymentMethod === 'card') {
+        if (formData.paymentMethod === 'payhere') {
           const payment = {
             "sandbox": true,
             "merchant_id": order.payhereMerchantId || process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID || "1228499",
@@ -466,7 +466,7 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   {[
                     { id: 'cash-on-delivery', label: 'Cash on Delivery', desc: 'Pay when you receive' },
-                    { id: 'card', label: 'PayHere', desc: 'Secure online payment', logo: 'https://www.payhere.lk/downloads/images/payhere_short_banner.png' }
+                    { id: 'payhere', label: 'PayHere', desc: 'Secure online payment', logo: 'https://www.payhere.lk/downloads/images/payhere_short_banner.png' }
                   ].map((p) => (
                     <label 
                       key={p.id} 
@@ -519,7 +519,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Right Column: Order Summary */}
-          <div className="space-y-8">
+          <div className="lg:sticky lg:top-24 h-fit space-y-8">
             <OrderSummary 
               items={cart} 
               deliveryFee={deliveryData.fee} 

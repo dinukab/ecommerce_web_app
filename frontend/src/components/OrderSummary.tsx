@@ -25,7 +25,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
   const total = subtotal + (deliveryFee || 0);
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-fit sticky top-24">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-fit">
       <h3 className="text-lg font-bold text-gray-900 mb-6">Order Summary</h3>
       
       <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar mb-6">
