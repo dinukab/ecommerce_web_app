@@ -2,21 +2,9 @@ const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export type ProductStatus = 'in-stock' | 'out-of-stock' | 'low-stock';
 
-export interface Product {
-  _id: string;
-  name: string;
-  description?: string;
-  sellingPrice: number;
-  costPrice: number;
-  stock: number;
-  lowStockThreshold: number;
-  images: string[];
-  status?: ProductStatus;
-  badge?: string;
-  brand?: string;
-  rating: number;
-  numReviews: number;
-}
+import type { Product } from '@/types';
+export type { Product };
+
 
 export interface Pagination {
   total: number;

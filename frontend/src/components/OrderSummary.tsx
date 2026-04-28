@@ -16,10 +16,11 @@ interface OrderSummaryProps {
   deliveryFee?: number;
   subtotal: number;
   isCart?: boolean;
+  loading?: boolean;
   onCheckout?: () => void;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, subtotal, isCart, onCheckout }) => {
+const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, subtotal, isCart, loading, onCheckout }) => {
   const total = subtotal + (deliveryFee || 0);
 
   return (
@@ -39,7 +40,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-800 truncate">{item.name}</p>
               <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
-              <p className="text-sm font-bold text-blue-600 mt-1">
+              <p className="text-sm font-bold mt-1" style={{ color: 'var(--brand)' }}>
                 LKR {((item.price || item.sellingPrice || 0) * item.quantity).toLocaleString()}
               </p>
             </div>
@@ -56,7 +57,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
           <span className="text-gray-500">Delivery Fee</span>
           <span className="font-bold text-gray-900">
             {deliveryFee === undefined ? (
-              <span className="text-blue-600 text-xs font-medium">Calculated at checkout</span>
+              <span className="text-brand text-xs font-medium">Calculated at checkout</span>
             ) : deliveryFee === 0 ? (
               'FREE'
             ) : (
@@ -66,17 +67,17 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
         </div>
         <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
           <span className="text-base font-bold text-gray-900">Total</span>
-          <span className="text-xl font-black text-blue-600">
+          <span className="text-xl font-black" style={{ color: 'var(--brand)' }}>
             LKR {total.toLocaleString()}
           </span>
         </div>
       </div>
 
-      <div className="mt-6 p-3 bg-blue-50 rounded-xl flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">
+      <div className="mt-6 p-3 rounded-xl flex items-center gap-3" style={{ backgroundColor: 'var(--brand-light)' }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ backgroundColor: 'var(--brand)' }}>
           !
         </div>
-        <p className="text-[10px] text-blue-700 font-medium">
+        <p className="text-[10px] font-medium" style={{ color: 'var(--brand-dark)' }}>
           Prices include all applicable taxes and service charges.
         </p>
       </div>
@@ -84,9 +85,18 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
       {isCart && (
         <button
           onClick={onCheckout}
-          className="w-full mt-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 transition-all active:scale-[0.98]"
+          disabled={loading}
+          className="w-full mt-6 py-4 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          style={{ backgroundColor: loading ? 'var(--brand-dark)' : 'var(--brand)' }}
         >
-          Proceed to Checkout
+          {loading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Saving cart...</span>
+            </>
+          ) : (
+            'Proceed to Checkout'
+          )}
         </button>
       )}
     </div>
@@ -94,3 +104,4 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
 };
 
 export default OrderSummary;
+

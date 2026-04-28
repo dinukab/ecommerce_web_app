@@ -19,10 +19,11 @@ export default function AddToCartButton({
       variant="outline"
       onClick={onAdd}
       disabled={disabled}
-      className="h-10 w-10 rounded-full shadow hover:bg-blue-50"
+      className="h-10 w-10 rounded-full shadow hover:bg-brand-light"
       aria-label="Add to cart"
     >
       <ShoppingCart className="h-5 w-5" />
     </Button>
   );
 }
+

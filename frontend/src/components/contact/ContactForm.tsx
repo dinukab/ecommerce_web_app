@@ -126,7 +126,7 @@ export default function ContactForm() {
             required
             placeholder="John Doe"
             maxLength={50}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-light0 focus:border-transparent outline-none transition"
           />
           <p className="text-xs text-gray-500 mt-1">
             {formData.name.length}/50 characters
@@ -149,7 +149,7 @@ export default function ContactForm() {
             onChange={handleChange}
             required
             placeholder="john@example.com"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-light0 focus:border-transparent outline-none transition"
           />
         </div>
 
@@ -170,7 +170,7 @@ export default function ContactForm() {
             required
             placeholder="How can we help?"
             maxLength={100}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-light0 focus:border-transparent outline-none transition"
           />
           <p className="text-xs text-gray-500 mt-1">
             {formData.subject.length}/100 characters
@@ -194,7 +194,7 @@ export default function ContactForm() {
             rows={6}
             placeholder="Please provide details about your inquiry..."
             maxLength={5000}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-light0 focus:border-transparent outline-none transition resize-none"
           />
           <p className="text-xs text-gray-500 mt-1">
             {formData.message.length}/5000 characters
@@ -205,7 +205,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+          className="w-full bg-brand hover:bg-brand-dark disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
@@ -239,3 +239,4 @@ export default function ContactForm() {
     </div>
   );
 }
+

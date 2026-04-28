@@ -1,11 +1,11 @@
 export interface Product {
   _id: string;
   name: string;
+  description?: string;
   sellingPrice: number;
   costPrice?: number;
   images: string[];
   category: string;
-  description: string;
   rating: number;
   numReviews: number;
   stock: number;

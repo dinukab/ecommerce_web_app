@@ -38,13 +38,14 @@ export default function ProductCard({ product }: Props) {
     product.status ??
     (product.stock === 0
       ? 'out-of-stock'
-      : product.stock <= product.lowStockThreshold
+      : product.stock <= (product.lowStockThreshold ?? 5)
       ? 'low-stock'
       : 'in-stock');
 
+  const costPrice = product.costPrice ?? 0;
   const discount =
-    product.costPrice > 0
-      ? Math.round(((product.costPrice - product.sellingPrice) / product.costPrice) * 100)
+    costPrice > 0
+      ? Math.round(((costPrice - product.sellingPrice) / costPrice) * 100)
       : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -113,11 +114,10 @@ export default function ProductCard({ product }: Props) {
         <button
           onClick={handleAddToCart}
           disabled={status === 'out-of-stock'}
-          className={`mb-3 w-full py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 ${
-            added 
-              ? 'bg-emerald-500 text-white' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200'
+          className={`mb-3 w-full py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 text-white ${
+            added ? 'opacity-90' : ''
           } ${status === 'out-of-stock' ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+          style={{ backgroundColor: added ? '#10b981' : 'var(--brand)' }}
         >
           {added ? (
             <>
@@ -132,10 +132,10 @@ export default function ProductCard({ product }: Props) {
           )}
         </button>
 
-        <p className="text-xs text-indigo-500 font-medium uppercase tracking-wide">
+        <p className="text-xs text-brand-light0 font-medium uppercase tracking-wide">
           {product.brand || 'OneShop'}
         </p>
-        <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors">
+        <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 group-hover:text-brand transition-colors">
           {product.name}
         </h3>
 
@@ -157,12 +157,12 @@ export default function ProductCard({ product }: Props) {
 
         <div className="mt-auto pt-2 flex items-end justify-between">
           <div>
-            <p className="text-lg font-bold text-indigo-700">
+            <p className="text-lg font-bold" style={{ color: 'var(--brand)' }}>
               RS.{product.sellingPrice.toLocaleString()}
             </p>
-            {product.costPrice > product.sellingPrice && (
+            {costPrice > product.sellingPrice && (
               <p className="text-xs text-gray-400 line-through">
-                RS.{product.costPrice.toLocaleString()}
+                RS.{costPrice.toLocaleString()}
               </p>
             )}
           </div>
@@ -175,3 +175,4 @@ export default function ProductCard({ product }: Props) {
     </Link>
   );
 }
+

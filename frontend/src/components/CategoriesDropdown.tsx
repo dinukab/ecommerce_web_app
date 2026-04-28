@@ -80,7 +80,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
       {/* Button */}
       <button
         onClick={handleButtonClick}
-        className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-medium text-gray-800 text-base flex justify-between items-center transition-all duration-300 hover:border-blue-600 hover:shadow-md focus:outline-none focus:border-blue-600"
+        className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-medium text-gray-800 text-base flex justify-between items-center transition-all duration-300 hover:border-brand hover:shadow-md focus:outline-none focus:border-brand"
       >
         <span>
           {loading ? 'Loading...' : selectedCategory?.name || 'Select Category'}

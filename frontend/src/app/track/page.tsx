@@ -17,7 +17,7 @@ import {
 
 function TrackContent() {
   const searchParams = useSearchParams();
-  const [trackingNumber, setTrackingNumber] = useState(searchParams.get('trackingNumber') || '');
+  const [trackingNumber, setTrackingNumber] = useState(searchParams?.get('trackingNumber') || '');
   const [trackingData, setTrackingData] = useState<OrderTracking | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,7 +33,7 @@ function TrackContent() {
     try {
       const res = await api.trackOrder(trackingNumber);
       if (res.success) {
-        setTrackingData(res.data);
+        setTrackingData(res.data ?? null);
       } else {
         setError(res.message || 'Tracking number not found');
       }
@@ -45,7 +45,7 @@ function TrackContent() {
   };
 
   useEffect(() => {
-    if (searchParams.get('trackingNumber')) {
+    if (searchParams?.get('trackingNumber')) {
       handleTrack();
     }
   }, []);
@@ -54,7 +54,7 @@ function TrackContent() {
     <div className="max-w-4xl mx-auto px-4 py-20">
       {/* Tracking Search Header */}
       <div className="text-center mb-16">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-100 mb-6">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-brand text-white shadow-xl shadow-brand-light mb-6">
           <Truck className="w-8 h-8" />
         </div>
         <h1 className="text-4xl font-black text-gray-900 mb-4">Track Your Order</h1>
@@ -72,12 +72,12 @@ function TrackContent() {
             value={trackingNumber}
             onChange={(e) => setTrackingNumber(e.target.value.toUpperCase())}
             placeholder="Enter Tracking Number..."
-            className="w-full pl-16 pr-32 py-6 rounded-[2rem] border-2 border-white bg-white shadow-2xl shadow-blue-100/50 focus:border-blue-500 outline-none transition-all text-lg font-bold text-gray-900 placeholder:text-gray-300"
+            className="w-full pl-16 pr-32 py-6 rounded-[2rem] border-2 border-white bg-white shadow-2xl shadow-brand-light/50 focus:border-brand-light0 outline-none transition-all text-lg font-bold text-gray-900 placeholder:text-gray-300"
           />
           <button
             type="submit"
             disabled={loading}
-            className="absolute right-3 top-1/2 -translate-y-1/2 px-8 py-3.5 bg-blue-600 text-white font-black rounded-[1.5rem] hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+            className="absolute right-3 top-1/2 -translate-y-1/2 px-8 py-3.5 bg-brand text-white font-black rounded-[1.5rem] hover:bg-brand-dark transition-all active:scale-95 disabled:opacity-50"
           >
             {loading ? 'Tracking...' : 'Track'}
           </button>
@@ -99,7 +99,7 @@ function TrackContent() {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest px-2.5 py-1 bg-blue-50 rounded-lg border border-blue-100">
+                    <span className="text-[10px] font-black text-brand uppercase tracking-widest px-2.5 py-1 bg-brand-light rounded-lg border border-brand-light">
                       Live Status
                     </span>
                     <span className="text-sm font-bold text-gray-400">
@@ -114,14 +114,14 @@ function TrackContent() {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Estimated Delivery</p>
-                    <p className="text-xl font-black text-blue-600">
+                    <p className="text-xl font-black text-brand">
                       {new Date(trackingData.estimatedDeliveryDate).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric'
                       })}
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600">
+                  <div className="w-12 h-12 rounded-2xl bg-brand-light flex items-center justify-center text-brand">
                     <Calendar className="w-6 h-6" />
                   </div>
                 </div>
@@ -166,7 +166,7 @@ function TrackContent() {
 
             {/* Footer note */}
             <div className="bg-gray-50 p-6 flex items-center justify-center gap-3">
-              <Clock className="w-4 h-4 text-blue-500" />
+              <Clock className="w-4 h-4 text-brand-light0" />
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                 Last updated: Just now
               </p>
@@ -185,7 +185,7 @@ function TrackContent() {
           ].map((item, i) => (
             <div key={i} className="p-8">
               <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
-                <item.icon className="w-6 h-6 text-blue-600" />
+                <item.icon className="w-6 h-6 text-brand" />
               </div>
               <h4 className="text-sm font-bold text-gray-900 mb-2">{item.title}</h4>
               <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
@@ -200,9 +200,10 @@ function TrackContent() {
 export default function OrderTrackingPage() {
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-brand border-t-transparent rounded-full animate-spin"></div></div>}>
         <TrackContent />
       </Suspense>
     </div>
   );
 }
+

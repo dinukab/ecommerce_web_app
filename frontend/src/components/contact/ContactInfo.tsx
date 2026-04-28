@@ -11,7 +11,7 @@ export default function ContactInfo() {
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
               <svg
-                className="w-6 h-6 text-blue-600 mt-0.5"
+                className="w-6 h-6 text-brand mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 aria-hidden="true"
@@ -24,7 +24,7 @@ export default function ContactInfo() {
               <p className="font-semibold text-gray-900 text-sm">Email</p>
               <a
                 href="mailto:support@oneshop.com"
-                className="text-gray-600 hover:text-blue-600 transition text-sm"
+                className="text-gray-600 hover:text-brand transition text-sm"
               >
                 support@oneshop.com
               </a>
@@ -35,7 +35,7 @@ export default function ContactInfo() {
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
               <svg
-                className="w-6 h-6 text-blue-600 mt-0.5"
+                className="w-6 h-6 text-brand mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 aria-hidden="true"
@@ -47,7 +47,7 @@ export default function ContactInfo() {
               <p className="font-semibold text-gray-900 text-sm">Phone</p>
               <a
                 href="tel:+15551234567"
-                className="text-gray-600 hover:text-blue-600 transition text-sm"
+                className="text-gray-600 hover:text-brand transition text-sm"
               >
                 +1 (555) 123-4567
               </a>
@@ -58,7 +58,7 @@ export default function ContactInfo() {
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
               <svg
-                className="w-6 h-6 text-blue-600 mt-0.5"
+                className="w-6 h-6 text-brand mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 aria-hidden="true"
@@ -85,7 +85,7 @@ export default function ContactInfo() {
       </div>
 
       {/* Business Hours */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div className="bg-brand-light border border-blue-200 rounded-lg p-6">
         <h4 className="text-sm font-semibold text-gray-900 mb-4">
           Business Hours
         </h4>
@@ -115,7 +115,7 @@ export default function ContactInfo() {
         </p>
         <a
           href="/faqs"
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition text-sm"
+          className="inline-block bg-brand hover:bg-brand-dark text-white font-medium py-2 px-4 rounded transition text-sm"
         >
           View FAQs
         </a>
@@ -123,3 +123,4 @@ export default function ContactInfo() {
     </div>
   );
 }
+

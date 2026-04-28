@@ -38,3 +38,4 @@ export default function QuantitySelector({ quantity, onQuantityChange }: Quantit
     </div>
   );
 }
+

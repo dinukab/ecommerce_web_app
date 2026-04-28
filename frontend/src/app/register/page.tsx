@@ -8,14 +8,18 @@ import { Button } from '@/components/ui/button';
 import React from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { storeConfig } from '@/lib/storeConfig';
+import { useStore } from '@/context/StoreContext';
 
 export default function RegisterPage() {
+  const { settings } = useStore();
   const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
+    phone: '',
   });
 
 const [showPassword, setShowPassword] = useState(false);
@@ -64,6 +68,7 @@ const [success, setSuccess] = useState(false);
         email: '',
         password: '',
         confirmPassword: '',
+        phone: '',
       });
       
       setTimeout(() => {
@@ -84,16 +89,17 @@ const [success, setSuccess] = useState(false);
         <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10">
           
           <div className="flex flex-col items-center mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[#151194] rounded flex items-center justify-center ">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11M5 9H19L20 21H4L5 9Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-16 h-16 bg-brand-light/30 rounded-2xl flex items-center justify-center overflow-hidden mb-6">
+                <img 
+                  src={settings?.logoUrl || storeConfig.logoUrl} 
+                  alt={settings?.storeName || storeConfig.storeName} 
+                  className="w-12 h-12 object-contain"
+                />
               </div>
-              <span className="text-xl font-bold text-gray-900">OneShop</span>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+              <p className="text-gray-500 text-sm">Join {settings?.storeName || storeConfig.storeName} today</p>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2 mt-2">Create Account</h1>
-            <p className="text-gray-500 text-sm">Join with Oneshop today</p>
           </div>
 
           {error && (
@@ -121,7 +127,7 @@ const [success, setSuccess] = useState(false);
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="w-full h-12 rounded-xl border-[#d1d5db] bg-[#f9fafb] shadow-sm text-black focus:ring-[#1a1b4b] focus:border-[#1a1b4b]]"
+                className="w-full h-12 rounded-xl border-gray-200 bg-gray-50/50 shadow-sm text-black focus:ring-brand focus:border-brand"
               />
             </div>
 
@@ -135,7 +141,7 @@ const [success, setSuccess] = useState(false);
                 onChange={handleChange}
                 required
                 className="w-full h-12 rounded-xl border-[#d1d5db] bg-[#f9fafb] shadow-sm text-black
-                 focus:ring-[#1a1b4b] focus:border-[#1a1b4b]]"
+                 focus:ring-brand focus:border-brand"
               />
             </div>
 
@@ -149,7 +155,7 @@ const [success, setSuccess] = useState(false);
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full h-12 rounded-xl border-[#d1d5db] bg-[#f9fafb] shadow-sm text-black focus:ring-[#1a1b4b] focus:border-[#1a1b4b]]"
+                  className="w-full h-12 rounded-xl border-gray-200 bg-gray-50/50 shadow-sm text-black focus:ring-brand focus:border-brand"
                 />
                 <button
                   type="button"
@@ -171,7 +177,7 @@ const [success, setSuccess] = useState(false);
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full h-12 rounded-xl border-[#d1d5db] bg-[#f9fafb] shadow-sm text-black focus:ring-[#1a1b4b] focus:border-[#1a1b4b]]"
+                  className="w-full h-12 rounded-xl border-gray-200 bg-gray-50/50 shadow-sm text-black focus:ring-brand focus:border-brand"
                 />
                 <button
                   type="button"
@@ -191,7 +197,7 @@ const [success, setSuccess] = useState(false);
               <Button 
                 type="submit" 
                 variant="default" 
-                className="w-full bg-[#151194] hover:bg-[#252661] text-white py-6 rounded-xl text-lg flex items-center justify-center gap-2"
+                className="w-full bg-brand hover:bg-brand-dark text-white py-6 rounded-xl text-lg flex items-center justify-center gap-2"
                 disabled={loading || success}
               >
                 {loading ? (
@@ -215,7 +221,7 @@ const [success, setSuccess] = useState(false);
                   e.preventDefault();
                   router.push(`/login${window.location.search}`);
                 }}
-                className="text-[#151194] hover:text-[#2a2b5b] font-bold"
+                className="text-brand hover:text-brand-dark font-bold"
               >
                 Sign in
               </Link>
@@ -228,3 +234,4 @@ const [success, setSuccess] = useState(false);
   
   );
 }
+

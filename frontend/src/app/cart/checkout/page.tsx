@@ -290,7 +290,7 @@ export default function CheckoutPage() {
 
             <Button
               type="submit"
-              className="mt-6 h-11 w-60 bg-[#151194] hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm transition"
+              className="mt-6 h-11 w-60 bg-[#151194] hover:bg-brand-dark text-white font-bold py-3 rounded-2xl text-sm transition"
             >
               Continue to Review
             </Button>

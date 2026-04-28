@@ -1,14 +1,18 @@
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/Customer.js';
 
-export const protect = async (req, res, next) => {
+export const protect = async (req: any, res: Response, next: NextFunction) => {
   let token;
+
+  console.log('Incoming Headers:', JSON.stringify(req.headers, null, 2));
 
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+    console.log('Token received (first 10 chars):', token.substring(0, 10) + '...');
   }
 
   if (!token) {
@@ -22,7 +26,7 @@ export const protect = async (req, res, next) => {
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || 'supersecretkey'
-    );
+    ) as any;
 
     const user = await User.findById(decoded.id);
     if (!user) {
@@ -34,7 +38,8 @@ export const protect = async (req, res, next) => {
 
     req.user = user;
     next();
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Auth Middleware Error:', error.message);
     return res.status(401).json({
       success: false,
       message: 'Not authorized to access this route',
@@ -42,7 +47,7 @@ export const protect = async (req, res, next) => {
   }
 };
 
-export const admin = (req, res, next) => {
+export const admin = (req: any, res: Response, next: NextFunction) => {
   if (req.user && req.user.role === 'admin') {
     next();
   } else {
@@ -54,8 +59,8 @@ export const admin = (req, res, next) => {
 };
 
 // Grant access to specific roles
-export const authorize = (...roles) => {
-  return (req, res, next) => {
+export const authorize = (...roles: string[]) => {
+  return (req: any, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,

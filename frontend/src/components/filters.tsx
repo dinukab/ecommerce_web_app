@@ -42,7 +42,7 @@ export default function Filters() {
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-bold text-gray-900">Filters</h2>
-        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+        <button className="text-sm text-brand hover:text-brand-dark font-medium">
           Clear All
         </button>
       </div>
@@ -68,7 +68,7 @@ export default function Filters() {
                   <label key={option} className="flex items-center cursor-pointer group">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand-light0"
                     />
                     <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
                       {option}
@@ -83,3 +83,4 @@ export default function Filters() {
     </div>
   );
 }
+

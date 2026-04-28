@@ -118,9 +118,9 @@ export default function CategoryPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 mb-8 text-sm text-gray-500">
-          <Link href="/" className="hover:text-indigo-600">Home</Link>
+          <Link href="/" className="hover:text-brand">Home</Link>
           <span>/</span>
-          <Link href="/category/all" className="hover:text-indigo-600">Categories</Link>
+          <Link href="/category/all" className="hover:text-brand">Categories</Link>
           {slug && slug !== 'all' && (
             <>
               <span>/</span>
@@ -172,7 +172,7 @@ export default function CategoryPage() {
                       <p className="text-gray-500 text-lg mb-4">No products found</p>
                       <Link
                         href="/category/all"
-                        className="text-indigo-600 hover:text-indigo-700 font-medium"
+                        className="text-brand hover:text-brand-dark font-medium"
                       >
                         Browse all categories
                       </Link>

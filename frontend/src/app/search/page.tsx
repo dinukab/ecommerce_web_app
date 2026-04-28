@@ -101,7 +101,7 @@ export default function SearchPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
-          <span className="hover:text-blue-600 cursor-pointer">Home</span>
+          <span className="hover:text-brand cursor-pointer">Home</span>
           <ChevronRight className="h-4 w-4" />
           <span className="text-gray-900 font-medium">Search Results</span>
         </div>
@@ -128,7 +128,7 @@ export default function SearchPage() {
                 id="sort-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
               >
                 <option value="featured">Featured</option>
                 <option value="price-low">Price: Low to High</option>
@@ -170,7 +170,7 @@ export default function SearchPage() {
               >
                 Previous
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">1</button>
+              <button className="px-4 py-2 bg-brand text-white rounded-lg">1</button>
               <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                 2
               </button>

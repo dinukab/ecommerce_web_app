@@ -4,13 +4,14 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { CartProvider } from '@/context/CartContext';
+import { StoreProvider } from '@/context/StoreContext';
 import React from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'OneShop - Your Online Marketplace',
-  description: 'Shop quality products at the best prices',
+  title: 'Open Door - Your Online Marketplace',
+  description: 'Shop quality products at the best prices with Open Door.',
 };
 
 export default function RootLayout({
@@ -21,13 +22,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <CartProvider>
-          <Navbar />
-          <main className="min-h-screen bg-gray-50">
-            {children}
-          </main>
-          <Footer />
-        </CartProvider>
+        <StoreProvider>
+          <CartProvider>
+            <div className="min-h-screen flex flex-col bg-gray-50">
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </CartProvider>
+        </StoreProvider>
       </body>
     </html>
   );

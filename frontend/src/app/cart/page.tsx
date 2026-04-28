@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import QuantityPicker from "@/components/quantity-picker";
 import { ArrowLeft, ShoppingBag, Trash2, ShoppingCart } from "lucide-react";
@@ -14,15 +15,45 @@ import {
 
 import OrderSummary from '@/components/OrderSummary';
 import { useCart } from "@/context/CartContext";
+import { api } from "@/lib/api";
 
 const PLACEHOLDER = 'https://placehold.co/400x400/e8eaff/6366f1?text=No+Image';
 
 export default function CartPage() {
   const router = useRouter();
   const { cart, removeFromCart, updateQuantity, getCartTotal } = useCart();
+  const [syncing, setSyncing] = useState(false);
 
   const subtotal = getCartTotal();
   const orderTotal = subtotal;
+
+  // Sync cart to DB then navigate to checkout
+  const handleCheckout = async () => {
+    setSyncing(true);
+    try {
+      const token   = localStorage.getItem('auth_token');
+      const rawUser = localStorage.getItem('user');
+
+      // Only sync if the user is logged in
+      if (token && rawUser) {
+        const user   = JSON.parse(rawUser);
+        const userId = user.id || user._id;
+
+        if (userId) {
+          await api.syncCart(
+            String(userId),
+            cart.map((item) => ({ productId: item._id, quantity: item.quantity }))
+          );
+        }
+      }
+    } catch (err) {
+      // Sync failure is non-fatal — checkout page still works from local state
+      console.warn('[Cart] DB sync failed, proceeding anyway:', err);
+    } finally {
+      setSyncing(false);
+      router.push('/checkout');
+    }
+  };
 
   // Recommended products can stay hardcoded or we could fetch them later
   const recommendedProducts = [
@@ -52,10 +83,11 @@ export default function CartPage() {
     }
   ];
 
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-gray-50 min-h-screen">
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-600">
+        <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-brand">
           <ShoppingBag className="w-6 h-6" />
         </div>
         <div>
@@ -93,7 +125,7 @@ export default function CartPage() {
                       </div>
                       <div className="flex flex-col justify-center min-w-0">
                         <Link href={`/product/${item._id}`}>
-                          <h3 className="font-semibold text-gray-900 text-sm hover:text-blue-600 truncate cursor-pointer">
+                          <h3 className="font-semibold text-gray-900 text-sm hover:text-brand truncate cursor-pointer">
                             {item.name}
                           </h3>
                         </Link>
@@ -126,7 +158,7 @@ export default function CartPage() {
 
                     {/* Total */}
                     <div className="md:col-span-2 md:text-right">
-                      <span className="text-sm font-bold text-blue-600">
+                      <span className="text-sm font-bold text-brand">
                         LKR {((item.sellingPrice || (item as any).price || 0) * item.quantity).toLocaleString()}
                       </span>
                     </div>
@@ -143,7 +175,7 @@ export default function CartPage() {
                 <p className="text-gray-600 font-medium text-base mb-4">Your cart is empty</p>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-brand text-white font-medium rounded-lg hover:bg-brand-dark transition-colors"
                 >
                   Continue Shopping
                 </Link>
@@ -154,7 +186,7 @@ export default function CartPage() {
           {cart.length > 0 && (
             <button
               onClick={() => router.push("/")}
-              className="mt-6 flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700 transition-colors"
+              className="mt-6 flex items-center gap-2 text-brand font-medium hover:text-brand-dark transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Continue Shopping
@@ -169,7 +201,8 @@ export default function CartPage() {
               subtotal={subtotal}
               items={cart}
               isCart={true}
-              onCheckout={() => router.push('/checkout')}
+              onCheckout={handleCheckout}
+              loading={syncing}
             />
           </div>
         </div>
@@ -194,8 +227,8 @@ export default function CartPage() {
                     </div>
                     <h3 className="font-medium text-gray-900 text-xs line-clamp-2 mb-2">{product.name}</h3>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-blue-600 font-bold text-sm">LKR {product.price.toLocaleString()}</span>
-                      <button className="w-8 h-8 rounded-md bg-blue-100 flex items-center justify-center text-blue-600 hover:bg-blue-600 hover:text-white transition-colors flex-shrink-0">
+                      <span className="text-brand font-bold text-sm">LKR {product.price.toLocaleString()}</span>
+                      <button className="w-8 h-8 rounded-md bg-brand-light flex items-center justify-center text-brand hover:bg-brand hover:text-white transition-colors flex-shrink-0">
                         <ShoppingCart className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -213,3 +246,4 @@ export default function CartPage() {
     </div>
   );
 }
+

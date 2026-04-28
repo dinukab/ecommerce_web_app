@@ -19,7 +19,7 @@ export default function Button({
 }: ButtonProps) {
   const baseStyles = 'px-6 py-3 rounded-lg font-medium transition-colors';
   const variantStyles = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed',
+    primary: 'bg-brand text-white hover:bg-brand-dark disabled:bg-brand-light disabled:cursor-not-allowed',
     secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed',
   };
 
@@ -34,4 +34,5 @@ export default function Button({
     </button>
   );
 }
+
 

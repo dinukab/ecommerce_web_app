@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import CategorySidebar from '../components/category/CategorySidebar';
 import ProductCard from '../components/category/ProductCard';
@@ -36,8 +36,11 @@ function ProductSkeleton() {
 }
 
 export default function CategoryPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const params = useParams<{ slug: string }>();
+  const slug = params?.slug;
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [categories, setCategories]         = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
@@ -46,9 +49,9 @@ export default function CategoryPage() {
   const [loading, setLoading]               = useState<boolean>(true);
   const [error, setError]                   = useState<string | null>(null);
 
-  const sort   = searchParams.get('sort')   || 'name';
-  const search = searchParams.get('search') || '';
-  const page   = Number(searchParams.get('page') || 1);
+  const sort   = searchParams?.get('sort')   || 'name';
+  const search = searchParams?.get('search') || '';
+  const page   = Number(searchParams?.get('page') || 1);
 
   // Fetch sidebar categories once
   useEffect(() => {
@@ -74,7 +77,7 @@ export default function CategoryPage() {
     setError(null);
     try {
       const result = await fetchProducts({
-        category: slug === 'all' ? '' : slug,
+        category: slug === 'all' ? '' : (slug as string),
         sort,
         search,
         page,
@@ -94,10 +97,10 @@ export default function CategoryPage() {
   }, [loadProducts]);
 
   const updateParam = (key: string, value: string | number) => {
-    const next = new URLSearchParams(searchParams);
+    const next = new URLSearchParams(searchParams?.toString() || '');
     next.set(key, String(value));
     if (key !== 'page') next.set('page', '1');
-    setSearchParams(next);
+    router.push(`${pathname}?${next.toString()}`);
   };
 
   const heading =
@@ -114,8 +117,8 @@ export default function CategoryPage() {
       {/* ── Nav ── */}
       <header className="bg-white shadow-sm sticky top-0 z-30">
         <div className="max-w-screen-xl mx-auto px-4 h-16 flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 font-bold text-indigo-700 text-lg shrink-0">
-            <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-sm">
+          <Link href="/" className="flex items-center gap-2 font-bold text-brand-dark text-lg shrink-0">
+            <span className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white font-black text-sm">
               O
             </span>
             OneShop
@@ -140,20 +143,20 @@ export default function CategoryPage() {
           </div>
 
           <div className="ml-auto flex items-center gap-5 text-sm text-gray-600">
-            <Link to="/wishlist" className="flex items-center gap-1 hover:text-red-500 transition-colors">
+            <Link href="/wishlist" className="flex items-center gap-1 hover:text-red-500 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
               Wishlist
             </Link>
-            <Link to="/cart" className="flex items-center gap-1 hover:text-indigo-600 transition-colors">
+            <Link href="/cart" className="flex items-center gap-1 hover:text-brand transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
               Cart
             </Link>
-            <Link to="/account" className="flex items-center gap-1 hover:text-indigo-600 transition-colors">
+            <Link href="/account" className="flex items-center gap-1 hover:text-brand transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
@@ -167,9 +170,9 @@ export default function CategoryPage() {
       {/* ── Breadcrumb ── */}
       <div className="max-w-screen-xl mx-auto px-4 py-3">
         <nav className="flex items-center gap-2 text-xs text-gray-500" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-indigo-600">Home</Link>
+          <Link href="/" className="hover:text-brand">Home</Link>
           <span>›</span>
-          <Link to="/category/all" className="hover:text-indigo-600">Products</Link>
+          <Link href="/category/all" className="hover:text-brand">Products</Link>
           {slug && slug !== 'all' && (
             <>
               <span>›</span>
@@ -238,7 +241,7 @@ export default function CategoryPage() {
           {/* Empty state */}
           {!loading && !error && products.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-              <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center text-4xl">
+              <div className="w-20 h-20 rounded-full bg-brand-light flex items-center justify-center text-4xl">
                 {activeCategory?.icon || '📭'}
               </div>
               <h3 className="text-lg font-semibold text-gray-700">No products yet</h3>
@@ -250,7 +253,7 @@ export default function CategoryPage() {
               {search && (
                 <button
                   onClick={() => updateParam('search', '')}
-                  className="text-sm text-indigo-600 hover:underline font-medium"
+                  className="text-sm text-brand hover:underline font-medium"
                 >
                   Clear search
                 </button>
@@ -264,7 +267,7 @@ export default function CategoryPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => updateParam('page', page - 1)}
-                className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-brand-light hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 ← Prev
               </button>
@@ -285,8 +288,8 @@ export default function CategoryPage() {
                       onClick={() => updateParam('page', item as number)}
                       className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${
                         item === page
-                          ? 'bg-indigo-600 text-white shadow-sm'
-                          : 'border border-gray-200 text-gray-600 hover:bg-indigo-50 hover:border-indigo-300'
+                          ? 'bg-brand text-white shadow-sm'
+                          : 'border border-gray-200 text-gray-600 hover:bg-brand-light hover:border-indigo-300'
                       }`}
                     >
                       {item}
@@ -297,7 +300,7 @@ export default function CategoryPage() {
               <button
                 disabled={page >= totalPages}
                 onClick={() => updateParam('page', page + 1)}
-                className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-brand-light hover:border-indigo-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next →
               </button>

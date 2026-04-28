@@ -13,7 +13,7 @@ import {
   MapPin, 
   CreditCard, 
   Calendar,
-  AlertCircle,
+  CheckCircle,
   Clock,
   Printer,
   ChevronRight
@@ -21,7 +21,7 @@ import {
 
 export default function OrderDetailsPage() {
   const params = useParams();
-  const orderId = params.orderId as string;
+  const orderId = params?.orderId as string;
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -32,7 +32,7 @@ export default function OrderDetailsPage() {
       if (!token) return;
       try {
         const res = await api.getOrderById(token, orderId);
-        if (res.success) {
+        if (res.success && res.data) {
           setOrder(res.data);
         }
       } catch (err) {
@@ -53,7 +53,7 @@ export default function OrderDetailsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -67,21 +67,19 @@ export default function OrderDetailsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
           <Link 
             href="/orders" 
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-brand transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Orders
           </Link>
           <div className="flex items-center gap-3">
-            <button className="p-3 rounded-xl bg-white border border-gray-100 text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
-              <Printer className="w-4 h-4" />
-            </button>
-            <Link 
-              href={`/track?trackingNumber=${order.trackingNumber}`}
-              className="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+            <button 
+              onClick={() => copyToClipboard(order.trackingNumber)}
+              className="px-6 py-3 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-dark transition-all shadow-lg shadow-brand-light flex items-center gap-2"
             >
-              Track Live Location
-            </Link>
+              {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copySuccess ? 'Copied!' : 'Copy Tracking Number'}
+            </button>
           </div>
         </div>
 
@@ -107,15 +105,15 @@ export default function OrderDetailsPage() {
               </div>
             </div>
 
-            <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100 flex flex-col justify-center">
-              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Tracking Number</p>
+            <div className="p-6 bg-brand-light rounded-2xl border border-brand-light flex flex-col justify-center">
+              <p className="text-[10px] font-black text-brand uppercase tracking-widest mb-2">Tracking Number</p>
               <div className="flex items-center gap-4">
-                <code className="text-xl font-black text-blue-900">{order.trackingNumber}</code>
+                <code className="text-xl font-black text-brand-dark">{order.trackingNumber}</code>
                 <button 
                   onClick={() => copyToClipboard(order.trackingNumber)}
-                  className="p-2 rounded-lg bg-white text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                  className="p-2 rounded-lg bg-white text-brand hover:bg-brand hover:text-white transition-all shadow-sm"
                 >
-                  {copySuccess ? <AlertCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -136,7 +134,11 @@ export default function OrderDetailsPage() {
                 {order.orderItems.map((item, idx) => (
                   <div key={idx} className="flex gap-6 items-center">
                     <div className="w-20 h-20 rounded-2xl bg-gray-50 p-3 border border-gray-100 flex-shrink-0">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                      <img 
+                        src={item.image || 'https://placehold.co/200x200?text=Product'} 
+                        alt={item.name} 
+                        className="w-full h-full object-contain" 
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="text-base font-bold text-gray-900">{item.name}</p>
@@ -161,7 +163,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="flex justify-between pt-4 border-t border-gray-50">
                   <span className="text-lg font-bold text-gray-900">Grand Total</span>
-                  <span className="text-2xl font-black text-blue-600">LKR {order.totalPrice.toLocaleString()}</span>
+                  <span className="text-2xl font-black text-brand">LKR {order.totalPrice.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -172,7 +174,7 @@ export default function OrderDetailsPage() {
             {/* Shipping Info */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand">
                   <Truck className="w-5 h-5" />
                 </div>
                 <h2 className="text-lg font-bold text-gray-900">Shipping Info</h2>
@@ -222,12 +224,7 @@ export default function OrderDetailsPage() {
               </div>
             </div>
 
-            {/* Cancel Action */}
-            {['pending', 'confirmed'].includes(order.orderStatus) && (
-              <button className="w-full py-4 rounded-2xl border-2 border-red-50 text-red-500 font-bold text-sm hover:bg-red-50 hover:border-red-100 transition-all active:scale-95">
-                Cancel Order
-              </button>
-            )}
+
           </div>
         </div>
       </div>

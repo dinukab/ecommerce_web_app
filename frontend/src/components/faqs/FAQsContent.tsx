@@ -95,7 +95,7 @@ export default function FAQsContent() {
       {/* Loading State */}
       {loading && (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading FAQs...</p>
         </div>
       )}
@@ -124,7 +124,7 @@ export default function FAQsContent() {
                       onClick={() => setPage(p)}
                       className={`px-3 py-1 rounded-lg ${
                         page === p
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-brand text-white'
                           : 'border hover:bg-gray-50'
                       }`}
                     >
@@ -173,3 +173,4 @@ export default function FAQsContent() {
     </div>
   );
 }
+

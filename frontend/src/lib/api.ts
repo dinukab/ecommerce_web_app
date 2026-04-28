@@ -95,6 +95,24 @@ export interface AuthResponse {
   };
 }
 
+export interface AddressEntry {
+  _id: string;
+  type: string;
+  name: string;
+  address: string;
+  phone: string;
+  isDefault: boolean;
+}
+
+export interface PaymentMethod {
+  _id: string;
+  type: string;
+  cardNumber?: string;
+  last4?: string;
+  expiry: string;
+  isDefault: boolean;
+}
+
 export interface UserProfile {
   _id?: string;
   id?: string;
@@ -103,8 +121,8 @@ export interface UserProfile {
   phone?: string;
   role?: string;
   avatar?: string;
-  addresses: any[];
-  paymentMethods?: any[];
+  addresses: AddressEntry[];
+  paymentMethods?: PaymentMethod[];
   totalOrders?: number;
   totalSpent?: number;
   lastPurchase?: string;
@@ -149,13 +167,15 @@ export interface Order {
   itemsPrice: number;
   deliveryFee: number;
   totalPrice: number;
-  orderStatus: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  orderStatus: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   trackingNumber: string;
   estimatedDeliveryDate: string;
   deliveredAt?: string;
   cancelledAt?: string;
   cancelReason?: string;
   orderNotes?: string;
+  payhereMerchantId?: string;
+  payhereHash?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -168,6 +188,19 @@ export interface OrderTracking {
   city: string;
   district: string;
   itemsCount: number;
+}
+
+export interface StoreSettings {
+  _id: string;
+  storeId: string;
+  storeName: string;
+  currency: string;
+  currencyLocale: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  logoUrl?: string;
+  primaryColor?: string;
 }
 
 
@@ -316,6 +349,20 @@ class ApiService {
     });
   }
 
+  async forgotPassword(email: string): Promise<ApiResponse<string>> {
+    return this.request<ApiResponse<string>>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resetPassword(data: { token: string; password: string }): Promise<AuthResponse> {
+    return this.request<AuthResponse>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   async getOrders(token: string): Promise<ApiResponse<Order[]>> {
     return this.request<ApiResponse<Order[]>>('/orders/my-orders', {
       headers: {
@@ -428,6 +475,22 @@ class ApiService {
         Authorization: `Bearer ${token}`,
       },
     });
+  }
+
+  // Cart APIs
+  async syncCart(
+    userId: string,
+    items: { productId: string; quantity: number }[]
+  ): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>('/cart/sync', {
+      method: 'POST',
+      body: JSON.stringify({ userId, items }),
+    });
+  }
+
+  // Store Settings APIs
+  async getStoreSettings(): Promise<ApiResponse<StoreSettings>> {
+    return this.request<ApiResponse<StoreSettings>>('/store-settings');
   }
 
   // Health check

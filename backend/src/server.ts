@@ -1,30 +1,35 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import productRoutes from "./routes/ProductRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
 import shippingInfoRoutes from "./routes/shipping-info.js";
-import categoryRoutes from "./routes/Categoryroutes.js";
-import reviewRoutes from "./routes/ReviewRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
+import storeOrderRoutes from "./routes/storeOrderRoutes.js";
+import storeRoutes from "./routes/storeRoutes.js";
 // import returnRoutes from "./routes/returns.js";
 
-dotenv.config();
 connectDB();
+
 
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean),
+  origin: ['http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean) as string[],
   credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 app.use("/api/cart", cartRoutes);
 app.use("/api/auth", authRoutes);
@@ -37,6 +42,8 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
+app.use('/api/store-orders', storeOrderRoutes);
+app.use('/api/store-settings', storeRoutes);
 // app.use('/api/returns', returnRoutes);
 
 

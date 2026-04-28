@@ -2,22 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingCart, User, Search, Menu, X, Heart, ShoppingBag, Truck } from 'lucide-react';
+import { ShoppingCart, User, Search, Heart, ShoppingBag, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
+import { storeConfig } from '@/lib/storeConfig';
+import { useStore } from '@/context/StoreContext';
 
 export default function Navbar() {
+  const { settings, loading } = useStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { getCartCount } = useCart();
 
   const pathname = usePathname();
-  const isCheckoutFlowPage = pathname.startsWith('/cart/checkout');
+  const isCheckoutFlowPage = pathname?.startsWith('/cart/checkout') ?? false;
   const cartCount = getCartCount();
 
   // Fetch suggestions as user types
@@ -31,11 +36,11 @@ export default function Navbar() {
 
       try {
         setIsLoadingSuggestions(true);
-        const response = await api.getProducts({ 
+        const response = await api.getProducts({
           search: searchQuery.trim(),
-          limit: 8 
+          limit: 8,
         });
-        
+
         if (response.data && Array.isArray(response.data)) {
           setSuggestions(response.data.slice(0, 8));
           setShowSuggestions(true);
@@ -61,7 +66,7 @@ export default function Navbar() {
     }
   };
 
-  const handleSuggestionClick = (productId: string, productName: string) => {
+  const handleSuggestionClick = (productId: string) => {
     router.push(`/product/${productId}`);
     setShowSuggestions(false);
     setSearchQuery('');
@@ -79,13 +84,30 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 shrink-0">
-            <div className="w-9 h-9 bg-[#151194] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">O</span>
-            </div>
-            <span className="text-2xl font-bold text-gray-900 tracking-tight">OneShop</span>
+            {!logoError ? (
+              <img
+                src={settings?.logoUrl || storeConfig.logoUrl}
+                alt={settings?.storeName || storeConfig.storeName}
+                className="h-9 w-auto object-contain"
+                onError={() => setLogoError(true)}
+              />
+            ) : (
+              /* Fallback letter badge if logo fails to load */
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: settings?.primaryColor || storeConfig.primaryColor }}
+              >
+                <span className="text-white font-bold text-lg">
+                  {(settings?.storeName || storeConfig.storeName)[0]}
+                </span>
+              </div>
+            )}
+            <span className="text-xl font-bold text-gray-900 tracking-tight hidden sm:block">
+              {settings?.storeName || storeConfig.storeName}
+            </span>
           </Link>
 
-          {/* Search Bar - Desktop */}
+          {/* Search Bar */}
           {!isCheckoutFlowPage && (
             <div className="flex md:flex flex-1 max-w-2xl xl:max-w-3xl mx-4 lg:mx-10 xl:mx-16">
               <form onSubmit={handleSearch} className="relative w-full">
@@ -95,9 +117,13 @@ export default function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.trim().length > 0 && setShowSuggestions(true)}
-                  className="w-full pl-4 pr-12 py-2.5 border border-gray-300 bg-linear-to-r from-gray-100 to-gray-300 rounded-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none transition-all"
+                  className="w-full pl-4 pr-12 py-2.5 border border-gray-300 bg-gradient-to-r from-gray-100 to-gray-300 rounded-full text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all"
+                  style={{ '--tw-ring-color': storeConfig.primaryColor } as any}
                 />
-                <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 hover:scale-110 transition-transform">
+                <button
+                  type="submit"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 hover:scale-110 transition-transform"
+                >
                   <Search className="w-4.5 h-4.5 text-gray-600 font-bold" />
                 </button>
 
@@ -106,9 +132,10 @@ export default function Navbar() {
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
                     {isLoadingSuggestions ? (
                       <div className="p-4 text-center text-gray-500 text-sm">
-                        <div className="inline-block">
-                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                        </div>
+                        <div
+                          className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin inline-block"
+                          style={{ borderColor: storeConfig.primaryColor, borderTopColor: 'transparent' }}
+                        />
                         <p className="mt-2">Searching...</p>
                       </div>
                     ) : suggestions.length > 0 ? (
@@ -116,8 +143,8 @@ export default function Navbar() {
                         {suggestions.map((product) => (
                           <button
                             key={product._id}
-                            onClick={() => handleSuggestionClick(product._id, product.name)}
-                            className="w-full px-4 py-3 hover:bg-blue-50 transition-colors text-left flex items-center gap-3"
+                            onClick={() => handleSuggestionClick(product._id)}
+                            className="w-full px-4 py-3 hover:bg-brand-light transition-colors text-left flex items-center gap-3"
                           >
                             <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
                               <img
@@ -128,8 +155,8 @@ export default function Navbar() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
-                              <p className="text-blue-600 font-semibold text-sm">
-                                LKR {product.sellingPrice?.toLocaleString() || product.price?.toLocaleString()}
+                              <p className="font-semibold text-sm" style={{ color: storeConfig.primaryColor }}>
+                                {storeConfig.currency} {product.sellingPrice?.toLocaleString() || product.price?.toLocaleString()}
                               </p>
                             </div>
                             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -138,7 +165,7 @@ export default function Navbar() {
                       </div>
                     ) : (
                       <div className="p-4 text-center text-gray-500 text-sm">
-                        No products found for "{searchQuery}"
+                        No products found for &ldquo;{searchQuery}&rdquo;
                       </div>
                     )}
                   </div>
@@ -147,14 +174,17 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Right Buttons - Desktop */}
+          {/* Right Nav Icons */}
           <div className="flex md:flex items-center space-x-10">
             {!isCheckoutFlowPage && (
               <Link
-                href="/profile/wishlist"
-                className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
+                href="/wishlist"
+                className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
+                style={{ ['--hover-color' as any]: storeConfig.primaryColor }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '')}
               >
-                <Heart className="w-5 h-5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
+                <Heart className="w-5 h-5 fill-current" />
                 <span className="font-bold text-sm">Wishlist</span>
               </Link>
             )}
@@ -162,12 +192,20 @@ export default function Navbar() {
             {!isCheckoutFlowPage && (
               <Link
                 href="/cart"
-                className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
+                className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
+                onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '')}
               >
                 <div className="relative">
-                  <ShoppingCart className="w-5.5 h-5.5 fill-current text-[#151194] hover:text-[#0c0a5c]" />
+                  <ShoppingCart
+                    className="w-5.5 h-5.5 fill-current"
+                    style={{ color: storeConfig.primaryColor }}
+                  />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-[#151194] text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white box-content">
+                    <span
+                      className="absolute -top-1.5 -right-2 text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white box-content"
+                      style={{ backgroundColor: storeConfig.primaryColor }}
+                    >
                       {cartCount}
                     </span>
                   )}
@@ -178,29 +216,35 @@ export default function Navbar() {
 
             <Link
               href="/orders"
-              className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
+              className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
+              onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '')}
             >
-              <ShoppingBag className="w-5 h-5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
+              <ShoppingBag className="w-5 h-5 fill-current" />
               <span className="font-bold text-sm">Orders</span>
             </Link>
 
             <Link
               href="/track"
-              className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
+              className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
+              onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '')}
             >
-              <Truck className="w-5 h-5 text-[#3b3b3b] hover:text-[#151194]" />
+              <Truck className="w-5 h-5" />
               <span className="font-bold text-sm">Track</span>
             </Link>
 
             <Link
               href="/profile"
-              className="flex items-center space-x-1 text-[#3b3b3b] hover:text-[#151194] transition-colors whitespace-nowrap"
+              className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
+              onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '')}
             >
-              <User className="w-5 h-5 fill-current text-[#3b3b3b] hover:text-[#151194]" />
+              <User className="w-5 h-5 fill-current" />
               <span className="font-bold text-sm">Account</span>
             </Link>
           </div>
-          
+
         </div>
       </div>
     </nav>

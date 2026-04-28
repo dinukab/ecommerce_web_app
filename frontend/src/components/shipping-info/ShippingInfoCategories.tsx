@@ -32,7 +32,7 @@ export default function ShippingInfoCategories({
             onClick={() => onCategoryChange(category)}
             className={`px-4 py-2 rounded-lg transition text-sm font-medium ${
               selectedCategory === category
-                ? 'bg-blue-600 text-white'
+                ? 'bg-brand text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -43,3 +43,4 @@ export default function ShippingInfoCategories({
     </div>
   );
 }
+

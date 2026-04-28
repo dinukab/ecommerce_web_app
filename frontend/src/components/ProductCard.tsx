@@ -128,7 +128,7 @@ export default function ProductCard({
                     ? 'bg-red-500 text-white'
                     : badge === 'New'
                     ? 'bg-green-500 text-white'
-                    : 'bg-blue-500 text-white'
+                    : 'bg-brand-light0 text-white'
                 }`}
               >
                 {badge}
@@ -139,7 +139,7 @@ export default function ProductCard({
           {/* Discount Badge */}
           {discount > 0 && (
             <div className="absolute bottom-3 left-3">
-              <span className="bg-orange-500 text-white px-2 py-1 rounded text-sm font-bold">
+              <span className="bg-brand-light0 text-white px-2 py-1 rounded text-sm font-bold">
                 -{discount}%
               </span>
             </div>
@@ -154,7 +154,7 @@ export default function ProductCard({
             className={`mb-3 w-full py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-all active:scale-95 ${
               added 
                 ? 'bg-emerald-500 text-white' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+                : 'bg-brand hover:bg-brand-dark text-white shadow-md'
             }`}
           >
             {added ? (
@@ -170,7 +170,7 @@ export default function ProductCard({
             )}
           </button>
 
-          <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+          <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 group-hover:text-brand transition-colors">
             {name}
           </h3>
 

@@ -17,7 +17,7 @@ import {
 
 export default function OrderConfirmationPage() {
   const params = useParams();
-  const orderId = params.orderId as string;
+  const orderId = params?.orderId as string;
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +27,7 @@ export default function OrderConfirmationPage() {
       if (!token) return;
       try {
         const res = await api.getOrderById(token, orderId);
-        if (res.success) {
+        if (res.success && res.data) {
           setOrder(res.data);
         }
       } catch (err) {
@@ -42,7 +42,7 @@ export default function OrderConfirmationPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function OrderConfirmationPage() {
           <Package className="w-16 h-16 text-gray-200 mx-auto mb-6" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h1>
           <p className="text-gray-500 mb-8">We couldn't retrieve the details for this order.</p>
-          <Link href="/" className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all">
+          <Link href="/" className="inline-flex items-center gap-2 px-8 py-3 bg-brand text-white font-bold rounded-2xl hover:bg-brand-dark transition-all">
             Return Home
           </Link>
         </div>
@@ -78,14 +78,14 @@ export default function OrderConfirmationPage() {
 
         {/* Order Info Card */}
         <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden mb-8">
-          <div className="bg-blue-600 p-8 text-white">
+          <div className="bg-brand p-8 text-white">
             <div className="flex flex-wrap justify-between gap-6">
               <div>
-                <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Order Number</p>
+                <p className="text-brand-light text-xs font-bold uppercase tracking-widest mb-1">Order Number</p>
                 <p className="text-2xl font-black">{order._id.slice(-8).toUpperCase()}</p>
               </div>
               <div>
-                <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Tracking Number</p>
+                <p className="text-brand-light text-xs font-bold uppercase tracking-widest mb-1">Tracking Number</p>
                 <p className="text-2xl font-black">{order.trackingNumber}</p>
               </div>
             </div>
@@ -95,7 +95,7 @@ export default function OrderConfirmationPage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-start gap-4 p-5 bg-gray-50 rounded-3xl">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand flex-shrink-0">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
@@ -148,13 +148,17 @@ export default function OrderConfirmationPage() {
                   {order.orderItems.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-xl bg-gray-50 flex-shrink-0 p-2 border border-gray-100">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                        <img 
+                          src={item.image || 'https://placehold.co/200x200?text=Product'} 
+                          alt={item.name} 
+                          className="w-full h-full object-contain" 
+                        />
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-bold text-gray-800">{item.name}</p>
                         <p className="text-xs text-gray-400">Qty: {item.quantity} x LKR {item.price.toLocaleString()}</p>
                       </div>
-                      <p className="text-sm font-black text-blue-600">
+                      <p className="text-sm font-black text-brand">
                         LKR {(item.price * item.quantity).toLocaleString()}
                       </p>
                     </div>
@@ -181,7 +185,7 @@ export default function OrderConfirmationPage() {
         <div className="flex flex-col sm:flex-row gap-4">
           <Link 
             href={`/track?trackingNumber=${order.trackingNumber}`} 
-            className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-5 bg-blue-600 text-white font-black rounded-3xl hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all active:scale-95"
+            className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-5 bg-brand text-white font-black rounded-3xl hover:bg-brand-dark shadow-xl shadow-brand-light transition-all active:scale-95"
           >
             <ClipboardCheck className="w-6 h-6" />
             Track Order

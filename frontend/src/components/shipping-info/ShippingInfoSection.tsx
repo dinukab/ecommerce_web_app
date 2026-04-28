@@ -18,9 +18,9 @@ export default function ShippingInfoSection({
     return (
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
         {shippingCost !== undefined && (
-          <div className="bg-blue-50 p-3 rounded">
+          <div className="bg-brand-light p-3 rounded">
             <p className="text-gray-600">Cost</p>
-            <p className="font-semibold text-blue-600">Rs.{shippingCost}</p>
+            <p className="font-semibold text-brand">Rs.{shippingCost}</p>
           </div>
         )}
 
@@ -58,7 +58,7 @@ export default function ShippingInfoSection({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+    <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-brand-light0">
       <h3 className="text-lg font-semibold text-gray-900 mb-2">
         {item.title}
       </h3>
@@ -77,3 +77,4 @@ export default function ShippingInfoSection({
     </div>
   );
 }
+

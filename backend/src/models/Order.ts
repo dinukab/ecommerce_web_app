@@ -14,6 +14,16 @@ const orderItemSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
+    
+    // New fields requested for database alignment
+    orderId:      { type: String, unique: true },
+    customerName: { type: String },
+    items:        { type: [orderItemSchema] },
+    subtotal:     { type: Number, default: 0 },
+    total:        { type: Number, default: 0 },
+    status:       { type: String, default: 'pending' },
+
+    // Existing fields kept for compatibility
     orderItems: { type: [orderItemSchema], required: true },
     shippingAddress: {
       fullName:     { type: String, required: true },
@@ -45,7 +55,7 @@ const orderSchema = new mongoose.Schema(
     totalPrice:  { type: Number, required: true, default: 0 },
     orderStatus: { 
       type: String, 
-      enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'], 
+      enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'], 
       default: 'pending' 
     },
     trackingNumber: { type: String, unique: true },
@@ -54,13 +64,22 @@ const orderSchema = new mongoose.Schema(
     cancelledAt: { type: Date },
     cancelReason: { type: String },
     orderNotes:   { type: String },
-    storeId:      { type: String, required: true, default: 'STORE-2025-001' },
+    storeId:      { type: String, required: true, default: '69e539fd180ff885ce56ca57' },
+    storeName:    { type: String, default: 'Open Door' },
   },
   { timestamps: true }
 );
 
-// Auto-generate tracking number before saving
+// Auto-generate orderId and tracking number before saving
 orderSchema.pre('save', function (next) {
+  if (!this.orderId) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const suffix = Array.from({ length: 6 }, () =>
+      chars.charAt(Math.floor(Math.random() * chars.length))
+    ).join('');
+    this.orderId = `ORD-${suffix}`;
+  }
+
   if (!this.trackingNumber) {
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.random().toString(36).substring(2, 5).toUpperCase();

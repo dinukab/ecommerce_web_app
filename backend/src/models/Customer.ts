@@ -36,18 +36,22 @@ const customerSchema = new mongoose.Schema(
 
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     storeId: { type: String, required: true, default: 'STORE-2025-001' },
+    
+    // Password Reset Fields
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );
 
-customerSchema.pre('save', async function (next) {
+customerSchema.pre('save', async function (this: any, next: any) {
   if (this.isModified('password') && this.password) {
     this.password = await bcrypt.hash(this.password, 12);
   }
   next();
 });
 
-customerSchema.methods.comparePassword = async function (candidate) {
+customerSchema.methods.comparePassword = async function (this: any, candidate: string) {
   return bcrypt.compare(candidate, this.password);
 };
 

@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const ContactMessage = require('./contactMessage.model');
+import ContactMessage from '../src/models/contactMessage.js';
 
 // @route   POST /api/contact
 // @desc    Create a new contact message
 // @access  Public
-router.post('/', async (req, res) => {
+router.post('/', async (req: any, res: any) => {
   try {
     const { name, email, subject, message } = req.body;
 
@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
       message: 'Your message has been sent successfully. We will get back to you soon!',
       data: contactMessage
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Contact form error:', error);
     res.status(500).json({
       success: false,
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
 // @route   GET /api/contact
 // @desc    Get all contact messages (Admin only)
 // @access  Private
-router.get('/', async (req, res) => {
+router.get('/', async (req: any, res: any) => {
   try {
     // Add authentication middleware here in production
     const messages = await ContactMessage.find().sort({ createdAt: -1 });
@@ -55,7 +55,7 @@ router.get('/', async (req, res) => {
       count: messages.length,
       data: messages
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -66,7 +66,7 @@ router.get('/', async (req, res) => {
 // @route   GET /api/contact/:id
 // @desc    Get a specific contact message (Admin only)
 // @access  Private
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: any, res: any) => {
   try {
     const message = await ContactMessage.findById(req.params.id);
     
@@ -85,7 +85,7 @@ router.get('/:id', async (req, res) => {
       success: true,
       data: message
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -96,7 +96,7 @@ router.get('/:id', async (req, res) => {
 // @route   PATCH /api/contact/:id
 // @desc    Update contact message status (Admin only)
 // @access  Private
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req: any, res: any) => {
   try {
     const { status, adminNotes } = req.body;
 
@@ -118,7 +118,7 @@ router.patch('/:id', async (req, res) => {
       message: 'Message updated successfully',
       data: message
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -129,7 +129,7 @@ router.patch('/:id', async (req, res) => {
 // @route   DELETE /api/contact/:id
 // @desc    Delete a contact message (Admin only)
 // @access  Private
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: any, res: any) => {
   try {
     const message = await ContactMessage.findByIdAndDelete(req.params.id);
 
@@ -144,7 +144,7 @@ router.delete('/:id', async (req, res) => {
       success: true,
       message: 'Contact message deleted successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -152,4 +152,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

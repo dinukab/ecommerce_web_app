@@ -1,23 +1,16 @@
 import Cart from "../models/Cart.js";
 
+// Add a single item to the cart
 export const addToCart = async (req, res) => {
   try {
-    const userIdRaw = req.body?.userId ?? req.body?.user;
-    const productIdRaw = req.body?.productId ?? req.body?.product;
-    const quantityRaw = req.body?.quantity;
+    const userId    = String(req.body?.userId ?? req.body?.user ?? '');
+    const productId = String(req.body?.productId ?? req.body?.product ?? '');
+    const quantity  = Number(req.body?.quantity ?? 1);
 
-    const userId = Number(userIdRaw);
-    const productId = Number(productIdRaw);
-    const quantity = quantityRaw === undefined ? 1 : Number(quantityRaw);
-
-    if (!Number.isFinite(userId) || !Number.isFinite(productId)) {
+    if (!userId || !productId) {
       return res.status(400).json({
         error: "Invalid request body",
-        expected: {
-          userId: 1,
-          productId: 1,
-          quantity: 1,
-        },
+        expected: { userId: "string", productId: "string", quantity: 1 },
       });
     }
 
@@ -27,31 +20,47 @@ export const addToCart = async (req, res) => {
 
     let cart = await Cart.findOne({ user: userId });
 
-    // If cart doesn't exist → create new
     if (!cart) {
-      cart = new Cart({
-        user: userId,
-        items: [{ product: productId, quantity }],
-      });
+      cart = new Cart({ user: userId, items: [{ product: productId, quantity }] });
     } else {
-      // Check if product already in cart
-      const itemIndex = cart.items.findIndex(
-        (item) => item.product === productId
-      );
-
+      const itemIndex = cart.items.findIndex((item) => item.product === productId);
       if (itemIndex > -1) {
-        // product exists → increase quantity
         cart.items[itemIndex].quantity += quantity;
       } else {
-        // new product → add
         cart.items.push({ product: productId, quantity });
       }
     }
 
     await cart.save();
-
     res.json({ message: "Product added to cart", cart });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Sync (replace) entire cart — called when customer clicks "Proceed to Checkout"
+export const syncCart = async (req, res) => {
+  try {
+    const userId = String(req.body?.userId ?? '');
+    const items  = req.body?.items;
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    const cartItems = (Array.isArray(items) ? items : []).map((item) => ({
+      product:  String(item.productId),
+      quantity: Number(item.quantity) || 1,
+    }));
+
+    const cart = await Cart.findOneAndUpdate(
+      { user: userId },
+      { $set: { items: cartItems } },
+      { upsert: true, new: true }
+    );
+
+    res.json({ message: "Cart synced successfully", cart });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

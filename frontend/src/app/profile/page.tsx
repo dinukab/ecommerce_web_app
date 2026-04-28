@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Package, MapPin, CreditCard, Settings, ChevronRight, Edit2, Camera, Heart, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { api } from '@/lib/api';
+import { api, AddressEntry, PaymentMethod } from '@/lib/api';
 
 interface Order {
   id: string;
@@ -11,6 +11,14 @@ interface Order {
   total: number;
   status: 'Delivered' | 'Shipping' | 'Processing' | 'Cancelled';
   items: number;
+}
+
+interface Address extends AddressEntry {
+  id: string;
+}
+
+interface SavedCard extends PaymentMethod {
+  id: string;
 }
 
 export default function ProfilePage() {
@@ -220,7 +228,7 @@ export default function ProfilePage() {
   };
 
   const handleEditAddressClick = (addressId: string) => {
-    const address = userData?.addresses?.find((a: any) => a._id === addressId);
+    const address = userData?.addresses?.find((a: AddressEntry) => a._id === addressId);
     if (address) {
       setEditingAddressId(addressId);
       setAddressFormData({
@@ -467,18 +475,25 @@ export default function ProfilePage() {
 
   const recentOrders = (orders || []).map(o => ({
     id: o._id,
+    orderId: o.orderId || (o._id ? o._id.slice(-8).toUpperCase() : 'N/A'),
+    customerName: o.customerName || userData?.name || 'Customer',
+    itemsCount: o.items?.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) || o.orderItems?.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) || 0,
+    subtotal: o.subtotal || o.itemsPrice || 0,
+    total: o.total || o.totalPrice || 0,
+    status: (o.status || o.orderStatus || 'pending').charAt(0).toUpperCase() + (o.status || o.orderStatus || 'pending').slice(1),
+    paymentMethod: o.paymentMethod || 'N/A',
+    paymentStatus: o.paymentStatus || 'pending',
+    storeId: o.storeId || 'N/A',
+    trackingNumber: o.trackingNumber || 'N/A',
     date: new Date(o.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-    total: o.totalPrice,
-    status: (o.orderStatus || 'pending').charAt(0).toUpperCase() + (o.orderStatus || 'pending').slice(1),
-    items: o.orderItems?.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) || 0,
   }));
 
-  const addresses = (userData?.addresses || []).map((a: any) => ({
+  const addresses: Address[] = (userData?.addresses || []).map((a: AddressEntry) => ({
     ...a,
     id: a._id
   }));
 
-  const savedCards = (userData?.paymentMethods || []).map((p: any) => ({
+  const savedCards: SavedCard[] = (userData?.paymentMethods || []).map((p: PaymentMethod) => ({
     ...p,
     id: p._id
   }));
@@ -489,10 +504,7 @@ export default function ProfilePage() {
         return 'bg-green-100 text-green-800';
       case 'shipped':
       case 'shipping':
-        return 'bg-blue-100 text-blue-800';
-      case 'processing':
-      case 'confirmed':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-brand-light text-brand-dark';
       case 'cancelled':
       case 'refunded':
         return 'bg-red-100 text-red-800';
@@ -537,7 +549,7 @@ export default function ProfilePage() {
                       className="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
                     />
                   ) : (
-                    <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
+                    <div className="w-20 h-20 bg-brand rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
                       {userInfo.avatar}
                     </div>
                   )}
@@ -548,7 +560,7 @@ export default function ProfilePage() {
                     className="absolute bottom-2 right-1/2 transform translate-x-1/2 translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"
                     title="Change profile photo"
                   >
-                    <Camera className="h-4 w-4 text-blue-600" />
+                    <Camera className="h-4 w-4 text-brand" />
                   </button>
                 </div>
 
@@ -563,7 +575,7 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('overview')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'overview'
-                      ? 'bg-blue-50 text-blue-600'
+                      ? 'bg-brand-light text-brand'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -571,23 +583,13 @@ export default function ProfilePage() {
                   <span className="font-medium">Overview</span>
                 </button>
 
-                <button
-                  onClick={() => setActiveTab('orders')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === 'orders'
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Package className="h-5 w-5" />
-                  <span className="font-medium">Orders</span>
-                </button>
+
 
                 <button
                   onClick={() => setActiveTab('addresses')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'addresses'
-                      ? 'bg-blue-50 text-blue-600'
+                      ? 'bg-brand-light text-brand'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -599,7 +601,7 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('payment')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'payment'
-                      ? 'bg-blue-50 text-blue-600'
+                      ? 'bg-brand-light text-brand'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -611,7 +613,7 @@ export default function ProfilePage() {
                   onClick={() => setActiveTab('settings')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'settings'
-                      ? 'bg-blue-50 text-blue-600'
+                      ? 'bg-brand-light text-brand'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -635,8 +637,8 @@ export default function ProfilePage() {
                         <p className="text-sm text-gray-600">Total Orders</p>
                         <p className="text-2xl font-bold text-gray-900 mt-1">{userData?.totalOrders || 0}</p>
                       </div>
-                      <div className="bg-blue-100 p-3 rounded-lg">
-                        <Package className="h-6 w-6 text-blue-600" />
+                      <div className="bg-brand-light p-3 rounded-lg">
+                        <Package className="h-6 w-6 text-brand" />
                       </div>
                     </div>
                   </div>
@@ -665,94 +667,82 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Recent Orders */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-                    <button
-                      onClick={() => setActiveTab('orders')}
-                      className="text-blue-600 hover:text-blue-700 font-medium text-sm"
-                    >
-                      View All
-                    </button>
+                
+                {/* Recent Orders Section */}
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="p-6 border-b">
+                    <h3 className="font-bold text-gray-900">Recent Orders</h3>
                   </div>
-
-                  <div className="space-y-4">
-                    {recentOrders.map((order) => (
-                      <div
-                        key={order.id}
-                        className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-3">
-                            <span className="font-medium text-gray-900">{order.id}</span>
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                order.status
-                              )}`}
-                            >
-                              {order.status}
-                            </span>
-                          </div>
-                          <span className="text-sm text-gray-600">{order.date}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">{order.items} items</span>
-                          <span className="font-bold text-gray-900">Rs {order.total}</span>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead className="bg-gray-50 text-gray-600 text-xs uppercase font-semibold">
+                        <tr>
+                          <th className="px-6 py-4">Order Info</th>
+                          <th className="px-6 py-4">Customer</th>
+                          <th className="px-6 py-4">Items</th>
+                          <th className="px-6 py-4">Pricing</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4">Payment</th>
+                          <th className="px-6 py-4">Store/Tracking</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {recentOrders.length > 0 ? (
+                          recentOrders.map((order) => (
+                            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                              <td className="px-6 py-4">
+                                <p className="font-bold text-gray-900">{order.orderId}</p>
+                                <p className="text-xs text-gray-500">{order.date}</p>
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="text-sm text-gray-900">{order.customerName}</p>
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-600">
+                                {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="text-sm font-bold text-gray-900">Rs {order.total.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Sub: Rs {order.subtotal.toLocaleString()}</p>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(order.status)}`}>
+                                  {order.status}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="text-xs font-medium text-gray-900">{order.paymentMethod}</p>
+                                <p className={`text-[10px] font-bold uppercase ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-amber-600'}`}>
+                                  {order.paymentStatus}
+                                </p>
+                              </td>
+                              <td className="px-6 py-4">
+                                <p className="text-xs text-gray-500">Store: {order.storeId}</p>
+                                <p className="text-xs font-mono text-brand mt-1">{order.trackingNumber}</p>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
+                              No orders found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Orders Tab */}
-            {activeTab === 'orders' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Order History</h2>
-                <div className="space-y-4">
-                  {recentOrders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="font-bold text-gray-900 mb-1">{order.id}</h3>
-                          <p className="text-sm text-gray-600">Placed on {order.date}</p>
-                        </div>
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          {order.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div>
-                          <span className="text-sm text-gray-600">{order.items} items • </span>
-                          <span className="font-bold text-gray-900">Rs {order.total}</span>
-                        </div>
-                        <button className="text-blue-600 hover:text-blue-700 font-medium flex items-center">
-                          View Details
-                          <ChevronRight className="h-4 w-4 ml-1" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {/* Addresses Tab */}
             {activeTab === 'addresses' && (
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">Saved Addresses</h2>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleAddAddressClick}>Add New Address</Button>
+                  <Button className="bg-brand hover:bg-brand-dark text-white" onClick={handleAddAddressClick}>Add New Address</Button>
                 </div>
 
                 {addresses.length === 0 ? (
@@ -768,7 +758,7 @@ export default function ProfilePage() {
                           <div className="flex items-center space-x-2">
                             <h3 className="font-bold text-gray-900">{address.type}</h3>
                             {address.isDefault && (
-                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                              <span className="px-2 py-1 bg-brand-light text-brand-dark text-xs font-medium rounded">
                                 Default
                               </span>
                             )}
@@ -776,7 +766,7 @@ export default function ProfilePage() {
                           <div className="flex items-center space-x-2">
                             <button 
                               onClick={() => handleEditAddressClick(address.id)}
-                              className="text-blue-600 hover:text-blue-700 p-1"
+                              className="text-brand hover:text-brand-dark p-1"
                               title="Edit address"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -827,7 +817,7 @@ export default function ProfilePage() {
                           <select
                             value={addressFormData.type}
                             onChange={(e) => setAddressFormData({ ...addressFormData, type: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                           >
                             <option value="Home">🏠 Home</option>
                             <option value="Office">🏢 Office</option>
@@ -844,7 +834,7 @@ export default function ProfilePage() {
                             value={addressFormData.name}
                             onChange={(e) => setAddressFormData({ ...addressFormData, name: e.target.value })}
                             placeholder="Enter address label"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                           />
                         </div>
 
@@ -857,7 +847,7 @@ export default function ProfilePage() {
                             onChange={(e) => setAddressFormData({ ...addressFormData, address: e.target.value })}
                             placeholder="Enter your full address including street, city, and postal code"
                             rows={4}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors resize-none"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors resize-none"
                           />
                         </div>
 
@@ -870,17 +860,17 @@ export default function ProfilePage() {
                             value={addressFormData.phone}
                             onChange={(e) => setAddressFormData({ ...addressFormData, phone: e.target.value })}
                             placeholder="Enter phone number"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                           />
                         </div>
 
-                        <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                        <div className="flex items-center space-x-3 p-4 bg-brand-light rounded-lg border border-brand-light">
                           <input
                             type="checkbox"
                             id="isDefault"
                             checked={addressFormData.isDefault}
                             onChange={(e) => setAddressFormData({ ...addressFormData, isDefault: e.target.checked })}
-                            className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                            className="h-5 w-5 text-brand focus:ring-brand-light0 border-gray-300 rounded cursor-pointer"
                           />
                           <label htmlFor="isDefault" className="text-sm font-medium text-gray-700 cursor-pointer">
                             Set as default address
@@ -899,7 +889,7 @@ export default function ProfilePage() {
                           <button
                             type="submit"
                             disabled={addressLoading}
-                            className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
+                            className="flex-1 px-4 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
                           >
                             {addressLoading ? (
                               <>
@@ -923,7 +913,7 @@ export default function ProfilePage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">Payment Methods</h2>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleAddPaymentClick}>Add New Card</Button>
+                  <Button className="bg-brand hover:bg-brand-dark text-white" onClick={handleAddPaymentClick}>Add New Card</Button>
                 </div>
 
                 <div className="space-y-4">
@@ -941,7 +931,7 @@ export default function ProfilePage() {
                             <div className="flex items-center space-x-2 mb-1">
                               <p className="font-bold text-gray-900">{card.type}</p>
                               {card.isDefault && (
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                                <span className="px-2 py-1 bg-brand-light text-brand-dark text-xs font-medium rounded">
                                   Default
                                 </span>
                               )}
@@ -988,7 +978,7 @@ export default function ProfilePage() {
                           <select
                             value={paymentFormData.type}
                             onChange={(e) => setPaymentFormData({ ...paymentFormData, type: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                           >
                             <option value="Visa">Visa</option>
                             <option value="Mastercard">Mastercard</option>
@@ -1007,7 +997,7 @@ export default function ProfilePage() {
                             onChange={(e) => setPaymentFormData({ ...paymentFormData, cardNumber: e.target.value })}
                             placeholder="0000 0000 0000 0000"
                             maxLength={19}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                           />
                         </div>
 
@@ -1022,7 +1012,7 @@ export default function ProfilePage() {
                               onChange={(e) => setPaymentFormData({ ...paymentFormData, expiry: e.target.value })}
                               placeholder="MM/YY"
                               maxLength={5}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                             />
                           </div>
                           <div>
@@ -1035,18 +1025,18 @@ export default function ProfilePage() {
                               onChange={(e) => setPaymentFormData({ ...paymentFormData, cvv: e.target.value })}
                               placeholder="123"
                               maxLength={4}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                             />
                           </div>
                         </div>
 
-                        <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                        <div className="flex items-center space-x-3 p-4 bg-brand-light rounded-lg border border-brand-light">
                           <input
                             type="checkbox"
                             id="isDefaultPayment"
                             checked={paymentFormData.isDefault}
                             onChange={(e) => setPaymentFormData({ ...paymentFormData, isDefault: e.target.checked })}
-                            className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                            className="h-5 w-5 text-brand focus:ring-brand-light0 border-gray-300 rounded cursor-pointer"
                           />
                           <label htmlFor="isDefaultPayment" className="text-sm font-medium text-gray-700 cursor-pointer">
                             Set as default payment method
@@ -1065,7 +1055,7 @@ export default function ProfilePage() {
                           <button
                             type="submit"
                             disabled={paymentLoading}
-                            className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
+                            className="flex-1 px-4 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
                           >
                             {paymentLoading ? (
                               <>
@@ -1111,7 +1101,7 @@ export default function ProfilePage() {
                           type="text"
                           value={settingsFormData.name}
                           onChange={(e) => setSettingsFormData({ ...settingsFormData, name: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
                           required
                         />
                       </div>
@@ -1135,7 +1125,7 @@ export default function ProfilePage() {
                           type="tel"
                           value={settingsFormData.phone}
                           onChange={(e) => setSettingsFormData({ ...settingsFormData, phone: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
                         />
                       </div>
                     </div>
@@ -1154,7 +1144,7 @@ export default function ProfilePage() {
                           type="password"
                           value={settingsFormData.currentPassword}
                           onChange={(e) => setSettingsFormData({ ...settingsFormData, currentPassword: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
                         />
                       </div>
                       <div>
@@ -1165,7 +1155,7 @@ export default function ProfilePage() {
                           type="password"
                           value={settingsFormData.newPassword}
                           onChange={(e) => setSettingsFormData({ ...settingsFormData, newPassword: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
                         />
                       </div>
                       <div>
@@ -1176,7 +1166,7 @@ export default function ProfilePage() {
                           type="password"
                           value={settingsFormData.confirmPassword}
                           onChange={(e) => setSettingsFormData({ ...settingsFormData, confirmPassword: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
                         />
                       </div>
                     </div>
@@ -1187,7 +1177,7 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={settingsLoading}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2"
+                      className="px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2"
                     >
                       {settingsLoading ? (
                         <>
@@ -1243,7 +1233,7 @@ export default function ProfilePage() {
 
             {uploading && (
               <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
                 <p className="mt-2 text-sm text-gray-600">Uploading...</p>
               </div>
             )}

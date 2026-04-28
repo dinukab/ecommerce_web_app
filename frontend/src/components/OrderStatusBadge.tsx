@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
   Clock, 
-  CheckCircle, 
   Package, 
   Truck, 
   CheckCircle2, 
@@ -20,20 +19,14 @@ const statusConfig: Record<string, { color: string; bg: string; icon: any; label
     label: 'Pending'
   },
   confirmed: {
-    color: 'text-blue-700',
-    bg: 'bg-blue-100',
-    icon: CheckCircle,
-    label: 'Confirmed'
-  },
-  processing: {
     color: 'text-purple-700',
     bg: 'bg-purple-100',
     icon: Package,
-    label: 'Processing'
+    label: 'Confirmed'
   },
   shipped: {
-    color: 'text-orange-700',
-    bg: 'bg-orange-100',
+    color: 'text-brand-dark',
+    bg: 'bg-brand-light',
     icon: Truck,
     label: 'Shipped'
   },
@@ -64,3 +57,4 @@ const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status }) => {
 };
 
 export default OrderStatusBadge;
+

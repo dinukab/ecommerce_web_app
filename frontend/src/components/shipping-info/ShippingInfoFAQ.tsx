@@ -45,9 +45,9 @@ export default function ShippingInfoFAQ({ item }: ShippingInfoFAQProps) {
           </p>
 
           {item.metadata?.shippingCost && (
-            <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+            <div className="mt-4 p-3 bg-brand-light rounded border border-blue-200">
               <p className="text-sm text-gray-600">Cost:</p>
-              <p className="font-semibold text-blue-600">
+              <p className="font-semibold text-brand">
                 Rs.{item.metadata.shippingCost}
               </p>
             </div>

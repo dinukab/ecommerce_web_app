@@ -56,7 +56,7 @@ export default function FAQItem({ faq, isExpanded, onToggle }: FAQItemProps) {
             {faq.question}
           </h3>
           <div className="mt-2 flex items-center gap-3">
-            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+            <span className="inline-block px-3 py-1 bg-brand-light text-brand-dark text-xs font-medium rounded-full">
               {faq.category}
             </span>
             <span className="text-xs text-gray-500">
@@ -177,3 +177,4 @@ export default function FAQItem({ faq, isExpanded, onToggle }: FAQItemProps) {
     </div>
   );
 }
+

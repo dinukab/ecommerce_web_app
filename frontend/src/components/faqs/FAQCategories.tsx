@@ -25,7 +25,7 @@ export default function FAQCategories({
           onClick={() => onCategoryChange('All')}
           className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center justify-between ${
             selectedCategory === 'All'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-brand text-white'
               : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
           }`}
         >
@@ -33,7 +33,7 @@ export default function FAQCategories({
           <span
             className={`text-sm font-semibold ${
               selectedCategory === 'All'
-                ? 'bg-white text-blue-600'
+                ? 'bg-white text-brand'
                 : 'bg-gray-200 text-gray-700'
             } px-3 py-1 rounded-full`}
           >
@@ -48,7 +48,7 @@ export default function FAQCategories({
             onClick={() => onCategoryChange(category.name)}
             className={`w-full text-left px-4 py-3 rounded-lg transition flex items-center justify-between ${
               selectedCategory === category.name
-                ? 'bg-blue-600 text-white'
+                ? 'bg-brand text-white'
                 : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
             }`}
           >
@@ -56,7 +56,7 @@ export default function FAQCategories({
             <span
               className={`text-sm font-semibold ${
                 selectedCategory === category.name
-                  ? 'bg-white text-blue-600'
+                  ? 'bg-white text-brand'
                   : 'bg-gray-200 text-gray-700'
               } px-3 py-1 rounded-full`}
             >
@@ -75,3 +75,4 @@ export default function FAQCategories({
     </div>
   );
 }
+

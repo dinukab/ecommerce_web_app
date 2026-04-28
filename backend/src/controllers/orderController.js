@@ -80,24 +80,45 @@ export const createOrder = async (req, res) => {
 
     const order = new Order({
       user: req.user._id,
+      customerName: shippingAddress.fullName,
+      items: validatedItems,
       orderItems: validatedItems,
+      subtotal: itemsPrice,
+      total: totalPrice,
+      status: 'pending',
       shippingAddress,
       deliveryZone: zoneId,
       deliveryMethod,
       paymentMethod,
+      paymentStatus: 'pending',
+      orderStatus: 'pending',
       itemsPrice,
       deliveryFee,
       totalPrice,
       estimatedDeliveryDate,
       orderNotes,
+      storeId:   '69e539fd180ff885ce56ca57',  // Open Door store ID
+      storeName: 'Open Door',                  // Human-readable source label
     });
 
+    // Save order to database
     const createdOrder = await order.save();
+    
+    if (!createdOrder) {
+      return res.status(500).json({ success: false, message: 'Failed to save order to database' });
+    }
 
-    for (const item of validatedItems) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { stock: -item.quantity },
-      });
+    // Deduct stock for each ordered item
+    try {
+      for (const item of validatedItems) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: -item.quantity },
+        });
+      }
+    } catch (stockError) {
+      console.error('Error updating stock:', stockError);
+      // Note: Order is already saved, but log this error for manual review
+      console.error(`Order ${createdOrder._id} created but stock deduction failed for some items`);
     }
 
     // Generate PayHere Hash
@@ -112,8 +133,17 @@ export const createOrder = async (req, res) => {
       payhereHash = crypto.createHash('md5').update(hashData).digest('hex').toUpperCase();
     }
 
+    console.log('✅ Order successfully created and saved to database:');
+    console.log(`   Order ID: ${createdOrder._id}`);
+    console.log(`   Tracking Number: ${createdOrder.trackingNumber}`);
+    console.log(`   User ID: ${createdOrder.user}`);
+    console.log(`   Total Price: ${createdOrder.totalPrice}`);
+    console.log(`   Order Status: ${createdOrder.orderStatus}`);
+    console.log(`   Payment Status: ${createdOrder.paymentStatus}`);
+
     return res.status(201).json({ 
-      success: true, 
+      success: true,
+      message: 'Order placed successfully and saved to database',
       data: { 
         ...createdOrder._doc, 
         payhereHash, 
@@ -167,6 +197,7 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     order.orderStatus = orderStatus;
+    order.status = orderStatus;
 
     if (orderStatus === 'delivered') {
       order.deliveredAt = Date.now();
@@ -205,13 +236,15 @@ export const trackOrder = async (req, res) => {
     }
 
     const publicData = {
-      trackingNumber: order.trackingNumber,
-      status: order.orderStatus,
+      id: order._id,
+      orderId: order.orderId,
+      status: order.status || order.orderStatus,
       estimatedDeliveryDate: order.estimatedDeliveryDate,
       createdAt: order.createdAt,
       city: order.shippingAddress.city,
       district: order.shippingAddress.district,
-      itemsCount: order.orderItems.length,
+      itemsCount: order.items?.length || order.orderItems?.length || 0,
+      trackingNumber: order.trackingNumber,
     };
 
     return res.json({ success: true, data: publicData });

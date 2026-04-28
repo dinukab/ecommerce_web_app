@@ -15,9 +15,9 @@ export default function CategorySidebar({ categories, activeSlug }: Props) {
 
   const getLinkClass = (slug: string) => {
     const isActive = pathname === `/category/${slug}`;
-    return `flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-indigo-50 ${
+    return `flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-brand-light ${
       isActive
-        ? 'bg-indigo-50 text-indigo-700 font-semibold border-r-4 border-indigo-500'
+        ? 'bg-brand-light text-brand-dark font-semibold border-r-4 border-brand-light0'
         : 'text-gray-600'
     }`;
   };
@@ -25,7 +25,7 @@ export default function CategorySidebar({ categories, activeSlug }: Props) {
   return (
     <aside className="w-60 shrink-0">
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-24">
-        <div className="px-5 py-4 bg-gradient-to-r from-indigo-600 to-violet-600">
+        <div className="px-5 py-4 bg-gradient-to-r from-brand to-violet-600">
           <h2 className="text-white font-bold text-sm tracking-wide uppercase">All Categories</h2>
         </div>
 
@@ -34,9 +34,9 @@ export default function CategorySidebar({ categories, activeSlug }: Props) {
           <li>
             <Link
               href="/category/all"
-              className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-indigo-50 ${
+              className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-brand-light ${
                 isAllActive
-                  ? 'bg-indigo-50 text-indigo-700 font-semibold border-r-4 border-indigo-500'
+                  ? 'bg-brand-light text-brand-dark font-semibold border-r-4 border-brand-light0'
                   : 'text-gray-600'
               }`}
             >

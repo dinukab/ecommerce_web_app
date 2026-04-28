@@ -30,7 +30,7 @@ export default function CartItem({ item }: CartItemProps) {
         <div className="flex-1">
           <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
           <p className="text-sm text-gray-500 mb-2">{item.category}</p>
-          <p className="text-xl font-bold text-blue-600">LKR {item.price.toLocaleString()}</p>
+          <p className="text-xl font-bold text-brand">LKR {item.price.toLocaleString()}</p>
         </div>
 
         <div className="flex flex-col items-end space-y-4">
@@ -60,3 +60,4 @@ export default function CartItem({ item }: CartItemProps) {
     </div>
   );
 }
+

@@ -22,7 +22,8 @@ import { useCart } from '@/context/CartContext';
 const PLACEHOLDER = 'https://placehold.co/600x600/f8fafc/6366f1?text=No+Image';
 
 export default function ProductDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id: string }>();
+  const id = params?.id;
   const router = useRouter();
   const { addToCart } = useCart();
   
@@ -114,7 +115,7 @@ export default function ProductDetailPage() {
   if (loading) return <div className="p-20 text-center">Loading...</div>;
   if (error || !product) return <div className="p-20 text-center">{error}</div>;
 
-  const discount = product.costPrice > product.sellingPrice 
+  const discount = product.costPrice && product.costPrice > product.sellingPrice 
     ? Math.round(((product.costPrice - product.sellingPrice) / product.costPrice) * 100) 
     : 0;
 
@@ -167,7 +168,7 @@ export default function ProductDetailPage() {
                 <button 
                   key={i} 
                   onClick={() => setActiveImage(i)}
-                  className={`w-16 h-16 rounded-xl border-2 overflow-hidden bg-gray-50 p-1 ${activeImage === i ? 'border-indigo-600' : 'border-transparent'}`}
+                  className={`w-16 h-16 rounded-xl border-2 overflow-hidden bg-gray-50 p-1 ${activeImage === i ? 'border-brand' : 'border-transparent'}`}
                 >
                   <img src={img} alt="" className="w-full h-full object-contain" />
                 </button>
@@ -183,7 +184,7 @@ export default function ProductDetailPage() {
               <div className="flex text-amber-400">
                 {[...Array(5)].map((_, i) => <Star key={i} size={14} fill={i < Math.round(product.rating) ? 'currentColor' : 'none'} />)}
               </div>
-              <span className="text-indigo-600 font-bold">
+              <span className="text-brand font-bold">
                 {product.rating} ({product.numReviews.toLocaleString()} Reviews)
               </span>
             </div>
@@ -192,7 +193,7 @@ export default function ProductDetailPage() {
               <span className="text-3xl font-bold text-gray-900">Rs {product.sellingPrice.toLocaleString()}</span>
               {discount > 0 && (
                 <>
-                  <span className="text-lg text-gray-300 line-through">Rs {product.costPrice.toLocaleString()}</span>
+                  <span className="text-lg text-gray-300 line-through">Rs {(product.costPrice ?? 0).toLocaleString()}</span>
                   <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">SAVE {discount}%</span>
                 </>
               )}
@@ -243,7 +244,7 @@ export default function ProductDetailPage() {
             </div>
             <button 
               onClick={() => setShowReviewForm(!showReviewForm)}
-              className="bg-[#151194] text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-100 hover:bg-[#0c0a5c] transition-all flex items-center gap-2"
+              className="bg-[#151194] text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-brand-light hover:bg-[#0c0a5c] transition-all flex items-center gap-2"
             >
               <MessageSquare size={14} />
               Write a Review
@@ -262,14 +263,14 @@ export default function ProductDetailPage() {
                     required
                     value={newReview.user}
                     onChange={(e) => setNewReview({...newReview, user: e.target.value})}
-                    className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light0"
                   />
                   <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-3">
                     <span className="text-xs font-bold text-gray-400">Rating:</span>
                     <select 
                       value={newReview.rating}
                       onChange={(e) => setNewReview({...newReview, rating: Number(e.target.value)})}
-                      className="text-sm font-bold text-indigo-600 bg-transparent focus:outline-none"
+                      className="text-sm font-bold text-brand bg-transparent focus:outline-none"
                     >
                       {[5,4,3,2,1].map(n => <option key={n} value={n}>{n} Stars</option>)}
                     </select>
@@ -281,7 +282,7 @@ export default function ProductDetailPage() {
                   required
                   value={newReview.title}
                   onChange={(e) => setNewReview({...newReview, title: e.target.value})}
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light0"
                 />
                 <textarea 
                   placeholder="Share your thoughts about this product..." 
@@ -289,7 +290,7 @@ export default function ProductDetailPage() {
                   rows={4}
                   value={newReview.text}
                   onChange={(e) => setNewReview({...newReview, text: e.target.value})}
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-light0"
                 ></textarea>
                 <div className="flex justify-end gap-3">
                   <button 
@@ -324,7 +325,7 @@ export default function ProductDetailPage() {
                     {r.text}
                   </p>
                   <div className="flex items-center gap-3 mt-auto pt-4 border-t border-gray-50">
-                    <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-400">
+                    <div className="w-8 h-8 rounded-full bg-brand-light flex items-center justify-center text-indigo-400">
                       <UserIcon size={14} />
                     </div>
                     <div>

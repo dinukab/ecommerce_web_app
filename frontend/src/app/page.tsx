@@ -23,8 +23,8 @@ const heroSlides = [
     title: 'Flash Sale',
     subtitle: 'Up to 50% off on selected items',
     description: 'Discover amazing deals on top products. Shop before the sale ends and save big on your favorite items.',
-    gradient: 'from-blue-900 via-blue-600 to-indigo-700',
-    subtitleColor: 'text-blue-100',
+    gradient: 'from-brand-dark via-brand to-brand-dark',
+    subtitleColor: 'text-brand-light',
     descriptionColor: 'text-blue-200',
   },
   {
@@ -33,7 +33,7 @@ const heroSlides = [
     title: 'Fresh Styles',
     subtitle: 'Trending picks for this season',
     description: 'Explore our latest collection curated for comfort, style, and everyday confidence.',
-    gradient: 'from-cyan-900 via-sky-600 to-blue-700',
+    gradient: 'from-cyan-900 via-sky-600 to-brand-dark',
     subtitleColor: 'text-cyan-100',
     descriptionColor: 'text-cyan-200',
   },
@@ -113,7 +113,7 @@ export default function HomePage() {
                       <div className="flex flex-wrap gap-4">
                         <Link
                           href="/category/all"
-                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#151194] font-bold hover:bg-blue-50 transition-colors"
+                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-brand font-bold hover:bg-brand-light transition-colors"
                         >
                           Shop Now
                           <ArrowRight className="w-4 h-4" />
@@ -164,7 +164,7 @@ export default function HomePage() {
                 <p className="text-gray-500 mt-1">Our most popular grocery picks</p>
               </div>
             </div>
-            <Link href="/category/all" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 group">
+            <Link href="/category/all" className="text-sm font-bold text-brand hover:text-brand-dark flex items-center gap-1 group">
               View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -192,7 +192,7 @@ export default function HomePage() {
           {/* Section Header */}
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <div className="w-12 h-12 rounded-2xl bg-brand-light flex items-center justify-center text-brand">
                 <Clock className="w-6 h-6" />
               </div>
               <div>
@@ -222,16 +222,16 @@ export default function HomePage() {
       {/* Call to Action */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-linear-to-br from-[#151194] to-indigo-600 rounded-[2.5rem] p-12 text-center text-white overflow-hidden relative">
+          <div className="bg-linear-to-br from-brand-dark to-brand rounded-[2.5rem] p-12 text-center text-white overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
             <div className="relative z-10">
               <h2 className="text-4xl font-bold mb-4">Can't find what you're looking for?</h2>
-              <p className="text-indigo-100 mb-8 max-w-xl mx-auto">
+              <p className="text-brand-light mb-8 max-w-xl mx-auto">
                 Explore our full catalog of over 250+ fresh grocery products across all categories.
               </p>
               <Link
                 href="/category/all"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#151194] font-bold rounded-2xl hover:bg-blue-50 transition-all hover:scale-105"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-brand font-bold rounded-2xl hover:bg-brand-light transition-all hover:scale-105"
               >
                 Explore Full Catalog
                 <ArrowRight className="w-5 h-5" />

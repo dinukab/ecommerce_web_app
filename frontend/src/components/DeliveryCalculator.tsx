@@ -47,7 +47,7 @@ const DeliveryCalculator: React.FC<DeliveryCalculatorProps> = ({ onCalculate }) 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+        <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand">
           <Truck className="w-5 h-5" />
         </div>
         <div>
@@ -66,7 +66,7 @@ const DeliveryCalculator: React.FC<DeliveryCalculatorProps> = ({ onCalculate }) 
             <select
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 text-sm appearance-none outline-none transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 text-sm appearance-none outline-none transition-all"
             >
               <option value="">Choose your district...</option>
               {DISTRICTS.sort().map(d => (
@@ -87,7 +87,7 @@ const DeliveryCalculator: React.FC<DeliveryCalculatorProps> = ({ onCalculate }) 
                 onClick={() => setMethod(m)}
                 className={`py-2.5 rounded-xl text-xs font-bold border transition-all ${
                   method === m 
-                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' 
+                    ? 'bg-brand border-brand text-white shadow-lg shadow-brand-light' 
                     : 'bg-white border-gray-100 text-gray-500 hover:border-blue-200'
                 }`}
               >
@@ -99,7 +99,7 @@ const DeliveryCalculator: React.FC<DeliveryCalculatorProps> = ({ onCalculate }) 
 
         {loading && (
           <div className="flex justify-center py-4">
-            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
 
@@ -113,7 +113,7 @@ const DeliveryCalculator: React.FC<DeliveryCalculatorProps> = ({ onCalculate }) 
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-500">Estimated Delivery</span>
-              <div className="flex items-center gap-1.5 text-sm font-bold text-blue-600">
+              <div className="flex items-center gap-1.5 text-sm font-bold text-brand">
                 <Clock className="w-4 h-4" />
                 <span>{result.estimatedDays} {result.estimatedDays === 1 ? 'Day' : 'Days'}</span>
               </div>
@@ -129,3 +129,4 @@ const DeliveryCalculator: React.FC<DeliveryCalculatorProps> = ({ onCalculate }) 
 };
 
 export default DeliveryCalculator;
+

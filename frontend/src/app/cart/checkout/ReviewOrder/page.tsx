@@ -121,7 +121,7 @@ export default function ReviewOrderPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-600">No order data found. Please complete checkout.</p>
           <div className="text-center mt-6">
-            <Link href="/cart/checkout" className="text-blue-600 hover:underline">
+            <Link href="/cart/checkout" className="text-brand hover:underline">
               Back to Checkout
             </Link>
           </div>
@@ -149,7 +149,7 @@ export default function ReviewOrderPage() {
                 <h2 className="text-lg font-semibold text-black">Shipping Address</h2>
                 <button
                   onClick={handleChangePayment}
-                  className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                  className="text-sm text-brand hover:underline flex items-center gap-1"
                 >
                   <Edit2 size={14} />
                   Change
@@ -171,7 +171,7 @@ export default function ReviewOrderPage() {
                 <h2 className="text-lg font-semibold text-black">Payment Method</h2>
                 <button
                   onClick={handleChangePayment}
-                  className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                  className="text-sm text-brand hover:underline flex items-center gap-1"
                 >
                   <Edit2 size={14} />
                   Change
@@ -202,11 +202,11 @@ export default function ReviewOrderPage() {
                 />
                 <label htmlFor="terms" className="text-sm text-gray-700">
                   I agree to the{' '}
-                  <a href="#" className="text-blue-600 hover:underline">
+                  <a href="#" className="text-brand hover:underline">
                     Terms and Conditions
                   </a>
                   and{' '}
-                  <a href="#" className="text-blue-600 hover:underline">
+                  <a href="#" className="text-brand hover:underline">
                     Privacy Policy
                   </a>
                   . Your personal data will be used to process your order, support your experience
@@ -227,7 +227,7 @@ export default function ReviewOrderPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={!agreedToTerms}
-                className="flex-1 px-6 py-3 bg-[#151194] hover:bg-blue-800 disabled:bg-gray-400 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition"
+                className="flex-1 px-6 py-3 bg-[#151194] hover:bg-brand-dark disabled:bg-gray-400 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition"
               >
                 Place Order
                 <span>→</span>
@@ -275,7 +275,7 @@ export default function ReviewOrderPage() {
 
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-base text-black">Total</span>
-                  <span className="text-xl font-bold text-blue-900">LKR {orderTotals.orderTotal.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-brand-dark">LKR {orderTotals.orderTotal.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -286,7 +286,7 @@ export default function ReviewOrderPage() {
                   <span>Transactions are encrypted and secure</span>
                 </div>
                 <div className="text-xs text-center text-gray-500">
-                  <p>Need help? <a href="#" className="text-blue-600 hover:underline">Contact Support</a></p>
+                  <p>Need help? <a href="#" className="text-brand hover:underline">Contact Support</a></p>
                 </div>
               </div>
             </div>
@@ -296,3 +296,4 @@ export default function ReviewOrderPage() {
     </div>
   );
 }
+
