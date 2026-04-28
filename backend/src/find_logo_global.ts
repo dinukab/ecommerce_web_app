@@ -9,6 +9,9 @@ const findInAllDBs = async () => {
   const mongoURI = (process.env.MONGODB_URI || process.env.MONGO_URI || '').replace(/\/oneshop_open_door/, '/');
   try {
     const client = await mongoose.connect(mongoURI);
+    if (!mongoose.connection.db) {
+      throw new Error('Database connection not established');
+    }
     const admin = mongoose.connection.db.admin();
     const dbs = await admin.listDatabases();
     
@@ -17,6 +20,10 @@ const findInAllDBs = async () => {
       
       console.log(`\n=== Database: ${dbInfo.name} ===`);
       const db = mongoose.connection.useDb(dbInfo.name).db;
+      if (!db) {
+        console.warn(`Could not access database: ${dbInfo.name}`);
+        continue;
+      }
       const collections = await db.listCollections().toArray();
       
       for (const col of collections) {

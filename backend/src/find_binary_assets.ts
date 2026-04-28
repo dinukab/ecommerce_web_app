@@ -10,6 +10,9 @@ const findBinary = async () => {
   try {
     await mongoose.connect(mongoURI!);
     const db = mongoose.connection.db;
+    if (!db) {
+      throw new Error('Database connection not established');
+    }
     const collections = await db.listCollections().toArray();
     for (const col of collections) {
       const doc = await db.collection(col.name).findOne({

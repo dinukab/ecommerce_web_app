@@ -14,11 +14,15 @@ const listCollections = async () => {
 
   try {
     await mongoose.connect(mongoURI);
-    const collections = await mongoose.connection.db.listCollections().toArray();
+    const db = mongoose.connection.db;
+    if (!db) {
+      throw new Error('Database connection not established');
+    }
+    const collections = await db.listCollections().toArray();
     console.log('Collections:', collections.map(c => c.name));
     
     // Check if storesettings exists and show content
-    const storeSettings = await mongoose.connection.db.collection('storesettings').find({}).toArray();
+    const storeSettings = await db.collection('storesettings').find({}).toArray();
     console.log('StoreSettings Content:', JSON.stringify(storeSettings, null, 2));
     
     process.exit(0);
