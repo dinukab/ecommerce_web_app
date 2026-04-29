@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* ── Store brand colours (Open Door) ── */
+  --brand:       #0891b2;   /* cyan-600    */
+  --brand-dark:  #0e7490;   /* cyan-700    */
+  --brand-light: #a5f3fc;   /* cyan-200    */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* expose brand colours as Tailwind utilities (bg-brand, text-brand, etc.) */
+  --color-brand:       var(--brand);
+  --color-brand-dark:  var(--brand-dark);
+  --color-brand-light: var(--brand-light);
+  
+  /* map primary to brand for shadcn components */
+  --color-primary:     var(--brand);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
