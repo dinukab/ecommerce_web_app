@@ -180,7 +180,7 @@ export default function CheckoutPage() {
             "hash": order.payhereHash,
             "return_url": window.location.origin + `/orders/confirmation/${order._id}`,
             "cancel_url": window.location.origin + `/checkout`,
-            "notify_url": process.env.NEXT_PUBLIC_API_URL + "/api/payments/payhere/notify",
+            "notify_url": process.env.NEXT_PUBLIC_API_URL + "/orders/payhere-notify",
             "order_id": order._id,
             "items": "Ecommerce Order",
             "amount": subtotal + deliveryData.fee,
@@ -198,7 +198,6 @@ export default function CheckoutPage() {
           if (payhere) {
             payhere.onCompleted = function onCompleted(pOrderId: string) {
               clearCart();
-              router.push(`/orders/confirmation/${order._id}?payment=success`);
               router.push(`/orders/confirmation/${order._id}?payment=success`);
             };
             payhere.onDismissed = function onDismissed() {
