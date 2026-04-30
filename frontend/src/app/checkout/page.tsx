@@ -196,9 +196,32 @@ export default function CheckoutPage() {
 
           const payhere = (window as any).payhere;
           if (payhere) {
-            payhere.onCompleted = function onCompleted(pOrderId: string) {
+            payhere.onCompleted = async function onCompleted(pOrderId: string) {
               clearCart();
-              router.push(`/orders/confirmation/${order._id}?payment=success`);
+              const targetOrderId = order._id || order.id || order.orderId;
+
+              // Local development fallback: PayHere servers cannot reach localhost,
+              // so we mock the webhook locally to ensure the DB updates.
+              if (window.location.hostname === 'localhost') {
+                try {
+                  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/payhere-notify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      merchant_id: payment.merchant_id,
+                      order_id: targetOrderId,
+                      payhere_amount: payment.amount,
+                      payhere_currency: payment.currency,
+                      status_code: '2',
+                      md5sig: 'LOCAL_TEST'
+                    })
+                  });
+                } catch (e) {
+                  console.error('Local webhook mock failed', e);
+                }
+              }
+
+              router.push(`/orders/confirmation/${targetOrderId}?payment=success`);
             };
             payhere.onDismissed = function onDismissed() {
               setLoading(false);
@@ -215,7 +238,8 @@ export default function CheckoutPage() {
         } else {
           // Default: Clear cart and go to confirmation
           clearCart();
-          router.push(`/orders/confirmation/${order._id}`);
+          const targetOrderId = order._id || order.id || order.orderId;
+          router.push(`/orders/confirmation/${targetOrderId}`);
         }
       } else {
         // Backend returned success:false — show the reason

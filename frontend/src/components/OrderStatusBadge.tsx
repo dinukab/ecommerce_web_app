@@ -12,23 +12,11 @@ interface OrderStatusBadgeProps {
 }
 
 const statusConfig: Record<string, { color: string; bg: string; icon: any; label: string }> = {
-  pending: {
-    color: 'text-amber-700',
-    bg: 'bg-amber-100',
-    icon: Clock,
-    label: 'Pending'
-  },
-  confirmed: {
+  processing: {
     color: 'text-purple-700',
     bg: 'bg-purple-100',
     icon: Package,
-    label: 'Confirmed'
-  },
-  shipped: {
-    color: 'text-brand-dark',
-    bg: 'bg-brand-light',
-    icon: Truck,
-    label: 'Shipped'
+    label: 'Processing'
   },
   delivered: {
     color: 'text-emerald-700',
@@ -45,7 +33,7 @@ const statusConfig: Record<string, { color: string; bg: string; icon: any; label
 };
 
 const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status }) => {
-  const config = statusConfig[status.toLowerCase()] || statusConfig.pending;
+  const config = statusConfig[status.toLowerCase()] || statusConfig.processing;
   const Icon = config.icon;
 
   return (

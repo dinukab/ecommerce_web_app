@@ -15,7 +15,7 @@ export const storeConfig = {
   address:        'No. 1, Main Street, Colombo 01',
   phone:          '+94 11 234 5678',
   email:          'info@opendoor.lk',
-  logoUrl:        "/uploads/logo/store-logo-oneshop_open_door.png?v=1777216362745",
+  logoUrl:        '/logo-opendoor.jpeg',
   primaryColor:   '#0891b2',   // cyan-600
   primaryDark:    '#0e7490',   // cyan-700
   primaryLight:   '#a5f3fc',   // cyan-200
