@@ -1,6 +1,17 @@
-import { Product } from '@/types';
+interface LocalProduct {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  description: string;
+  rating: number;
+  reviews: number;
+  stock: number;
+  images: string[];
+}
 
-export const products: Product[] = [
+export const products: LocalProduct[] = [
   {
     id: 1,
     name: 'Wireless Bluetooth Headphones',
@@ -195,17 +206,17 @@ export const products: Product[] = [
   }
 ];
 
-export const getProductById = (id: number): Product | undefined => {
+export const getProductById = (id: number): LocalProduct | undefined => {
   return products.filter(product => product.id === id)[0];
 };
 
-export const getRelatedProducts = (productId: number, category: string): Product[] => {
+export const getRelatedProducts = (productId: number, category: string): LocalProduct[] => {
   return products
     .filter(product => product.category === category && product.id !== productId)
     .slice(0, 4);
 };
 
-export const getProductsByCategory = (category: string): Product[] => {
+export const getProductsByCategory = (category: string): LocalProduct[] => {
   return products.filter(product => product.category === category);
 };
 

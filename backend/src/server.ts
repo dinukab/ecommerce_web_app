@@ -19,17 +19,20 @@ import storeOrderRoutes from "./routes/storeOrderRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
 // import returnRoutes from "./routes/returns.js";
 
-connectDB();
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 
-
-const app = express();
+export const app = express();
 
 app.use(cors({
   origin: ['http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean) as string[],
   credentials: true
 }));
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+  }
   next();
 });
 app.use(express.json());
@@ -48,11 +51,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/store-orders', storeOrderRoutes);
 app.use('/api/store-settings', storeRoutes);
-// app.use('/api/returns', returnRoutes);
 
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
