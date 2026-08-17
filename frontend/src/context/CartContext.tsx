@@ -41,7 +41,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         );
       }
       
-      return [...prevCart, { ...product, quantity }];
+      return [...prevCart, { ...product, quantity, selected: true }];
     });
   };
 
@@ -66,8 +66,26 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart([]);
   };
 
+  const clearSelectedItems = () => {
+    setCart(prevCart => prevCart.filter(item => item.selected === false));
+  };
+
+  const toggleItemSelection = (productId: string) => {
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item._id === productId ? { ...item, selected: item.selected === false ? true : false } : item
+      )
+    );
+  };
+
+  const selectAllItems = (selected: boolean) => {
+    setCart(prevCart =>
+      prevCart.map(item => ({ ...item, selected }))
+    );
+  };
+
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.sellingPrice * item.quantity, 0);
+    return cart.reduce((total, item) => item.selected !== false ? total + item.sellingPrice * item.quantity : total, 0);
   };
 
   const getCartCount = () => {
@@ -81,7 +99,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        toggleItemSelection,
+        selectAllItems,
         clearCart,
+        clearSelectedItems,
         getCartTotal,
         getCartCount,
       }}

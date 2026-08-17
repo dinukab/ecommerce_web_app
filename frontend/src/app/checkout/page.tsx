@@ -35,7 +35,7 @@ const DISTRICTS = [
 ].sort();
 
 export default function CheckoutPage() {
-  const { cart, clearCart, getCartTotal } = useCart();
+  const { cart, clearSelectedItems, getCartTotal } = useCart();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
 
     try {
       const orderData = {
-        orderItems: cart.map(item => ({
+        orderItems: cart.filter(item => item.selected !== false).map(item => ({
           product: item._id,
           name: item.name,
           quantity: item.quantity,
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
           const payhere = (window as any).payhere;
           if (payhere) {
             payhere.onCompleted = async function onCompleted(pOrderId: string) {
-              clearCart();
+              clearSelectedItems();
               const targetOrderId = order._id || order.id || order.orderId;
 
               // Local development fallback: PayHere servers cannot reach localhost,
@@ -237,7 +237,7 @@ export default function CheckoutPage() {
           }
         } else {
           // Default: Clear cart and go to confirmation
-          clearCart();
+          clearSelectedItems();
           const targetOrderId = order._id || order.id || order.orderId;
           router.push(`/orders/confirmation/${targetOrderId}`);
         }
@@ -543,7 +543,7 @@ export default function CheckoutPage() {
           {/* Right Column: Order Summary */}
           <div className="lg:sticky lg:top-24 h-fit space-y-8">
             <OrderSummary
-              items={cart}
+              items={cart.filter(item => item.selected !== false)}
               deliveryFee={deliveryData.fee}
               subtotal={subtotal}
             />
