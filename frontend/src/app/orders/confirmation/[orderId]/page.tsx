@@ -12,7 +12,8 @@ import {
   CreditCard,
   MessageCircle,
   ShieldCheck,
-  ChevronRight
+  ChevronRight,
+  Package
 } from 'lucide-react';
 
 export default function OrderConfirmationPage(props: { params: Promise<{ orderId: string }> }) {
@@ -206,13 +207,23 @@ export default function OrderConfirmationPage(props: { params: Promise<{ orderId
 
           {/* Action Buttons */}
           <div className="mt-12 text-center space-y-6">
-            <button 
-              onClick={() => router.push('/')}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-900 font-bold rounded-2xl border-2 border-gray-100 hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              Continue Shopping
-            </button>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+              <button 
+                onClick={() => router.push('/')}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl border-2 border-gray-100 hover:bg-blue-700 hover:text-white transition-all active:scale-95 shadow-sm w-full sm:w-auto"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                Continue Shopping
+              </button>
+              
+              <button 
+                onClick={() => router.push('/orders')}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4  text-black font-bold rounded-2xl hover:bg-gray-200 border-1 border-gray-200 transition-all active:scale-95 shadow-sm w-full sm:w-auto"
+              >
+                <Package className="w-5 h-5" />
+                View Orders
+              </button>
+            </div>
 
             <div className="flex flex-col items-center gap-2">
               <p className="text-sm text-gray-500 font-medium">

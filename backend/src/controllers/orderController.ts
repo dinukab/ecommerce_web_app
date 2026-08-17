@@ -404,3 +404,44 @@ export const payhereNotify = async (req: Request, res: Response) => {
     return res.status(500).send();
   }
 };
+
+// PUT /api/orders/:id/cancel
+export const cancelOrder = async (req: any, res: Response) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Only the owner can cancel
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    // Only allow cancellation for pending/confirmed/processing orders
+    const cancellableStatuses = ['pending', 'confirmed', 'processing'];
+    if (!cancellableStatuses.includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot cancel an order with status: ${order.orderStatus}`,
+      });
+    }
+
+    const { cancelReason, additionalInfo } = req.body;
+
+    order.orderStatus = 'cancelled';
+    order.cancelledAt = new Date();
+    order.cancelReason = cancelReason || 'No reason provided';
+    if (additionalInfo) {
+      order.orderNotes = (order.orderNotes ? order.orderNotes + '\n' : '') + `[Cancellation note]: ${additionalInfo}`;
+    }
+
+    await order.save();
+
+    return res.json({ success: true, message: 'Order cancelled successfully', data: order });
+  } catch (err: any) {
+    console.error('cancelOrder error:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Server error' });
+  }
+};
