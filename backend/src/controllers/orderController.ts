@@ -98,13 +98,13 @@ export const createOrder = async (req: any, res: Response) => {
       totalPrice,
       estimatedDeliveryDate,
       orderNotes,
-      storeId:   '69e539fd180ff885ce56ca57',  // Open Door store ID
+      storeId: '69e539fd180ff885ce56ca57',  // Open Door store ID
       storeName: 'Open Door',                  // Human-readable source label
     });
 
     // Save order to database
     const createdOrder = await order.save();
-    
+
     if (!createdOrder) {
       return res.status(500).json({ success: false, message: 'Failed to save order to database' });
     }
@@ -176,10 +176,10 @@ export const createOrder = async (req: any, res: Response) => {
       });
     }
 
-    return res.status(201).json({ 
-      success: true, 
+    return res.status(201).json({
+      success: true,
       message: 'Order placed successfully and saved to database',
-      data: createdOrder 
+      data: createdOrder
     });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
@@ -307,11 +307,11 @@ export const payhereNotify = async (req: Request, res: Response) => {
       .createHash('md5')
       .update(
         merchant_id +
-          order_id +
-          payhere_amount +
-          payhere_currency +
-          status_code +
-          hashedSecret
+        order_id +
+        payhere_amount +
+        payhere_currency +
+        status_code +
+        hashedSecret
       )
       .digest('hex')
       .toUpperCase();

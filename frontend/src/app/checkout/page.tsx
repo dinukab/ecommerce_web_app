@@ -245,8 +245,8 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <Script 
-        src="https://www.payhere.lk/lib/payhere.js" 
+      <Script
+        src="https://www.payhere.lk/lib/payhere.js"
         strategy="lazyOnload"
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -427,13 +427,12 @@ export default function CheckoutPage() {
                     { id: 'express', label: 'Express Delivery', desc: 'Faster delivery (+50% fee)' },
                     { id: 'pickup', label: 'Store Pickup', desc: 'Pick up at store (FREE)' }
                   ].map((m) => (
-                    <label 
-                      key={m.id} 
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                        formData.deliveryMethod === m.id 
-                          ? 'border-brand bg-brand-light/50' 
+                    <label
+                      key={m.id}
+                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.deliveryMethod === m.id
+                          ? 'border-brand bg-brand-light/50'
                           : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <input
@@ -468,13 +467,12 @@ export default function CheckoutPage() {
                     { id: 'cash-on-delivery', label: 'Cash on Delivery', desc: 'Pay when you receive' },
                     { id: 'payhere', label: 'PayHere', desc: 'Secure online payment', logo: 'https://www.payhere.lk/downloads/images/payhere_short_banner.png' }
                   ].map((p) => (
-                    <label 
-                      key={p.id} 
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                        formData.paymentMethod === p.id 
-                          ? 'border-brand bg-brand-light/50' 
+                    <label
+                      key={p.id}
+                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.paymentMethod === p.id
+                          ? 'border-brand bg-brand-light/50'
                           : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <input
@@ -506,7 +504,7 @@ export default function CheckoutPage() {
 
             {/* Section 4: Additional Notes */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-                    
+
               <label className="block text-sm font-bold text-gray-900 mb-4">Order Notes (Optional)</label>
               <textarea
                 name="orderNotes"
@@ -521,10 +519,10 @@ export default function CheckoutPage() {
 
           {/* Right Column: Order Summary */}
           <div className="lg:sticky lg:top-24 h-fit space-y-8">
-            <OrderSummary 
-              items={cart} 
-              deliveryFee={deliveryData.fee} 
-              subtotal={subtotal} 
+            <OrderSummary
+              items={cart}
+              deliveryFee={deliveryData.fee}
+              subtotal={subtotal}
             />
 
             {error && (
@@ -540,11 +538,10 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-5 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3 ${
-                loading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
+              className={`w-full py-5 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3 ${loading
+                  ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-brand hover:bg-brand-dark text-white shadow-brand-light active:scale-95'
-              }`}
+                }`}
             >
               {loading ? (
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
