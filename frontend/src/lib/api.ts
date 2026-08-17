@@ -150,6 +150,8 @@ export interface OrderItem {
 
 export interface Order {
   _id: string;
+  id?: string;
+  orderId?: string;
   user: string | any;
   orderItems: OrderItem[];
   shippingAddress: {
