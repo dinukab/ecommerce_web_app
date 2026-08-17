@@ -24,18 +24,19 @@ function TrackContent() {
 
   const handleTrack = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!trackingNumber) return;
+    const cleanTrackingNumber = trackingNumber.trim().replace(/^#/, '');
+    if (!cleanTrackingNumber) return;
 
     setLoading(true);
     setError('');
     setTrackingData(null);
 
     try {
-      const res = await api.trackOrder(trackingNumber);
+      const res = await api.trackOrder(cleanTrackingNumber);
       if (res.success) {
         setTrackingData(res.data ?? null);
       } else {
-        setError(res.message || 'Tracking number not found');
+        setError(res.message || 'Tracking number or order number not found');
       }
     } catch (err: any) {
       setError(err.message || 'Unable to track this order. Please check the tracking number.');

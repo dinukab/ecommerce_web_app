@@ -85,7 +85,7 @@ export default function MyOrdersPage() {
                 <div className="flex justify-between items-start mb-5">
                   <div>
                     <h3 className="text-[1.05rem] font-bold text-gray-800 flex items-center gap-1.5">
-                      order <span className="text-brand">#{order._id.slice(-6).toLowerCase()}</span>
+                      order <span className="text-brand">#{order.orderId || order._id.slice(-8).toUpperCase()}</span>
                     </h3>
                     <p className="text-[0.7rem] text-gray-500 mt-1 font-medium">
                       {new Date(order.createdAt).toLocaleDateString('en-US', {

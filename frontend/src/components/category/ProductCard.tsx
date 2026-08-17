@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { type Product, type ProductStatus } from '../../api/Productapi';
 import { useCart } from '@/context/CartContext';
 import { Plus, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api';
 
 const PLACEHOLDER = 'https://placehold.co/400x400/e8eaff/6366f1?text=No+Image';
 
@@ -26,11 +28,13 @@ const STATUS_LABELS: Record<ProductStatus, string> = {
 
 interface Props {
   product: Product;
+  initialWishlisted?: boolean;
 }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product, initialWishlisted = false }: Props) {
+  const router = useRouter();
   const [imgSrc, setImgSrc] = useState<string>(product.images?.[0] || PLACEHOLDER);
-  const [wishlisted, setWishlisted] = useState<boolean>(false);
+  const [wishlisted, setWishlisted] = useState<boolean>(initialWishlisted);
   const [added, setAdded] = useState<boolean>(false);
   const { addToCart } = useCart();
 
@@ -57,6 +61,28 @@ export default function ProductCard({ product }: Props) {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      alert('Please login to add to wishlist');
+      router.push('/login');
+      return;
+    }
+
+    try {
+      if (wishlisted) {
+        await api.removeFromWishlist(token, product._id);
+        setWishlisted(false);
+      } else {
+        await api.addToWishlist(token, product._id);
+        setWishlisted(true);
+      }
+    } catch (error) {
+      console.error('Wishlist error:', error);
+    }
+  };
+
   return (
     <Link
       href={`/product/${product._id}`}
@@ -64,7 +90,7 @@ export default function ProductCard({ product }: Props) {
     >
       {/* Wishlist button */}
       <button
-        onClick={(e) => { e.preventDefault(); setWishlisted((w) => !w); }}
+        onClick={handleWishlist}
         className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
         aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
       >

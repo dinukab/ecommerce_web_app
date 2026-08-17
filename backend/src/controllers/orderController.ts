@@ -2,7 +2,26 @@ import { Request, Response } from 'express';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import DeliveryZone from '../models/DeliveryZone.js';
+import StockHistory from '../models/StockHistory.js';
 import crypto from 'crypto';
+
+async function logStockHistory(order: any) {
+  try {
+    for (const item of order.orderItems) {
+      await StockHistory.create({
+        product: item.product,
+        type: 'remove',
+        quantity: item.quantity,
+        reason: `Online transaction ${order.orderId}`,
+        by: order.user ? order.user.toString() : 'system',
+        storeId: order.storeId || '69e539fd180ff885ce56ca57',
+      });
+    }
+    console.log(`✅ Stock history written for order: ${order.orderId}`);
+  } catch (err) {
+    console.error('Error logging stock history:', err);
+  }
+}
 
 // POST /api/orders
 export const createOrder = async (req: any, res: Response) => {
@@ -230,6 +249,8 @@ export const updateOrderStatus = async (req: any, res: Response) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
+    const wasPaid = order.paymentStatus === 'paid';
+
     if (orderStatus) {
       order.orderStatus = orderStatus;
       order.status = orderStatus;
@@ -292,6 +313,9 @@ export const updateOrderStatus = async (req: any, res: Response) => {
     }
 
     const updatedOrder = await order.save();
+    if (updatedOrder.paymentStatus === 'paid' && !wasPaid) {
+      await logStockHistory(updatedOrder);
+    }
     return res.json({ success: true, data: updatedOrder });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
@@ -301,14 +325,18 @@ export const updateOrderStatus = async (req: any, res: Response) => {
 // GET /api/orders/track/:trackingNumber
 export const trackOrder = async (req: Request, res: Response) => {
   try {
+    const searchVal = req.params.trackingNumber.toUpperCase().replace(/^#/, '').trim();
     const order = await Order.findOne({
-      trackingNumber: req.params.trackingNumber.toUpperCase(),
+      $or: [
+        { trackingNumber: searchVal },
+        { orderId: searchVal }
+      ]
     }).select(
-      'orderStatus estimatedDeliveryDate shippingAddress trackingNumber createdAt orderItems'
+      'orderStatus estimatedDeliveryDate shippingAddress trackingNumber orderId createdAt orderItems items'
     );
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Invalid tracking number' });
+      return res.status(404).json({ success: false, message: 'Invalid tracking number or order number' });
     }
 
     const publicData = {
@@ -320,7 +348,7 @@ export const trackOrder = async (req: Request, res: Response) => {
       city: order.shippingAddress?.city,
       district: order.shippingAddress?.district,
       itemsCount: order.items?.length || order.orderItems?.length || 0,
-      trackingNumber: order.trackingNumber,
+      trackingNumber: order.trackingNumber || order.orderId,
     };
 
     return res.json({ success: true, data: publicData });
@@ -382,6 +410,7 @@ export const payhereNotify = async (req: Request, res: Response) => {
               });
             }
             console.log(`✅ Stock deducted for PayHere order: ${order_id}`);
+            await logStockHistory(order);
           } catch (stockError) {
             console.error('Error updating stock after PayHere payment:', stockError);
           }

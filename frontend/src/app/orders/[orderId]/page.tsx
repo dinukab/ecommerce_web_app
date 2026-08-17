@@ -89,7 +89,7 @@ export default function OrderDetailsPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-black text-gray-900">
-                  Order #{order._id.slice(-8).toUpperCase()}
+                  Order #{order.orderId || order._id.slice(-8).toUpperCase()}
                 </h1>
                 <OrderStatusBadge status={order.orderStatus} />
               </div>
