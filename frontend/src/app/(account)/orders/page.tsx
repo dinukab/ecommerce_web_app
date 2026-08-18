@@ -77,26 +77,8 @@ export default function MyOrdersPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#f4f5f7] pb-20">
-      {/* Simple Header */}
-      <div className="bg-[#f4f5f7] border-b border-gray-200 sticky top-0 z-30">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center gap-4">
-          <button onClick={() => {
-            if (filterMode) {
-              router.push('/profile');
-            } else {
-              router.back();
-            }
-          }} className="p-2 hover:bg-gray-200 rounded-full transition-colors text-brand-dark">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-xl font-bold text-gray-800">
-            {filterMode === 'cancelled' ? 'My Returns & Cancellations' : 'My Orders'}
-          </h1>
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+    <>
+      <div className="space-y-5">
         {/* Search Bar */}
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -249,7 +231,7 @@ export default function MyOrdersPage() {
           ))
         )}
       </div>
-    </div>
+    </>
   );
 }
 

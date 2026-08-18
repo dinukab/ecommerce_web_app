@@ -525,7 +525,7 @@ export default function ProfilePage() {
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <span key={star} className={star <= rating ? 'text-yellow-400' : 'text-gray-300'}>
-            ★
+            Γÿà
           </span>
         ))}
       </div>
@@ -533,152 +533,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
-          <p className="text-gray-600 mt-1">Manage your account and view your orders</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              {/* User Info with Photo Upload */}
-              <div className="text-center mb-6 pb-6 border-b relative">
-                {/* Profile Photo */}
-                <div className="relative inline-block">
-                  {userAvatar ? (
-                    <img
-                      src={userAvatar}
-                      alt={userInfo.name}
-                      className="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 bg-brand rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-                      {userInfo.avatar}
-                    </div>
-                  )}
-                  
-                  {/* Camera Icon Button */}
-                  <button
-                    onClick={() => setShowPhotoUpload(true)}
-                    className="absolute bottom-2 right-1/2 transform translate-x-1/2 translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"
-                    title="Change profile photo"
-                  >
-                    <Camera className="h-4 w-4 text-brand" />
-                  </button>
-                </div>
-
-                <h3 className="font-bold text-gray-900">{userInfo.name}</h3>
-                <p className="text-sm text-gray-600">{userInfo.email}</p>
-                <p className="text-xs text-gray-500 mt-2">Member since {userInfo.memberSince}</p>
-              </div>
-
-              {/* Navigation Menu */}
-              <nav className="space-y-1">
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50`}
-                >
-                  <User className="h-5 w-5" />
-                  <span className="font-medium">Manage My Account</span>
-                </button>
-
-                <Link
-                  href="/orders"
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
-                >
-                  <ShoppingBag className="h-5 w-5" />
-                  <span className="font-medium">My Orders</span>
-                </Link>
-
-                <Link
-                  href="/track"
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
-                >
-                  <Truck className="h-5 w-5" />
-                  <span className="font-medium">Track</span>
-                </Link>
-
-                <Link
-                  href="/wishlist"
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
-                >
-                  <Heart className="h-5 w-5" />
-                  <span className="font-medium">Wishlist</span>
-                </Link>
-
-                <Link
-                  href="/orders?filter=cancelled"
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
-                >
-                  <RefreshCcw className="h-5 w-5" />
-                  <span className="font-medium">My Returns & Cancellations</span>
-                </Link>
-
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === 'overview'
-                      ? 'bg-brand-light text-brand'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <LayoutDashboard className="h-5 w-5" />
-                  <span className="font-medium">Overview</span>
-                </button>
-
-                <Link
-                  href="/messages"
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
-                >
-                  <MessageSquare className="h-5 w-5" />
-                  <span className="font-medium">Message Centre</span>
-                </Link>
-
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === 'settings'
-                      ? 'bg-brand-light text-brand'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Settings className="h-5 w-5" />
-                  <span className="font-medium">Setting</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('addresses')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === 'addresses'
-                      ? 'bg-brand-light text-brand'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <MapPin className="h-5 w-5" />
-                  <span className="font-medium">Addresses</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('payment')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === 'payment'
-                      ? 'bg-brand-light text-brand'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <CreditCard className="h-5 w-5" />
-                  <span className="font-medium">Payment Methods</span>
-                </button>
-              </nav>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
+    <>
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
@@ -872,9 +727,9 @@ export default function ProfilePage() {
                             onChange={(e) => setAddressFormData({ ...addressFormData, type: e.target.value })}
                             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                           >
-                            <option value="Home">🏠 Home</option>
-                            <option value="Office">🏢 Office</option>
-                            <option value="Other">📍 Other</option>
+                            <option value="Home">≡ƒÅá Home</option>
+                            <option value="Office">≡ƒÅó Office</option>
+                            <option value="Other">≡ƒôì Other</option>
                           </select>
                         </div>
 
@@ -950,7 +805,7 @@ export default function ProfilePage() {
                                 Saving...
                               </>
                             ) : (
-                              editingAddressId ? '✓ Update Address' : '+ Add Address'
+                              editingAddressId ? 'Γ£ô Update Address' : '+ Add Address'
                             )}
                           </button>
                         </div>
@@ -990,7 +845,7 @@ export default function ProfilePage() {
                               )}
                             </div>
                             <p className="text-gray-600 text-sm">
-                              •••• •••• •••• {card.last4}
+                              ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó {card.last4}
                             </p>
                             <p className="text-gray-500 text-xs mt-1">Expires {card.expiry}</p>
                           </div>
@@ -1245,64 +1100,6 @@ export default function ProfilePage() {
                 </form>
               </div>
             )}
-          </div>
-        </div>
-      </div>
-
-      {/* Photo Upload Modal */}
-      {showPhotoUpload && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowPhotoUpload(false)}
-        >
-          <div
-            className="bg-white rounded-lg max-w-md w-full p-8 relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Change Profile Photo</h2>
-
-            <div className="mb-6">
-              <label
-                htmlFor="photo-upload"
-                className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Camera className="h-12 w-12 text-gray-400 mb-4" />
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
-                </div>
-                <input
-                  id="photo-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  disabled={uploading}
-                />
-              </label>
-            </div>
-
-            {uploading && (
-              <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
-                <p className="mt-2 text-sm text-gray-600">Uploading...</p>
-              </div>
-            )}
-
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setShowPhotoUpload(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                disabled={uploading}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
