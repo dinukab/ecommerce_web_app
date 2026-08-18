@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import User from '../models/Customer.js';
+import Order from '../models/Order.js';
 import sendEmail from '../utils/sendEmail.js';
 
 const generateToken = (id: any, rememberMe: boolean = false) => {
@@ -127,11 +128,36 @@ const getMe = async (req: any, res: Response) => {
       });
     }
 
+    // Recalculate stats dynamically from real orders to avoid database desync
+    const userOrders = await Order.find({ user: user._id });
+    const totalOrders = userOrders.length;
+    const totalSpent = userOrders
+      .filter((o: any) => o.paymentStatus === 'paid' || o.orderStatus === 'delivered')
+      .reduce((sum: number, o: any) => sum + (o.total || o.totalPrice || 0), 0);
+    const lastPurchase = userOrders.reduce((latest: Date | null, o: any) => {
+      const d = o.createdAt as Date;
+      return !latest || d > latest ? d : latest;
+    }, null);
+
+    // Update in memory to return immediately
+    user.totalOrders = totalOrders;
+    user.totalSpent = totalSpent;
+    if (lastPurchase) {
+      user.lastPurchase = lastPurchase;
+    }
+
+    // Sync to database in the background
+    User.updateOne(
+      { _id: user._id },
+      { $set: { totalOrders, totalSpent, lastPurchase } }
+    ).catch(err => console.error('Error updating customer stats:', err));
+
     res.status(200).json({
       success: true,
       data: user
     });
   } catch (err) {
+    console.error('getMe error:', err);
     res.status(500).json({
       success: false,
       message: 'Server error'
@@ -236,15 +262,31 @@ const addPaymentMethod = async (req: any, res: Response) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
-    if (req.body.isDefault) {
+    const { type, cardNumber, expiry, isDefault } = req.body;
+    
+    if (!type || !cardNumber || !expiry) {
+      return res.status(400).json({ success: false, message: 'Missing required card fields' });
+    }
+    
+    // Extract last 4 digits of the card number
+    const last4 = cardNumber.replace(/\s+/g, '').slice(-4);
+    
+    if (isDefault) {
       user.paymentMethods.forEach(p => p.isDefault = false);
     }
     
-    user.paymentMethods.push(req.body);
+    user.paymentMethods.push({
+      type,
+      last4,
+      expiry,
+      isDefault: !!isDefault
+    });
+    
     await user.save();
     
     res.status(200).json({ success: true, data: user.paymentMethods });
-  } catch (err) {
+  } catch (err: any) {
+    console.error('addPaymentMethod error:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
