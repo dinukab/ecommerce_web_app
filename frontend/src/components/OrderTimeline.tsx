@@ -13,15 +13,28 @@ interface OrderTimelineProps {
 }
 
 const steps = [
-  { id: 'pending', label: 'Order Placed', icon: Clock },
-  { id: 'confirmed', label: 'Confirmed', icon: Package },
-  { id: 'shipped', label: 'Shipped', icon: Truck },
+  { id: 'processing', label: 'Processing', icon: Package },
   { id: 'delivered', label: 'Delivered', icon: Check }
 ];
 
 const OrderTimeline: React.FC<OrderTimelineProps> = ({ status }) => {
-  const statusOrder = ['pending', 'confirmed', 'shipped', 'delivered'];
-  const currentIndex = statusOrder.indexOf(status.toLowerCase());
+  if (status.toLowerCase() === 'cancelled') {
+    return (
+      <div className="py-8 text-center">
+        <div className="w-16 h-16 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4">
+          <Check className="w-8 h-8 opacity-0 hidden" />
+          <span className="text-2xl font-black">X</span>
+        </div>
+        <p className="text-red-500 font-bold uppercase tracking-widest text-sm">Order Cancelled</p>
+      </div>
+    );
+  }
+
+  const statusOrder = ['processing', 'delivered'];
+  let currentIndex = statusOrder.indexOf(status.toLowerCase());
+  
+  // Fallback if status is unknown but not cancelled
+  if (currentIndex === -1) currentIndex = 0;
 
   return (
     <div className="py-8">

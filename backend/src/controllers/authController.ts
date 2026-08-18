@@ -1,16 +1,18 @@
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import User from '../models/Customer.js';
+import Order from '../models/Order.js';
 import sendEmail from '../utils/sendEmail.js';
 
-const generateToken = (id, rememberMe = false) => {
+const generateToken = (id: any, rememberMe: boolean = false) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'supersecretkey', {
     expiresIn: rememberMe ? '30d' : '24h',
   });
 };
 
-const registerUser = async (req, res) => {
+const registerUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const name = req.body.name || req.body.fullName;
@@ -59,7 +61,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
+const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password, rememberMe } = req.body;
 
@@ -72,6 +74,13 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Invalid credentials' 
+      });
+    }
+
+    if (!user.password) {
       return res.status(401).json({ 
         success: false,
         message: 'Invalid credentials' 
@@ -109,7 +118,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-const getMe = async (req, res) => {
+const getMe = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
@@ -119,11 +128,36 @@ const getMe = async (req, res) => {
       });
     }
 
+    // Recalculate stats dynamically from real orders to avoid database desync
+    const userOrders = await Order.find({ user: user._id });
+    const totalOrders = userOrders.length;
+    const totalSpent = userOrders
+      .filter((o: any) => o.paymentStatus === 'paid' || o.orderStatus === 'delivered')
+      .reduce((sum: number, o: any) => sum + (o.total || o.totalPrice || 0), 0);
+    const lastPurchase = userOrders.reduce((latest: Date | null, o: any) => {
+      const d = o.createdAt as Date;
+      return !latest || d > latest ? d : latest;
+    }, null);
+
+    // Update in memory to return immediately
+    user.totalOrders = totalOrders;
+    user.totalSpent = totalSpent;
+    if (lastPurchase) {
+      user.lastPurchase = lastPurchase;
+    }
+
+    // Sync to database in the background
+    User.updateOne(
+      { _id: user._id },
+      { $set: { totalOrders, totalSpent, lastPurchase } }
+    ).catch(err => console.error('Error updating customer stats:', err));
+
     res.status(200).json({
       success: true,
       data: user
     });
   } catch (err) {
+    console.error('getMe error:', err);
     res.status(500).json({
       success: false,
       message: 'Server error'
@@ -131,7 +165,7 @@ const getMe = async (req, res) => {
   }
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req: any, res: Response) => {
   try {
     const { avatar } = req.body;
     const user = await User.findByIdAndUpdate(
@@ -139,6 +173,14 @@ const updateAvatar = async (req, res) => {
       { avatar },
       { new: true }
     );
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
 
     res.status(200).json({
       success: true,
@@ -153,7 +195,7 @@ const updateAvatar = async (req, res) => {
   }
 };
 
-const addAddress = async (req, res) => {
+const addAddress = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -171,12 +213,12 @@ const addAddress = async (req, res) => {
   }
 };
 
-const removeAddress = async (req, res) => {
+const removeAddress = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
-    user.addresses = user.addresses.filter(a => a._id.toString() !== req.params.id);
+    user.addresses.pull({ _id: req.params.id });
     await user.save();
     
     res.status(200).json({ success: true, data: user.addresses });
@@ -185,7 +227,7 @@ const removeAddress = async (req, res) => {
   }
 };
 
-const updateAddress = async (req, res) => {
+const updateAddress = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -215,30 +257,46 @@ const updateAddress = async (req, res) => {
   }
 };
 
-const addPaymentMethod = async (req, res) => {
+const addPaymentMethod = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
-    if (req.body.isDefault) {
+    const { type, cardNumber, expiry, isDefault } = req.body;
+    
+    if (!type || !cardNumber || !expiry) {
+      return res.status(400).json({ success: false, message: 'Missing required card fields' });
+    }
+    
+    // Extract last 4 digits of the card number
+    const last4 = cardNumber.replace(/\s+/g, '').slice(-4);
+    
+    if (isDefault) {
       user.paymentMethods.forEach(p => p.isDefault = false);
     }
     
-    user.paymentMethods.push(req.body);
+    user.paymentMethods.push({
+      type,
+      last4,
+      expiry,
+      isDefault: !!isDefault
+    });
+    
     await user.save();
     
     res.status(200).json({ success: true, data: user.paymentMethods });
-  } catch (err) {
+  } catch (err: any) {
+    console.error('addPaymentMethod error:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-const removePaymentMethod = async (req, res) => {
+const removePaymentMethod = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
-    user.paymentMethods = user.paymentMethods.filter(p => p._id.toString() !== req.params.id);
+    user.paymentMethods.pull({ _id: req.params.id });
     await user.save();
     
     res.status(200).json({ success: true, data: user.paymentMethods });
@@ -247,7 +305,7 @@ const removePaymentMethod = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateProfile = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
@@ -262,7 +320,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -284,7 +342,7 @@ const forgotPassword = async (req, res) => {
       .digest('hex');
 
     // 3) Set expires (10 minutes)
-    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     await user.save({ validateBeforeSave: false });
 
@@ -319,7 +377,7 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token, password } = req.body;
 
@@ -368,7 +426,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const changePassword = async (req, res) => {
+const changePassword = async (req: any, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -382,6 +440,10 @@ const changePassword = async (req, res) => {
     const user = await User.findById(req.user.id).select('+password');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!user.password) {
+      return res.status(401).json({ success: false, message: 'Invalid current password' });
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);

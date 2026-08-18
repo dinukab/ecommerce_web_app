@@ -19,7 +19,7 @@ export default function CartItem({ item }: CartItemProps) {
       <div className="flex items-center gap-6">
         <div className="relative w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
           <Image
-            src={item.image}
+            src={item.images?.[0] || 'https://placehold.co/96x96/e8eaff/6366f1?text=No+Image'}
             alt={item.name}
             fill
             className="object-cover"
@@ -30,19 +30,19 @@ export default function CartItem({ item }: CartItemProps) {
         <div className="flex-1">
           <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
           <p className="text-sm text-gray-500 mb-2">{item.category}</p>
-          <p className="text-xl font-bold text-brand">LKR {item.price.toLocaleString()}</p>
+          <p className="text-xl font-bold text-brand">LKR {item.sellingPrice.toLocaleString()}</p>
         </div>
 
         <div className="flex flex-col items-end space-y-4">
           <QuantitySelector
             quantity={item.quantity}
-            onIncrease={() => updateQuantity(item.id, item.quantity + 1)}
-            onDecrease={() => updateQuantity(item.id, item.quantity - 1)}
+            onIncrease={() => updateQuantity(item._id, item.quantity + 1)}
+            onDecrease={() => updateQuantity(item._id, item.quantity - 1)}
             max={item.stock}
           />
-          
+
           <button
-            onClick={() => removeFromCart(item.id)}
+            onClick={() => removeFromCart(item._id)}
             className="flex items-center space-x-1 text-red-600 hover:text-red-700 transition-colors"
           >
             <Trash2 className="w-4 h-4" />
@@ -53,7 +53,7 @@ export default function CartItem({ item }: CartItemProps) {
         <div className="text-right">
           <p className="text-sm text-gray-500 mb-1">Subtotal</p>
           <p className="text-2xl font-bold text-gray-900">
-            LKR {(item.price * item.quantity).toLocaleString()}
+            LKR {(item.sellingPrice * item.quantity).toLocaleString()}
           </p>
         </div>
       </div>

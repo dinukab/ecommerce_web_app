@@ -45,7 +45,7 @@ export const addToWishlist = async (req: any, res: Response) => {
       });
     } else {
       // Check if product already exists
-      if (!wishlist.products.includes(productId)) {
+      if (!wishlist.products.some((id) => id.toString() === productId)) {
         wishlist.products.push(productId);
         await wishlist.save();
       }

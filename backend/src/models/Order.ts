@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 const orderItemSchema = new mongoose.Schema(
   {
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-    name:     { type: String, required: true },
+    name: { type: String, required: true },
     quantity: { type: Number, required: true, min: 1 },
-    price:    { type: Number, required: true, min: 0 },
-    image:    { type: String },
+    price: { type: Number, required: true, min: 0 },
+    image: { type: String },
   },
   { _id: false }
 );
@@ -14,58 +14,58 @@ const orderItemSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
-    
+
     // New fields requested for database alignment
-    orderId:      { type: String, unique: true },
+    orderId: { type: String, unique: true },
     customerName: { type: String },
-    items:        { type: [orderItemSchema] },
-    subtotal:     { type: Number, default: 0 },
-    total:        { type: Number, default: 0 },
-    status:       { type: String, default: 'pending' },
+    items: { type: [orderItemSchema] },
+    subtotal: { type: Number, default: 0 },
+    total: { type: Number, default: 0 },
+    status: { type: String, default: 'pending' },
 
     // Existing fields kept for compatibility
     orderItems: { type: [orderItemSchema], required: true },
     shippingAddress: {
-      fullName:     { type: String, required: true },
+      fullName: { type: String, required: true },
       addressLine1: { type: String, required: true },
       addressLine2: { type: String },
-      city:         { type: String, required: true },
-      district:     { type: String, required: true },
-      postalCode:   { type: String, required: true },
-      phone:        { type: String, required: true },
+      city: { type: String, required: true },
+      district: { type: String, required: true },
+      postalCode: { type: String, required: true },
+      phone: { type: String, required: true },
     },
     deliveryZone: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryZone' },
-    deliveryMethod: { 
-      type: String, 
-      enum: ['standard', 'express', 'pickup'], 
-      default: 'standard' 
+    deliveryMethod: {
+      type: String,
+      enum: ['standard', 'express', 'pickup'],
+      default: 'standard'
     },
-    paymentMethod: { 
-      type: String, 
-      enum: ['cash-on-delivery', 'bank-transfer', 'payhere'], 
-      required: true 
+    paymentMethod: {
+      type: String,
+      enum: ['cash-on-delivery', 'bank-transfer', 'payhere'],
+      required: true
     },
-    paymentStatus: { 
-      type: String, 
-      enum: ['pending', 'paid', 'failed'], 
-      default: 'pending' 
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'declined'],
+      default: 'pending'
     },
-    itemsPrice:  { type: Number, required: true, default: 0 },
+    itemsPrice: { type: Number, required: true, default: 0 },
     deliveryFee: { type: Number, required: true, default: 0 },
-    totalPrice:  { type: Number, required: true, default: 0 },
-    orderStatus: { 
-      type: String, 
-      enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'], 
-      default: 'pending' 
+    totalPrice: { type: Number, required: true, default: 0 },
+    orderStatus: {
+      type: String,
+      enum: ['pending', 'processing', 'confirmed', 'shipped', 'delivered', 'cancelled'],
+      default: 'pending'
     },
     trackingNumber: { type: String, unique: true },
     estimatedDeliveryDate: { type: Date },
     deliveredAt: { type: Date },
     cancelledAt: { type: Date },
     cancelReason: { type: String },
-    orderNotes:   { type: String },
-    storeId:      { type: String, required: true, default: '69e539fd180ff885ce56ca57' },
-    storeName:    { type: String, default: 'Open Door' },
+    orderNotes: { type: String },
+    storeId: { type: String, required: true, default: '69e539fd180ff885ce56ca57' },
+    storeName: { type: String, default: 'Open Door' },
   },
   { timestamps: true }
 );

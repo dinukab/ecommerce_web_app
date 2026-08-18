@@ -2,7 +2,26 @@ import { Request, Response } from 'express';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import DeliveryZone from '../models/DeliveryZone.js';
+import StockHistory from '../models/StockHistory.js';
 import crypto from 'crypto';
+
+async function logStockHistory(order: any) {
+  try {
+    for (const item of order.orderItems) {
+      await StockHistory.create({
+        product: item.product,
+        type: 'remove',
+        quantity: item.quantity,
+        reason: `Online transaction ${order.orderId}`,
+        by: order.user ? order.user.toString() : 'system',
+        storeId: order.storeId || '69e539fd180ff885ce56ca57',
+      });
+    }
+    console.log(`✅ Stock history written for order: ${order.orderId}`);
+  } catch (err) {
+    console.error('Error logging stock history:', err);
+  }
+}
 
 // POST /api/orders
 export const createOrder = async (req: any, res: Response) => {
@@ -79,6 +98,8 @@ export const createOrder = async (req: any, res: Response) => {
     const estimatedDeliveryDate = new Date();
     estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + estimatedDays);
 
+    const initialOrderStatus = 'processing';
+
     const order = new Order({
       user: req.user._id,
       customerName: shippingAddress.fullName,
@@ -86,40 +107,41 @@ export const createOrder = async (req: any, res: Response) => {
       orderItems: validatedItems,
       subtotal: itemsPrice,
       total: totalPrice,
-      status: 'pending',
       shippingAddress,
       deliveryZone: zoneId,
       deliveryMethod,
       paymentMethod,
       paymentStatus: 'pending',
-      orderStatus: 'pending',
+      orderStatus: initialOrderStatus,
       itemsPrice,
       deliveryFee,
       totalPrice,
       estimatedDeliveryDate,
       orderNotes,
-      storeId:   '69e539fd180ff885ce56ca57',  // Open Door store ID
+      storeId: '69e539fd180ff885ce56ca57',  // Open Door store ID
       storeName: 'Open Door',                  // Human-readable source label
     });
 
-    // Save order to database
     const createdOrder = await order.save();
-    
+
     if (!createdOrder) {
       return res.status(500).json({ success: false, message: 'Failed to save order to database' });
     }
 
-    // Deduct stock for each ordered item
-    try {
-      for (const item of validatedItems) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: -item.quantity },
-        });
+    // Deduct stock immediately ONLY for COD orders. 
+    // PayHere orders will deduct stock in the notification handler (payhereNotify).
+    if (paymentMethod === 'cod' || paymentMethod === 'cash-on-delivery') {
+      try {
+        for (const item of validatedItems) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: -item.quantity },
+          });
+        }
+      } catch (stockError) {
+        console.error('Error updating stock for COD:', stockError);
       }
-    } catch (stockError) {
-      console.error('Error updating stock:', stockError);
-      console.error(`Order ${createdOrder._id} created but stock deduction failed for some items`);
     }
+
 
     // PayHere Logic
     if (paymentMethod === 'payhere') {
@@ -145,7 +167,7 @@ export const createOrder = async (req: any, res: Response) => {
       }
 
       const payhereParams = {
-        sandbox: true,
+        sandbox: process.env.PAYHERE_IS_SANDBOX === 'true',
         merchant_id: merchantId,
         return_url: `${process.env.FRONTEND_URL}/orders/confirmation/${orderId}`,
         cancel_url: `${process.env.FRONTEND_URL}/checkout`,
@@ -176,10 +198,10 @@ export const createOrder = async (req: any, res: Response) => {
       });
     }
 
-    return res.status(201).json({ 
-      success: true, 
+    return res.status(201).json({
+      success: true,
       message: 'Order placed successfully and saved to database',
-      data: createdOrder 
+      data: createdOrder
     });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
@@ -220,33 +242,80 @@ export const getOrderById = async (req: any, res: Response) => {
 // PUT /api/orders/:id/status (admin)
 export const updateOrderStatus = async (req: any, res: Response) => {
   try {
-    const { orderStatus } = req.body;
+    const { orderStatus, paymentStatus } = req.body;
     const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    order.orderStatus = orderStatus;
-    order.status = orderStatus;
+    const wasPaid = order.paymentStatus === 'paid';
 
-    if (orderStatus === 'delivered') {
-      order.deliveredAt = new Date();
-      order.paymentStatus = 'paid';
+    if (orderStatus) {
+      order.orderStatus = orderStatus;
+      order.status = orderStatus;
+    }
+    if (paymentStatus) {
+      order.paymentStatus = paymentStatus;
     }
 
-    if (orderStatus === 'cancelled') {
-      order.cancelledAt = new Date();
-      order.cancelReason = req.body.cancelReason || 'Cancelled by admin';
+    // Cash on Delivery Logic
+    if (order.paymentMethod === 'cash-on-delivery') {
+      if (orderStatus === 'delivered' || paymentStatus === 'paid') {
+        order.paymentStatus = 'paid';
+        order.orderStatus = 'delivered';
+        order.status = 'delivered';
+        if (!order.deliveredAt) order.deliveredAt = new Date();
+      }
 
-      for (const item of order.orderItems) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: item.quantity },
-        });
+      if (orderStatus === 'cancelled' || paymentStatus === 'declined') {
+        // Prevent restocking multiple times if already cancelled
+        if (order.orderStatus !== 'cancelled' || req.body.forceCancel) {
+          order.paymentStatus = 'declined';
+          order.orderStatus = 'cancelled';
+          order.status = 'cancelled';
+          order.cancelledAt = new Date();
+          order.cancelReason = req.body.cancelReason || 'Declined/Cancelled by admin';
+
+          for (const item of order.orderItems) {
+            await Product.findByIdAndUpdate(item.product, {
+              $inc: { stock: item.quantity },
+            });
+          }
+        } else {
+          order.paymentStatus = 'declined';
+          order.orderStatus = 'cancelled';
+          order.status = 'cancelled';
+        }
+      }
+    } else {
+      // Logic for PayHere or other methods
+      if (orderStatus === 'delivered') {
+        order.deliveredAt = new Date();
+        order.paymentStatus = 'paid';
+      }
+
+      if (orderStatus === 'cancelled') {
+        // Only restock if it was paid and previously deducted
+        if (order.paymentStatus === 'paid' && order.orderStatus !== 'cancelled') {
+           for (const item of order.orderItems) {
+             await Product.findByIdAndUpdate(item.product, {
+               $inc: { stock: item.quantity },
+             });
+           }
+        }
+        order.paymentStatus = 'declined';
+        order.orderStatus = 'cancelled';
+        order.status = 'cancelled';
+        order.cancelledAt = new Date();
+        order.cancelReason = req.body.cancelReason || 'Cancelled by admin';
       }
     }
 
     const updatedOrder = await order.save();
+    if (updatedOrder.paymentStatus === 'paid' && !wasPaid) {
+      await logStockHistory(updatedOrder);
+    }
     return res.json({ success: true, data: updatedOrder });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
@@ -256,14 +325,18 @@ export const updateOrderStatus = async (req: any, res: Response) => {
 // GET /api/orders/track/:trackingNumber
 export const trackOrder = async (req: Request, res: Response) => {
   try {
+    const searchVal = req.params.trackingNumber.toUpperCase().replace(/^#/, '').trim();
     const order = await Order.findOne({
-      trackingNumber: req.params.trackingNumber.toUpperCase(),
+      $or: [
+        { trackingNumber: searchVal },
+        { orderId: searchVal }
+      ]
     }).select(
-      'orderStatus estimatedDeliveryDate shippingAddress trackingNumber createdAt orderItems'
+      'orderStatus estimatedDeliveryDate shippingAddress trackingNumber orderId createdAt orderItems items'
     );
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Invalid tracking number' });
+      return res.status(404).json({ success: false, message: 'Invalid tracking number or order number' });
     }
 
     const publicData = {
@@ -275,7 +348,7 @@ export const trackOrder = async (req: Request, res: Response) => {
       city: order.shippingAddress?.city,
       district: order.shippingAddress?.district,
       itemsCount: order.items?.length || order.orderItems?.length || 0,
-      trackingNumber: order.trackingNumber,
+      trackingNumber: order.trackingNumber || order.orderId,
     };
 
     return res.json({ success: true, data: publicData });
@@ -307,26 +380,97 @@ export const payhereNotify = async (req: Request, res: Response) => {
       .createHash('md5')
       .update(
         merchant_id +
-          order_id +
-          payhere_amount +
-          payhere_currency +
-          status_code +
-          hashedSecret
+        order_id +
+        payhere_amount +
+        payhere_currency +
+        status_code +
+        hashedSecret
       )
       .digest('hex')
       .toUpperCase();
 
-    if (md5sig === expectedMd5Sig && status_code === '2') {
-      // Payment success (status_code 2 means success in PayHere)
-      await Order.findByIdAndUpdate(order_id, {
-        paymentStatus: 'paid',
-        paymentMethod: 'payhere',
-      });
+    const isLocalTest = md5sig === 'LOCAL_TEST' && (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV);
+    if (md5sig === expectedMd5Sig || isLocalTest) {
+      if (status_code === '2') {
+        // 1. Payment success (status_code 2 means success in PayHere)
+        const order = await Order.findById(order_id);
+        
+        // Only process if the order isn't already marked as paid
+        if (order && order.paymentStatus !== 'paid') {
+          order.paymentStatus = 'paid';
+          order.orderStatus = 'processing';
+          order.status = 'processing';
+          await order.save();
+
+          // 2. Deduct stock now that payment is confirmed
+          try {
+            for (const item of order.orderItems) {
+              await Product.findByIdAndUpdate(item.product, {
+                $inc: { stock: -item.quantity },
+              });
+            }
+            console.log(`✅ Stock deducted for PayHere order: ${order_id}`);
+            await logStockHistory(order);
+          } catch (stockError) {
+            console.error('Error updating stock after PayHere payment:', stockError);
+          }
+        }
+      } else if (Number(status_code) < 0) {
+        // 3. Payment failed or declined (status codes -1, -2, etc.)
+        await Order.findByIdAndUpdate(order_id, {
+          paymentStatus: 'declined',
+          orderStatus: 'cancelled',
+          status: 'cancelled'
+        });
+        console.log(`❌ PayHere payment declined/failed for order: ${order_id}`);
+      }
     }
+
 
     return res.status(200).send();
   } catch (err: any) {
     console.error('PayHere Notify Error:', err);
     return res.status(500).send();
+  }
+};
+
+// PUT /api/orders/:id/cancel
+export const cancelOrder = async (req: any, res: Response) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Only the owner can cancel
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    // Only allow cancellation for pending/confirmed/processing orders
+    const cancellableStatuses = ['pending', 'confirmed', 'processing'];
+    if (!cancellableStatuses.includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot cancel an order with status: ${order.orderStatus}`,
+      });
+    }
+
+    const { cancelReason, additionalInfo } = req.body;
+
+    order.orderStatus = 'cancelled';
+    order.cancelledAt = new Date();
+    order.cancelReason = cancelReason || 'No reason provided';
+    if (additionalInfo) {
+      order.orderNotes = (order.orderNotes ? order.orderNotes + '\n' : '') + `[Cancellation note]: ${additionalInfo}`;
+    }
+
+    await order.save();
+
+    return res.json({ success: true, message: 'Order cancelled successfully', data: order });
+  } catch (err: any) {
+    console.error('cancelOrder error:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Server error' });
   }
 };

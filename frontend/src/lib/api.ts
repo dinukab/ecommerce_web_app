@@ -150,6 +150,8 @@ export interface OrderItem {
 
 export interface Order {
   _id: string;
+  id?: string;
+  orderId?: string;
   user: string | any;
   orderItems: OrderItem[];
   shippingAddress: {
@@ -178,8 +180,6 @@ export interface Order {
   cancelledAt?: string;
   cancelReason?: string;
   orderNotes?: string;
-  payhereMerchantId?: string;
-  payhereHash?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -500,6 +500,18 @@ class ApiService {
   // Health check
   async healthCheck(): Promise<ApiResponse<string>> {
     return this.request<ApiResponse<string>>('/health');
+  }
+
+  async cancelOrder(
+    token: string,
+    orderId: string,
+    data: { cancelReason: string; additionalInfo?: string }
+  ): Promise<ApiResponse<Order>> {
+    return this.request<ApiResponse<Order>>(`/orders/${orderId}/cancel`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
   }
 }
 
