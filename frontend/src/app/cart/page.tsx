@@ -23,10 +23,13 @@ const PLACEHOLDER = 'https://placehold.co/400x400/e8eaff/6366f1?text=No+Image';
 
 export default function CartPage() {
   const router = useRouter();
-  const { cart, addToCart, removeFromCart, updateQuantity, getCartTotal } = useCart();
+  const { cart, addToCart, removeFromCart, updateQuantity, getCartTotal, toggleItemSelection, selectAllItems } = useCart();
 
   const subtotal = getCartTotal();
   const orderTotal = subtotal;
+  
+  const selectedCart = cart.filter(item => item.selected !== false);
+  const allSelected = cart.length > 0 && cart.every(item => item.selected !== false);
 
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [moreProducts, setMoreProducts] = useState<Product[]>([]);
@@ -93,7 +96,7 @@ export default function CartPage() {
         if (userId) {
           await api.syncCart(
             String(userId),
-            cart.map((item) => ({ productId: item._id, quantity: item.quantity }))
+            selectedCart.map((item) => ({ productId: item._id, quantity: item.quantity }))
           );
         }
       }
@@ -131,13 +134,45 @@ export default function CartPage() {
               <div className="col-span-2 text-right">Total</div>
               <div className="col-span-1"></div>
             </div>
+            
+            {cart.length > 0 && (
+              <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={(e) => selectAllItems(e.target.checked)}
+                    className="w-4 h-4 text-brand rounded border-gray-300 focus:ring-brand"
+                  />
+                  <span className="text-sm font-semibold text-gray-700 uppercase">
+                    Select All ({cart.length} Item(s))
+                  </span>
+                </label>
+                <button
+                  onClick={() => {
+                    const selectedIds = selectedCart.map(item => item._id);
+                    selectedIds.forEach(id => removeFromCart(id));
+                  }}
+                  className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-red-600 transition-colors uppercase"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </button>
+              </div>
+            )}
 
             <div className="divide-y divide-gray-200">
               {cart.map((item) => (
                 <div key={item._id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                     {/* Product Info */}
-                    <div className="md:col-span-5 flex gap-4">
+                    <div className="md:col-span-5 flex gap-4 items-center">
+                      <input
+                        type="checkbox"
+                        checked={item.selected !== false}
+                        onChange={() => toggleItemSelection(item._id)}
+                        className="w-4 h-4 text-brand rounded border-gray-300 focus:ring-brand cursor-pointer flex-shrink-0"
+                      />
                       <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
                         <img 
                           src={item.images?.[0] || PLACEHOLDER} 
@@ -221,7 +256,7 @@ export default function CartPage() {
           <div className="sticky top-24">
             <OrderSummary
               subtotal={subtotal}
-              items={cart}
+              items={selectedCart}
               isCart={true}
               onCheckout={handleCheckout}
               loading={syncing}

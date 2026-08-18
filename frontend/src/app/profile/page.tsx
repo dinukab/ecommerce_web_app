@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { User, Package, MapPin, CreditCard, Settings, ChevronRight, Edit2, Camera, Heart, X } from 'lucide-react';
+import { User, Package, MapPin, CreditCard, Settings, ChevronRight, Edit2, Camera, Heart, X, ShoppingBag, RefreshCcw, LayoutDashboard, MessageSquare, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { api, AddressEntry, PaymentMethod } from '@/lib/api';
 
 interface Order {
@@ -74,6 +75,12 @@ export default function ProfilePage() {
 
   // Load user data from localStorage
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab) setActiveTab(tab);
+    }
+
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const user = JSON.parse(storedUser);
@@ -573,17 +580,75 @@ export default function ProfilePage() {
               <nav className="space-y-1">
                 <button
                   onClick={() => setActiveTab('overview')}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50`}
+                >
+                  <User className="h-5 w-5" />
+                  <span className="font-medium">Manage My Account</span>
+                </button>
+
+                <Link
+                  href="/orders"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  <span className="font-medium">My Orders</span>
+                </Link>
+
+                <Link
+                  href="/track"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                >
+                  <Truck className="h-5 w-5" />
+                  <span className="font-medium">Track</span>
+                </Link>
+
+                <Link
+                  href="/wishlist"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                >
+                  <Heart className="h-5 w-5" />
+                  <span className="font-medium">Wishlist</span>
+                </Link>
+
+                <Link
+                  href="/orders?filter=cancelled"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                >
+                  <RefreshCcw className="h-5 w-5" />
+                  <span className="font-medium">My Returns & Cancellations</span>
+                </Link>
+
+                <button
+                  onClick={() => setActiveTab('overview')}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     activeTab === 'overview'
                       ? 'bg-brand-light text-brand'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <User className="h-5 w-5" />
+                  <LayoutDashboard className="h-5 w-5" />
                   <span className="font-medium">Overview</span>
                 </button>
 
+                <Link
+                  href="/messages"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                  <span className="font-medium">Message Centre</span>
+                </Link>
 
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                    activeTab === 'settings'
+                      ? 'bg-brand-light text-brand'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Settings className="h-5 w-5" />
+                  <span className="font-medium">Setting</span>
+                </button>
 
                 <button
                   onClick={() => setActiveTab('addresses')}
@@ -607,18 +672,6 @@ export default function ProfilePage() {
                 >
                   <CreditCard className="h-5 w-5" />
                   <span className="font-medium">Payment Methods</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === 'settings'
-                      ? 'bg-brand-light text-brand'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Settings className="h-5 w-5" />
-                  <span className="font-medium">Settings</span>
                 </button>
               </nav>
             </div>

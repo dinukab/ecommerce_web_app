@@ -96,7 +96,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
               <span>Saving cart...</span>
             </>
           ) : (
-            'Proceed to Checkout'
+            `Proceed to Checkout (${items.length})`
           )}
         </button>
       )}

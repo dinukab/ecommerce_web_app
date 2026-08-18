@@ -40,7 +40,7 @@ export default function CartItem({ item }: CartItemProps) {
             onDecrease={() => updateQuantity(item._id, item.quantity - 1)}
             max={item.stock}
           />
-          
+
           <button
             onClick={() => removeFromCart(item._id)}
             className="flex items-center space-x-1 text-red-600 hover:text-red-700 transition-colors"

@@ -20,10 +20,36 @@ export default function Navbar() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const { getCartCount } = useCart();
+  const [userName, setUserName] = useState('');
 
   const pathname = usePathname();
   const isCheckoutFlowPage = pathname?.startsWith('/cart/checkout') ?? false;
   const cartCount = getCartCount();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          setUserName(user.name);
+        } catch (e) {}
+      }
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const res = await api.getMe(token);
+          if (res.success && res.data) {
+            setUserName(res.data.name);
+            localStorage.setItem('user', JSON.stringify(res.data));
+          }
+        } catch (error) {
+          // ignore
+        }
+      }
+    };
+    fetchProfile();
+  }, [pathname]);
 
   // Fetch suggestions as user types
   useEffect(() => {
@@ -176,18 +202,6 @@ export default function Navbar() {
 
           {/* Right Nav Icons */}
           <div className="flex md:flex items-center space-x-10">
-            {!isCheckoutFlowPage && (
-              <Link
-                href="/wishlist"
-                className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
-                style={{ ['--hover-color' as any]: storeConfig.primaryColor }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '')}
-              >
-                <Heart className="w-5 h-5 fill-current" />
-                <span className="font-bold text-sm">Wishlist</span>
-              </Link>
-            )}
 
             {!isCheckoutFlowPage && (
               <Link
@@ -214,35 +228,65 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link
-              href="/orders"
-              className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
-              onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = '')}
-            >
-              <ShoppingBag className="w-5 h-5 fill-current" />
-              <span className="font-bold text-sm">Orders</span>
-            </Link>
 
-            <Link
-              href="/track"
-              className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
-              onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = '')}
-            >
-              <Truck className="w-5 h-5" />
-              <span className="font-bold text-sm">Track</span>
-            </Link>
+            <div className="relative group">
+              <Link
+                href="/profile"
+                className="flex items-center space-x-2 text-gray-600 transition-colors whitespace-nowrap py-2"
+                onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '')}
+              >
+                <User className="w-6 h-6 fill-current" />
+                <div className="flex flex-col items-start leading-tight">
+                  <span className="text-[11px] text-gray-500 font-medium">
+                    {userName ? `Hi, ${userName.split(' ')[0]}` : 'Sign in'}
+                  </span>
+                  <span className="font-bold text-sm text-gray-900">Account</span>
+                </div>
+              </Link>
 
-            <Link
-              href="/profile"
-              className="flex items-center space-x-1 text-gray-600 transition-colors whitespace-nowrap"
-              onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = '')}
-            >
-              <User className="w-5 h-5 fill-current" />
-              <span className="font-bold text-sm">Account</span>
-            </Link>
+              {/* Dropdown Menu */}
+              <div className="absolute top-full right-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden">
+                  <div className="p-2 space-y-1">
+                    <Link href="/profile" className="block px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                      Manage My Account
+                    </Link>
+                    <Link href="/orders" className="block px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                      My Orders
+                    </Link>
+                    <Link href="/wishlist" className="block px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                      Wishlist
+                    </Link>
+                    <Link href="/orders?filter=cancelled" className="block px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                      My Returns & Cancellations
+                    </Link>
+                  </div>
+                  <div className="border-t border-gray-100 p-2 space-y-1">
+                    <Link href="/profile?tab=overview" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                      overview
+                    </Link>
+                    <Link href="/messages" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                      message centre
+                    </Link>
+                    <Link href="/profile?tab=settings" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                      setting
+                    </Link>
+                  </div>
+                  <div className="border-t border-gray-100 p-2">
+                    <button 
+                      onClick={() => { 
+                        localStorage.removeItem('auth_token'); 
+                        router.push('/login'); 
+                      }} 
+                      className="w-full text-left block px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>

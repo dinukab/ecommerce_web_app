@@ -17,6 +17,7 @@ export interface Product {
 
 export interface CartItem extends Product {
   quantity: number;
+  selected?: boolean;
 }
 
 export interface User {
@@ -41,7 +42,10 @@ export interface CartContextType {
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
+  toggleItemSelection: (productId: string) => void;
+  selectAllItems: (selected: boolean) => void;
   clearCart: () => void;
+  clearSelectedItems: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
 }

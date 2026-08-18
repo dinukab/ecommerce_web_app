@@ -501,6 +501,18 @@ class ApiService {
   async healthCheck(): Promise<ApiResponse<string>> {
     return this.request<ApiResponse<string>>('/health');
   }
+
+  async cancelOrder(
+    token: string,
+    orderId: string,
+    data: { cancelReason: string; additionalInfo?: string }
+  ): Promise<ApiResponse<Order>> {
+    return this.request<ApiResponse<Order>>(`/orders/${orderId}/cancel`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 export const api = new ApiService(API_BASE_URL);
