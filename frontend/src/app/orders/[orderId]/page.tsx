@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { api, Order } from '@/lib/api';
 import OrderStatusBadge from '@/components/OrderStatusBadge';
 import OrderTimeline from '@/components/OrderTimeline';
+import OrderInvoiceButton from '@/components/OrderInvoiceButton';
 import { 
   ArrowLeft, 
   Copy, 
@@ -73,13 +74,7 @@ export default function OrderDetailsPage() {
             Back to Orders
           </Link>
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => copyToClipboard(order.trackingNumber)}
-              className="px-6 py-3 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-dark transition-all shadow-lg shadow-brand-light flex items-center gap-2"
-            >
-              {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copySuccess ? 'Copied!' : 'Copy Tracking Number'}
-            </button>
+            <OrderInvoiceButton orderId={order._id} />
           </div>
         </div>
 
@@ -106,12 +101,12 @@ export default function OrderDetailsPage() {
             </div>
 
             <div className="p-6 bg-brand-light rounded-2xl border border-brand-light flex flex-col justify-center">
-              <p className="text-[10px] font-black text-brand uppercase tracking-widest mb-2">Tracking Number</p>
+              <p className="text-[10px] font-black text-black uppercase tracking-widest mb-2">Tracking Number</p>
               <div className="flex items-center gap-4">
                 <code className="text-xl font-black text-brand-dark">{order.trackingNumber}</code>
                 <button 
                   onClick={() => copyToClipboard(order.trackingNumber)}
-                  className="p-2 rounded-lg bg-white text-brand hover:bg-brand hover:text-white transition-all shadow-sm"
+                  className="p-2 rounded-lg bg-white text-black hover:bg-gray-300 hover:text-black transition-all shadow-sm"
                 >
                   {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>

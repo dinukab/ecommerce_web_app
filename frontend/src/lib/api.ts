@@ -515,6 +515,13 @@ class ApiService {
       body: JSON.stringify(data),
     });
   }
+
+  async sendInvoice(token: string, orderId: string): Promise<ApiResponse<any>> {
+    return this.request<ApiResponse<any>>(`/orders/${orderId}/send-invoice`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
 }
 
 export const api = new ApiService(API_BASE_URL);

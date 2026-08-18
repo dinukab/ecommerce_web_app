@@ -7,6 +7,7 @@ import {
   trackOrder,
   payhereNotify,
   cancelOrder,
+  sendInvoice,
 } from '../controllers/orderController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -19,5 +20,6 @@ router.get('/:id', protect, getOrderById);
 router.post('/payhere-notify', payhereNotify);
 router.put('/:id/status', protect, admin, updateOrderStatus);
 router.put('/:id/cancel', protect, cancelOrder);
+router.post('/:id/send-invoice', protect, sendInvoice);
 
 export default router;
