@@ -30,3 +30,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# SST / OpenNext build output
+.sst/
+.open-next/

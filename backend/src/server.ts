@@ -56,7 +56,12 @@ app.use('/api/delivery', deliveryRoutes);
 app.use('/api/store-orders', storeOrderRoutes);
 app.use('/api/store-settings', storeRoutes);
 
-if (process.env.NODE_ENV !== 'test') {
+// Bind a port only when running as a long-lived process. Under Lambda the
+// runtime owns the event loop, and an open listener keeps it from freezing
+// cleanly between invocations.
+const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+if (process.env.NODE_ENV !== 'test' && !isLambda) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
