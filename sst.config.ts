@@ -41,12 +41,14 @@ export default $config({
       runtime: "nodejs22.x",
       memory: "512 MB",
       timeout: "30 seconds",
-      url: true,
+      url: { cors: false },
       environment: {
         NODE_ENV: "production",
         MONGODB_URI: env("MONGODB_URI"),
         JWT_SECRET: env("JWT_SECRET"),
         TENANT_FACTORY_DB: "oneshop-tenant-factory",
+        // Tenants are subdomains, so CORS is validated against this suffix.
+        PLATFORM_DOMAIN: "allinoneshop.store",
         DEFAULT_TENANT_DB: "oneshop_open_door",
         // CloudFront rewrites Host to the origin's name; the real hostname
         // arrives in X-Forwarded-Host, which is where the tenant comes from.

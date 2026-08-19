@@ -26,8 +26,40 @@ if (process.env.NODE_ENV !== 'test') {
 
 export const app = express();
 
+/**
+ * Every tenant lives on its own subdomain, so valid origins are not a fixed
+ * list — the set grows each time a shop is provisioned. Accept the platform
+ * domain and anything below it, plus localhost for development.
+ *
+ * This is not the tenant boundary: tenantMiddleware still resolves the tenant
+ * from the hostname and 404s unknown shops. This only decides whose browser
+ * may call the API.
+ */
+function isAllowedOrigin(origin: string): boolean {
+  let hostname: string;
+  try {
+    hostname = new URL(origin).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+
+  if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+
+  const platform = (process.env.PLATFORM_DOMAIN ?? '').toLowerCase();
+  if (!platform) return false;
+
+  return hostname === platform || hostname.endsWith(`.${platform}`);
+}
+
 app.use(cors({
-  origin: ['http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean) as string[],
+  origin: (origin, callback) => {
+    // No Origin header: same-origin navigations, curl, server-to-server.
+    if (!origin || isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
+    }
+  },
   credentials: true
 }));
 app.use((req, res, next) => {
