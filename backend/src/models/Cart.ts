@@ -11,7 +11,7 @@ const cartItemSchema = new mongoose.Schema({
   },
 });
 
-const cartSchema = new mongoose.Schema(
+export const cartSchema = new mongoose.Schema(
   {
     user: {
       type: String,

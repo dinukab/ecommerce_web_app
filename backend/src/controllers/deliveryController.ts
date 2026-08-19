@@ -1,9 +1,12 @@
-import { Request, Response } from 'express';
-import DeliveryZone from '../models/DeliveryZone.js';
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
+import { resolveStoreIdentity } from '../db/storeId.js';
 
 // GET /api/delivery/zones
-export const getDeliveryZones = async (req: Request, res: Response) => {
+export const getDeliveryZones = async (req: TenantRequest, res: Response) => {
   try {
+    const { DeliveryZone } = req.models!;
+
     const zones = await DeliveryZone.find({ isActive: true }).sort({ name: 1 });
     res.json({ success: true, data: zones });
   } catch (err: any) {
@@ -12,8 +15,10 @@ export const getDeliveryZones = async (req: Request, res: Response) => {
 };
 
 // POST /api/delivery/calculate
-export const calculateDeliveryFee = async (req: Request, res: Response) => {
+export const calculateDeliveryFee = async (req: TenantRequest, res: Response) => {
   try {
+    const { DeliveryZone } = req.models!;
+
     const { district, deliveryMethod } = req.body;
     
     if (!district) {
@@ -66,9 +71,14 @@ export const calculateDeliveryFee = async (req: Request, res: Response) => {
 };
 
 // POST /api/delivery/zones (Admin Only)
-export const createDeliveryZone = async (req: Request, res: Response) => {
+export const createDeliveryZone = async (req: TenantRequest, res: Response) => {
   try {
-    const zone = await DeliveryZone.create(req.body);
+    const { DeliveryZone } = req.models!;
+
+    const { storeId } = await resolveStoreIdentity(req);
+
+    // storeId comes from the tenant, never from the request body.
+    const zone = await DeliveryZone.create({ ...req.body, storeId });
     res.status(201).json({ success: true, data: zone });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });

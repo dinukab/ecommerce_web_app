@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import Review from '../models/Review.js';
-import Product from '../models/Product.js';
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
-export const getProductReviews = async (req: Request, res: Response) => {
+export const getProductReviews = async (req: TenantRequest, res: Response) => {
   try {
+    const { Review, Product } = req.models!;
+
     const { productId } = req.params;
     const reviews = await Review.find({ product: productId }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });
@@ -12,8 +13,10 @@ export const getProductReviews = async (req: Request, res: Response) => {
   }
 };
 
-export const createReview = async (req: Request, res: Response) => {
+export const createReview = async (req: TenantRequest, res: Response) => {
   try {
+    const { Review, Product } = req.models!;
+
     const { productId } = req.params;
     const { user, rating, title, text } = req.body;
 

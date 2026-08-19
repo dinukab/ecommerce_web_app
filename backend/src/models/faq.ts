@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const faqSchema = new mongoose.Schema(
+export const faqSchema = new mongoose.Schema(
   {
     question: {
       type: String,

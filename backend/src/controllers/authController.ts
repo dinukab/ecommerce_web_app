@@ -1,19 +1,26 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import User from '../models/Customer.js';
-import Order from '../models/Order.js';
+import type { TenantRequest } from '../types/index.js';
+import { resolveStoreIdentity } from '../db/storeId.js';
 import sendEmail from '../utils/sendEmail.js';
 
-const generateToken = (id: any, rememberMe: boolean = false) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'supersecretkey', {
+/**
+ * Tokens are bound to the tenant that issued them. `protect` rejects a token
+ * whose `tenant` claim does not match the store being requested, so a session
+ * from one storefront cannot be replayed against another.
+ */
+const generateToken = (id: any, tenant: string | undefined, rememberMe: boolean = false) => {
+  return jwt.sign({ id, tenant }, process.env.JWT_SECRET || 'supersecretkey', {
     expiresIn: rememberMe ? '30d' : '24h',
   });
 };
 
-const registerUser = async (req: Request, res: Response) => {
+const registerUser = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const { email, password } = req.body;
     const name = req.body.name || req.body.fullName;
 
@@ -32,10 +39,13 @@ const registerUser = async (req: Request, res: Response) => {
       });
     }
 
+    const { storeId } = await resolveStoreIdentity(req);
+
     const user = await User.create({ 
       name, 
       email, 
-      password
+      password,
+      storeId
     });
 
     return res.status(201).json({
@@ -48,7 +58,7 @@ const registerUser = async (req: Request, res: Response) => {
           email: user.email,
           role: 'user'
         },
-        token: generateToken(user._id)
+        token: generateToken(user._id, req.tenantDbName)
       }
     });
 
@@ -61,8 +71,10 @@ const registerUser = async (req: Request, res: Response) => {
   }
 };
 
-const loginUser = async (req: Request, res: Response) => {
+const loginUser = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const { email, password, rememberMe } = req.body;
 
     if (!email || !password) {
@@ -105,7 +117,7 @@ const loginUser = async (req: Request, res: Response) => {
           email: user.email,
           role: 'user'
         },
-        token: generateToken(user._id, rememberMe)
+        token: generateToken(user._id, req.tenantDbName, rememberMe)
       }
     });
 
@@ -118,8 +130,10 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-const getMe = async (req: any, res: Response) => {
+const getMe = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({
@@ -165,8 +179,10 @@ const getMe = async (req: any, res: Response) => {
   }
 };
 
-const updateAvatar = async (req: any, res: Response) => {
+const updateAvatar = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const { avatar } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user.id,
@@ -195,8 +211,10 @@ const updateAvatar = async (req: any, res: Response) => {
   }
 };
 
-const addAddress = async (req: any, res: Response) => {
+const addAddress = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
@@ -213,8 +231,10 @@ const addAddress = async (req: any, res: Response) => {
   }
 };
 
-const removeAddress = async (req: any, res: Response) => {
+const removeAddress = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
@@ -227,8 +247,10 @@ const removeAddress = async (req: any, res: Response) => {
   }
 };
 
-const updateAddress = async (req: any, res: Response) => {
+const updateAddress = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
@@ -257,8 +279,10 @@ const updateAddress = async (req: any, res: Response) => {
   }
 };
 
-const addPaymentMethod = async (req: any, res: Response) => {
+const addPaymentMethod = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
@@ -291,8 +315,10 @@ const addPaymentMethod = async (req: any, res: Response) => {
   }
 };
 
-const removePaymentMethod = async (req: any, res: Response) => {
+const removePaymentMethod = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
@@ -305,8 +331,10 @@ const removePaymentMethod = async (req: any, res: Response) => {
   }
 };
 
-const updateProfile = async (req: any, res: Response) => {
+const updateProfile = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     
@@ -320,8 +348,10 @@ const updateProfile = async (req: any, res: Response) => {
   }
 };
 
-const forgotPassword = async (req: Request, res: Response) => {
+const forgotPassword = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const { email } = req.body;
     const user = await User.findOne({ email });
 
@@ -377,8 +407,10 @@ const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
-const resetPassword = async (req: Request, res: Response) => {
+const resetPassword = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const { token, password } = req.body;
 
     // 1) Get user based on the token
@@ -406,7 +438,7 @@ const resetPassword = async (req: Request, res: Response) => {
     await user.save();
 
     // 3) Log the user in, send JWT
-    const jwtToken = generateToken(user._id);
+    const jwtToken = generateToken(user._id, req.tenantDbName);
 
     res.status(200).json({
       success: true,
@@ -426,8 +458,10 @@ const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-const changePassword = async (req: any, res: Response) => {
+const changePassword = async (req: TenantRequest, res: Response) => {
   try {
+    const { Customer: User, Order } = req.models!;
+
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {

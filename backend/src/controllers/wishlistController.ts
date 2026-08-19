@@ -1,11 +1,13 @@
-import { Request, Response } from "express";
-import Wishlist from "../models/Wishlist.js";
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
 // @desc    Get user wishlist
 // @route   GET /api/wishlist
 // @access  Private
-export const getWishlist = async (req: any, res: Response) => {
+export const getWishlist = async (req: TenantRequest, res: Response) => {
   try {
+    const { Wishlist } = req.models!;
+
     let wishlist = await Wishlist.findOne({ userId: req.user.id }).populate('products');
     
     if (!wishlist) {
@@ -28,8 +30,10 @@ export const getWishlist = async (req: any, res: Response) => {
 // @desc    Add product to wishlist
 // @route   POST /api/wishlist
 // @access  Private
-export const addToWishlist = async (req: any, res: Response) => {
+export const addToWishlist = async (req: TenantRequest, res: Response) => {
   try {
+    const { Wishlist } = req.models!;
+
     const { productId } = req.body;
 
     if (!productId) {
@@ -69,8 +73,10 @@ export const addToWishlist = async (req: any, res: Response) => {
 // @desc    Remove product from wishlist
 // @route   DELETE /api/wishlist/:productId
 // @access  Private
-export const removeFromWishlist = async (req: any, res: Response) => {
+export const removeFromWishlist = async (req: TenantRequest, res: Response) => {
   try {
+    const { Wishlist } = req.models!;
+
     const { productId } = req.params;
 
     let wishlist = await Wishlist.findOne({ userId: req.user.id });

@@ -1,4 +1,10 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// The backend identifies the tenant from the Host header, so in production the
+// API must be reached on the same hostname as the storefront (proxy /api to it).
+// Falling back to a same-origin '/api' keeps that true by default; set
+// NEXT_PUBLIC_API_URL only for local development against a separate port.
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window === 'undefined' ? 'http://localhost:5000/api' : '/api');
 
 interface ApiResponse<T> {
   success: boolean;

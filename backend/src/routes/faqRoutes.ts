@@ -1,13 +1,15 @@
-import express, { Request, Response } from 'express';
-import FAQ from '../models/faq.js';
+import express, { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
 const router = express.Router();
 
 // @route   GET /api/faqs
 // @desc    Get all FAQs (with filtering and sorting)
 // @access  Public
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: TenantRequest, res: Response) => {
   try {
+    const { FAQ } = req.models!;
+
     const { category, search, page = 1, limit = 10 } = req.query;
     let query: any = { isActive: true };
 
@@ -52,8 +54,10 @@ router.get('/', async (req: Request, res: Response) => {
 // @route   GET /api/faqs/categories
 // @desc    Get all FAQ categories
 // @access  Public
-router.get('/categories', async (req: Request, res: Response) => {
+router.get('/categories', async (req: TenantRequest, res: Response) => {
   try {
+    const { FAQ } = req.models!;
+
     const categories = [
       'General',
       'Shipping',
@@ -88,8 +92,10 @@ router.get('/categories', async (req: Request, res: Response) => {
 // @route   GET /api/faqs/:id
 // @desc    Get single FAQ and increment views
 // @access  Public
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { FAQ } = req.models!;
+
     const faq = await FAQ.findByIdAndUpdate(
       req.params.id,
       { $inc: { views: 1 } },
@@ -118,8 +124,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 // @route   POST /api/faqs/helpful/:id
 // @desc    Mark FAQ as helpful
 // @access  Public
-router.post('/helpful/:id', async (req: Request, res: Response) => {
+router.post('/helpful/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { FAQ } = req.models!;
+
     const { helpful } = req.body; // true for helpful, false for not helpful
 
     const updateQuery = helpful
@@ -155,8 +163,10 @@ router.post('/helpful/:id', async (req: Request, res: Response) => {
 // @route   POST /api/faqs
 // @desc    Create new FAQ (Admin only)
 // @access  Private
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: TenantRequest, res: Response) => {
   try {
+    const { FAQ } = req.models!;
+
     const { question, answer, category, order } = req.body;
 
     // Validation
@@ -192,8 +202,10 @@ router.post('/', async (req: Request, res: Response) => {
 // @route   PATCH /api/faqs/:id
 // @desc    Update FAQ (Admin only)
 // @access  Private
-router.patch('/:id', async (req: Request, res: Response) => {
+router.patch('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { FAQ } = req.models!;
+
     const { question, answer, category, order, isActive } = req.body;
 
     const faq = await FAQ.findByIdAndUpdate(
@@ -225,8 +237,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
 // @route   DELETE /api/faqs/:id
 // @desc    Delete FAQ (Admin only)
 // @access  Private
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { FAQ } = req.models!;
+
     const faq = await FAQ.findByIdAndDelete(req.params.id);
 
     if (!faq) {

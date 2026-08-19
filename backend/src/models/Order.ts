@@ -11,7 +11,7 @@ const orderItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const orderSchema = new mongoose.Schema(
+export const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
     
@@ -64,7 +64,7 @@ const orderSchema = new mongoose.Schema(
     cancelledAt: { type: Date },
     cancelReason: { type: String },
     orderNotes:   { type: String },
-    storeId:      { type: String, required: true, default: '69e539fd180ff885ce56ca57' },
+    storeId:      { type: String, required: true },
     storeName:    { type: String, default: 'Open Door' },
   },
   { timestamps: true }

@@ -1,12 +1,13 @@
-import { Request, Response } from 'express';
-import Product from '../models/Product.js';
-import Category from '../models/Category.js';
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
 const toSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 // GET /api/products?category=slug&page=1&limit=20&sort=name&search=
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req: TenantRequest, res: Response) => {
   try {
+    const { Product, Category } = req.models!;
+
     const {
       category,
       page = 1,
@@ -77,8 +78,10 @@ export const getProducts = async (req: Request, res: Response) => {
 };
 
 // GET /api/products/:id
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: TenantRequest, res: Response) => {
   try {
+    const { Product } = req.models!;
+
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });

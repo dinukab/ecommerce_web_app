@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const storeSettingSchema = new mongoose.Schema({
+export const storeSettingSchema = new mongoose.Schema({
   storeId: { type: String, required: true, unique: true },
   storeName: { type: String, required: true },
   currency: { type: String, required: true },

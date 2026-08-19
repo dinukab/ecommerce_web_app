@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 // This is the model for website users (customers who register/login on the site)
 // DO NOT use a separate User model for website customers — use this one
 
-const customerSchema = new mongoose.Schema(
+export const customerSchema = new mongoose.Schema(
   {
     name:     { type: String, required: true, trim: true },
     email:    { type: String, lowercase: true, trim: true },
@@ -35,7 +35,7 @@ const customerSchema = new mongoose.Schema(
     lastPurchase:{ type: Date },
 
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
-    storeId: { type: String, required: true, default: 'STORE-2025-001' },
+    storeId: { type: String, required: true },
     
     // Password Reset Fields
     resetPasswordToken: { type: String },

@@ -11,7 +11,7 @@ export interface IStockHistory extends Document {
   updatedAt: Date;
 }
 
-const stockHistorySchema = new Schema(
+export const stockHistorySchema = new Schema(
   {
     product: {
       type: mongoose.Schema.Types.ObjectId,

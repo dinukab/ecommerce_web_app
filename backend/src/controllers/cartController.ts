@@ -1,9 +1,11 @@
-import { Request, Response } from "express";
-import Cart from "../models/Cart.js";
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
 // Add a single item to the cart
-export const addToCart = async (req: Request, res: Response) => {
+export const addToCart = async (req: TenantRequest, res: Response) => {
   try {
+    const { Cart } = req.models!;
+
     const userId    = String(req.body?.userId ?? req.body?.user ?? '');
     const productId = String(req.body?.productId ?? req.body?.product ?? '');
     const quantity  = Number(req.body?.quantity ?? 1);
@@ -40,8 +42,10 @@ export const addToCart = async (req: Request, res: Response) => {
 };
 
 // Sync (replace) entire cart — called when customer clicks "Proceed to Checkout"
-export const syncCart = async (req: Request, res: Response) => {
+export const syncCart = async (req: TenantRequest, res: Response) => {
   try {
+    const { Cart } = req.models!;
+
     const userId = String(req.body?.userId ?? '');
     const items  = req.body?.items;
 
@@ -64,4 +68,4 @@ export const syncCart = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-};
+};

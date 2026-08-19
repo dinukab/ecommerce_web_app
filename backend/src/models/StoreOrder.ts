@@ -13,7 +13,7 @@ const storeOrderItemSchema = new mongoose.Schema(
 );
 
 // ─── Main schema ──────────────────────────────────────────────────────────────
-const storeOrderSchema = new mongoose.Schema(
+export const storeOrderSchema = new mongoose.Schema(
   {
     // Human-readable order ID (e.g. "ORD-IO2HCE")
     orderId: {

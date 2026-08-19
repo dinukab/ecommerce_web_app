@@ -17,6 +17,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
 import storeOrderRoutes from "./routes/storeOrderRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
+import { tenantMiddleware } from "./middleware/tenantMiddleware.js";
 // import returnRoutes from "./routes/returns.js";
 
 if (process.env.NODE_ENV !== 'test') {
@@ -37,6 +38,9 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
+
+// Resolves the tenant database for every API request. Must precede all routes.
+app.use('/api', tenantMiddleware);
 
 app.use("/api/cart", cartRoutes);
 app.use("/api/auth", authRoutes);

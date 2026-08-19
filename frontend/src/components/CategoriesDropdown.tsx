@@ -16,12 +16,10 @@ interface Category {
 
 interface CategoryDropdownProps {
   onCategorySelect?: (category: Category) => void;
-  storeId?: string;
 }
 
 const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ 
-  onCategorySelect,
-  storeId = 'STORE-2025-001'
+  onCategorySelect
 }) => {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -30,17 +28,18 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  // Fetch categories when component mounts
+  // Fetch categories when component mounts. The tenant is derived from the
+  // request host by the backend, so no store identifier is sent.
   useEffect(() => {
     fetchCategories();
-  }, [storeId]);
+  }, []);
 
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${apiUrl}/categories?storeId=${storeId}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+      const response = await fetch(`${apiUrl}/categories`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch categories');

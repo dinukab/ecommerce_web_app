@@ -1,13 +1,15 @@
-import express, { Request, Response } from 'express';
-import ContactMessage from '../models/contactMessage.js';
+import express, { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
 const router = express.Router();
 
 // @route   POST /api/contact
 // @desc    Create a new contact message
 // @access  Public
-router.post('/', async (req, res) => {
+router.post('/', async (req: TenantRequest, res: Response) => {
   try {
+    const { ContactMessage } = req.models!;
+
     const { name, email, subject, message } = req.body;
 
     // Validation
@@ -46,8 +48,10 @@ router.post('/', async (req, res) => {
 // @route   GET /api/contact
 // @desc    Get all contact messages (Admin only)
 // @access  Private
-router.get('/', async (req, res) => {
+router.get('/', async (req: TenantRequest, res: Response) => {
   try {
+    const { ContactMessage } = req.models!;
+
     // Add authentication middleware here in production
     const messages = await ContactMessage.find().sort({ createdAt: -1 });
     
@@ -67,8 +71,10 @@ router.get('/', async (req, res) => {
 // @route   GET /api/contact/:id
 // @desc    Get a specific contact message (Admin only)
 // @access  Private
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { ContactMessage } = req.models!;
+
     const message = await ContactMessage.findById(req.params.id);
     
     if (!message) {
@@ -97,8 +103,10 @@ router.get('/:id', async (req, res) => {
 // @route   PATCH /api/contact/:id
 // @desc    Update contact message status (Admin only)
 // @access  Private
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { ContactMessage } = req.models!;
+
     const { status, adminNotes } = req.body;
 
     const message = await ContactMessage.findByIdAndUpdate(
@@ -130,8 +138,10 @@ router.patch('/:id', async (req, res) => {
 // @route   DELETE /api/contact/:id
 // @desc    Delete a contact message (Admin only)
 // @access  Private
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { ContactMessage } = req.models!;
+
     const message = await ContactMessage.findByIdAndDelete(req.params.id);
 
     if (!message) {

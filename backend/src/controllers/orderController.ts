@@ -1,12 +1,17 @@
-import { Request, Response } from 'express';
-import Order from '../models/Order.js';
-import Product from '../models/Product.js';
-import DeliveryZone from '../models/DeliveryZone.js';
-import StockHistory from '../models/StockHistory.js';
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
+import type { TenantModels } from '../db/tenantModels.js';
+import { resolveStoreIdentity } from '../db/storeId.js';
 import crypto from 'crypto';
 
-async function logStockHistory(order: any) {
+/**
+ * Writes one stock-removal row per line item. Takes the tenant's models
+ * explicitly — a module-level model would bind to the default connection and
+ * log every tenant's movements into the same database.
+ */
+async function logStockHistory(models: TenantModels, order: any) {
   try {
+    const { StockHistory } = models;
     for (const item of order.orderItems) {
       await StockHistory.create({
         product: item.product,
@@ -14,7 +19,7 @@ async function logStockHistory(order: any) {
         quantity: item.quantity,
         reason: `Online transaction ${order.orderId}`,
         by: order.user ? order.user.toString() : 'system',
-        storeId: order.storeId || '69e539fd180ff885ce56ca57',
+        storeId: order.storeId,
       });
     }
     console.log(`✅ Stock history written for order: ${order.orderId}`);
@@ -24,8 +29,10 @@ async function logStockHistory(order: any) {
 }
 
 // POST /api/orders
-export const createOrder = async (req: any, res: Response) => {
+export const createOrder = async (req: TenantRequest, res: Response) => {
   try {
+    const { Order, Product, DeliveryZone, StockHistory } = req.models!;
+
     const {
       orderItems,
       shippingAddress,
@@ -99,6 +106,7 @@ export const createOrder = async (req: any, res: Response) => {
     estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + estimatedDays);
 
     const initialOrderStatus = 'processing';
+    const store = await resolveStoreIdentity(req);
 
     const order = new Order({
       user: req.user._id,
@@ -118,8 +126,8 @@ export const createOrder = async (req: any, res: Response) => {
       totalPrice,
       estimatedDeliveryDate,
       orderNotes,
-      storeId:   '69e539fd180ff885ce56ca57',
-      storeName: 'Open Door',
+      storeId:   store.storeId,
+      storeName: store.storeName,
     });
 
     const createdOrder = await order.save();
@@ -209,8 +217,10 @@ export const createOrder = async (req: any, res: Response) => {
 };
 
 // GET /api/orders/my-orders
-export const getMyOrders = async (req: any, res: Response) => {
+export const getMyOrders = async (req: TenantRequest, res: Response) => {
   try {
+    const { Order, Product, DeliveryZone, StockHistory } = req.models!;
+
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     return res.json({ success: true, data: orders });
   } catch (err: any) {
@@ -219,8 +229,10 @@ export const getMyOrders = async (req: any, res: Response) => {
 };
 
 // GET /api/orders/:id
-export const getOrderById = async (req: any, res: Response) => {
+export const getOrderById = async (req: TenantRequest, res: Response) => {
   try {
+    const { Order, Product, DeliveryZone, StockHistory } = req.models!;
+
     const order = await Order.findById(req.params.id).populate('user', 'name email');
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
@@ -240,8 +252,10 @@ export const getOrderById = async (req: any, res: Response) => {
 };
 
 // PUT /api/orders/:id/status (admin)
-export const updateOrderStatus = async (req: any, res: Response) => {
+export const updateOrderStatus = async (req: TenantRequest, res: Response) => {
   try {
+    const { Order, Product, DeliveryZone, StockHistory } = req.models!;
+
     const { orderStatus, paymentStatus } = req.body;
     const order = await Order.findById(req.params.id);
 
@@ -314,7 +328,7 @@ export const updateOrderStatus = async (req: any, res: Response) => {
 
     const updatedOrder = await order.save();
     if (updatedOrder.paymentStatus === 'paid' && !wasPaid) {
-      await logStockHistory(updatedOrder);
+      await logStockHistory(req.models!, updatedOrder);
     }
     return res.json({ success: true, data: updatedOrder });
   } catch (err: any) {
@@ -323,8 +337,10 @@ export const updateOrderStatus = async (req: any, res: Response) => {
 };
 
 // GET /api/orders/track/:trackingNumber
-export const trackOrder = async (req: Request, res: Response) => {
+export const trackOrder = async (req: TenantRequest, res: Response) => {
   try {
+    const { Order, Product, DeliveryZone, StockHistory } = req.models!;
+
     const searchVal = req.params.trackingNumber.toUpperCase().replace(/^#/, '').trim();
     const order = await Order.findOne({
       $or: [
@@ -358,8 +374,10 @@ export const trackOrder = async (req: Request, res: Response) => {
 };
 
 // POST /api/orders/payhere-notify
-export const payhereNotify = async (req: Request, res: Response) => {
+export const payhereNotify = async (req: TenantRequest, res: Response) => {
   try {
+    const { Order, Product, DeliveryZone, StockHistory } = req.models!;
+
     const {
       merchant_id,
       order_id,
@@ -410,7 +428,7 @@ export const payhereNotify = async (req: Request, res: Response) => {
               });
             }
             console.log(`✅ Stock deducted for PayHere order: ${order_id}`);
-            await logStockHistory(order);
+            await logStockHistory(req.models!, order);
           } catch (stockError) {
             console.error('Error updating stock after PayHere payment:', stockError);
           }

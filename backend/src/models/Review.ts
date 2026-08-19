@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-const reviewSchema = new Schema(
+export const reviewSchema = new Schema(
   {
     product: {
       type: Schema.Types.ObjectId,

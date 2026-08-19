@@ -1,10 +1,13 @@
-import { Request, Response } from 'express';
-import StoreOrder from '../models/StoreOrder.js';
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
+import { resolveStoreIdentity } from '../db/storeId.js';
 
 // ─── POST /api/store-orders ───────────────────────────────────────────────────
 // Create a new store / POS order
-export const createStoreOrder = async (req: Request, res: Response) => {
+export const createStoreOrder = async (req: TenantRequest, res: Response) => {
   try {
+    const { StoreOrder } = req.models!;
+
     const {
       orderId,
       source,
@@ -16,7 +19,6 @@ export const createStoreOrder = async (req: Request, res: Response) => {
       status,
       paymentMethod,
       paymentStatus,
-      storeId,
       createdBy,
     } = req.body;
 
@@ -33,9 +35,9 @@ export const createStoreOrder = async (req: Request, res: Response) => {
     if (!paymentMethod) {
       return res.status(400).json({ success: false, message: 'paymentMethod is required' });
     }
-    if (!storeId) {
-      return res.status(400).json({ success: false, message: 'storeId is required' });
-    }
+
+    // Derived from the tenant database, never accepted from the caller.
+    const { storeId } = await resolveStoreIdentity(req);
 
     const order = new StoreOrder({
       orderId,       // optional – auto-generated if omitted
@@ -65,12 +67,14 @@ export const createStoreOrder = async (req: Request, res: Response) => {
 
 // ─── GET /api/store-orders ────────────────────────────────────────────────────
 // List all store orders (admin)
-export const getStoreOrders = async (req: Request, res: Response) => {
+export const getStoreOrders = async (req: TenantRequest, res: Response) => {
   try {
-    const { storeId, status, from, to } = req.query;
+    const { StoreOrder } = req.models!;
+
+    const { status, from, to } = req.query;
     const filter: any = {};
 
-    if (storeId)  filter.storeId = storeId;
+
     if (status)   filter.status  = status;
     if (from || to) {
       filter.createdAt = {};
@@ -86,8 +90,10 @@ export const getStoreOrders = async (req: Request, res: Response) => {
 };
 
 // ─── GET /api/store-orders/:id ────────────────────────────────────────────────
-export const getStoreOrderById = async (req: Request, res: Response) => {
+export const getStoreOrderById = async (req: TenantRequest, res: Response) => {
   try {
+    const { StoreOrder } = req.models!;
+
     const order = await StoreOrder.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ success: false, message: 'Store order not found' });
@@ -100,8 +106,10 @@ export const getStoreOrderById = async (req: Request, res: Response) => {
 
 // ─── PUT /api/store-orders/:id/status ────────────────────────────────────────
 // Update order status (admin)
-export const updateStoreOrderStatus = async (req: Request, res: Response) => {
+export const updateStoreOrderStatus = async (req: TenantRequest, res: Response) => {
   try {
+    const { StoreOrder } = req.models!;
+
     const { status, paymentStatus } = req.body;
     const order = await StoreOrder.findById(req.params.id);
 

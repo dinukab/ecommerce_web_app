@@ -1,24 +1,24 @@
 // ---------------------------------------------------------------------------
-// Store configuration — map your MongoDB store document here.
-// Update this file whenever the store settings change.
+// Tenant-neutral fallback branding.
+//
+// Real values come from GET /api/store-settings, which the backend resolves
+// from the requesting tenant's database (see StoreProvider). These constants
+// only fill the gap before that request resolves, so they must NOT name any
+// particular store — a hardcoded tenant here leaks one store's branding onto
+// every other storefront during first paint.
 // ---------------------------------------------------------------------------
 
-const BACKEND_URL =
-  (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '');
-
 export const storeConfig = {
-  _id:            '69e9a452f0392b2568712f9d',
-  storeId:        '69e539fd180ff885ce56ca57',
-  storeName:      'Open Door',
+  storeName:      'OneShop',
   currency:       'LKR',
   currencyLocale: 'en-LK',
-  address:        'No. 1, Main Street, Colombo 01',
-  phone:          '+94 11 234 5678',
-  email:          'info@opendoor.lk',
-  logoUrl:        '/logo-opendoor.jpeg',
-  primaryColor:   '#0891b2',   // cyan-600
-  primaryDark:    '#0e7490',   // cyan-700
-  primaryLight:   '#a5f3fc',   // cyan-200
+  address:        '',
+  phone:          '',
+  email:          '',
+  logoUrl:        '/logo-placeholder.svg',
+  primaryColor:   '#0891b2',
+  primaryDark:    '#0e7490',
+  primaryLight:   '#a5f3fc',
 } as const;
 
 export type StoreConfig = typeof storeConfig;

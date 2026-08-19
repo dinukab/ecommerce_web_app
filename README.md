@@ -102,6 +102,80 @@ The application will be available at `http://localhost:3000`.
 
 ---
 
+## 🏢 Multi-Tenancy
+
+The storefront is multi-tenant: one deployment serves many stores, and every
+tenant's data lives in its **own database on a single MongoDB server** — the
+same cluster and the same provisioning model used by OneShop POS, so the POS
+and the storefront read and write the same tenant database.
+
+### How a request finds its tenant
+
+`tenantMiddleware` runs before every `/api` route and resolves the tenant in
+this order:
+
+| # | Source | Example | Notes |
+|---|--------|---------|-------|
+| 1 | Host subdomain | `keels.allinoneshop.store` → `oneshop_keels` | Looked up in the tenant-factory registry; unknown or inactive stores get a 404 |
+| 1b | `X-Forwarded-Host` | same as above | Used in place of `Host` when `TRUST_PROXY_HOST=true` — required behind CloudFront / Lambda Function URLs, which rewrite `Host` |
+| 2 | `OneShop-Tenant-ID` header | `oneshop_alpha_store` | Only honoured when `ALLOW_TENANT_HEADER=true` |
+| 3 | `DEFAULT_TENANT_DB` | `oneshop_open_door` | Fallback for localhost, apex domains, and single-tenant deploys |
+
+The resolved connection is attached to the request, and controllers reach the
+database **only** through `req.models`. Importing a model module directly binds
+it to the default connection and reads the wrong tenant — the model modules
+still export compiled models for the seed scripts, so this is easy to do by
+accident.
+
+Because tenants are selected by `Host`, the API must be served on the same
+hostname as the storefront in production (proxy `/api` through to it). The
+frontend defaults to a same-origin `/api` for exactly this reason;
+`NEXT_PUBLIC_API_URL` is only for local development against a separate port.
+
+
+### Hostname scheme
+
+The tenant is always the **first label**, which is what lets one wildcard
+certificate cover every tenant and keeps provisioning zero-touch.
+
+| Surface | Hostname | Certificate |
+|---|---|---|
+| Storefront | `keels.allinoneshop.store` | `*.allinoneshop.store` |
+| POS | `keels.pos.allinoneshop.store` | `*.pos.allinoneshop.store` |
+| Tenant Factory | `admin.allinoneshop.store` | `*.allinoneshop.store` |
+
+Note the ordering: `keels.pos.…` and **not** `pos.keels.…`. TLS wildcards match
+exactly one label, so `*.allinoneshop.store` would not cover `pos.keels.…` and
+every new tenant would need its own certificate before it could serve traffic.
+Putting the tenant first means `*.pos.allinoneshop.store` covers all tenants at
+once, and `subdomainFromHost` reads the tenant identically for both surfaces.
+
+### Session isolation
+
+Tokens carry a `tenant` claim naming the database that issued them, and
+`protect` rejects a token presented to a different store. Without this, one
+`JWT_SECRET` shared across all tenants would let a session from one storefront
+be replayed against another.
+
+### Adding a tenant
+
+Tenants are provisioned by `oneshop-tenant-factory`, which creates the database,
+seeds `storesettings`, and registers it in the `tenants` collection. The
+storefront picks it up on the next cache expiry (`TENANT_CACHE_TTL_MS`) — no
+storefront deploy is needed.
+
+### Local development
+
+```bash
+# Serve a single tenant
+DEFAULT_TENANT_DB=oneshop_open_door npm run dev
+
+# Or exercise subdomain routing against a local hosts entry
+# 127.0.0.1  alphastore.oneshop.test
+```
+
+---
+
 ## 📦 API Endpoints
 
 - **Auth**: `/api/auth` (Register, Login, Me, Password Reset)

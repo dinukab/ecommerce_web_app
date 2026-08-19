@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const shippingInfoSchema = new mongoose.Schema(
+export const shippingInfoSchema = new mongoose.Schema(
   {
     title: {
       type: String,

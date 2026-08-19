@@ -27,7 +27,8 @@ describe('Order Integration Tests', () => {
       districts: ['Colombo'],
       deliveryFee: 300,
       estimatedDays: 2,
-      isActive: true
+      isActive: true,
+      storeId: 'TEST-STORE-0001'
     });
     testDeliveryZoneId = (zone._id as any).toString();
 
@@ -39,7 +40,7 @@ describe('Order Integration Tests', () => {
       costPrice: 80000,
       category: 'Electronics',
       stock: 5,
-      storeId: '69e539fd180ff885ce56ca57'
+      storeId: 'TEST-STORE-0001'
     });
     testProductId = (product._id as any).toString();
   });

@@ -1,14 +1,15 @@
-import { Request, Response } from 'express';
-import Category from '../models/Category.js';
-import Product from '../models/Product.js';
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
 // Generate a URL-safe slug from a category name
 const toSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 // GET /api/categories
 // Returns all categories with dynamically computed productCount
-export const getAllCategories = async (req: Request, res: Response) => {
+export const getAllCategories = async (req: TenantRequest, res: Response) => {
   try {
+    const { Category, Product } = req.models!;
+
     const categories = await Category.find().sort({ name: 1 }).lean();
 
     // Compute product count and ensure slug exists for each category
@@ -30,8 +31,10 @@ export const getAllCategories = async (req: Request, res: Response) => {
 };
 
 // GET /api/categories/:slug
-export const getCategoryBySlug = async (req: Request, res: Response) => {
+export const getCategoryBySlug = async (req: TenantRequest, res: Response) => {
   try {
+    const { Category, Product } = req.models!;
+
     const reqSlug = req.params.slug;
 
     // Try finding by slug field first, then fall back to matching computed slug from name

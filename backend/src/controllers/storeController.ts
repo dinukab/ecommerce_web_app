@@ -1,12 +1,14 @@
-import { Request, Response } from 'express';
-import StoreSetting from '../models/StoreSetting.js';
+import { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
-export const getStoreSettings = async (req: Request, res: Response) => {
+export const getStoreSettings = async (req: TenantRequest, res: Response) => {
   try {
-    // Fetch the primary store setting (assuming single store for now)
-    // You can also filter by a specific storeId if needed: { storeId: '69e539fd180ff885ce56ca57' }
-    const settings = await StoreSetting.findOne({ storeId: '69e539fd180ff885ce56ca57' });
-    
+    const { StoreSetting } = req.models!;
+
+    // One storesettings document per tenant database — no storeId filter needed,
+    // the database itself is the tenant boundary.
+    const settings = await StoreSetting.findOne({});
+
     if (!settings) {
       return res.status(404).json({
         success: false,

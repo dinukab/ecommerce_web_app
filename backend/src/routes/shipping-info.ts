@@ -1,13 +1,15 @@
-import express, { Request, Response } from 'express';
-import ShippingInfo from '../models/shippingInfo.js';
+import express, { Response } from 'express';
+import type { TenantRequest } from '../types/index.js';
 
 const router = express.Router();
 
 // @route   GET /api/shipping-info
 // @desc    Get all shipping information (with filtering)
 // @access  Public
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: TenantRequest, res: Response) => {
   try {
+    const { ShippingInfo } = req.models!;
+
     const { category, type } = req.query;
     let query: any = { isActive: true };
 
@@ -43,8 +45,10 @@ router.get('/', async (req: Request, res: Response) => {
 // @route   GET /api/shipping-info/categories
 // @desc    Get all shipping info categories
 // @access  Public
-router.get('/categories', async (req: Request, res: Response) => {
+router.get('/categories', async (req: TenantRequest, res: Response) => {
   try {
+    const { ShippingInfo } = req.models!;
+
     const categories = [
       'Shipping Options',
       'Delivery Areas',
@@ -80,8 +84,10 @@ router.get('/categories', async (req: Request, res: Response) => {
 // @route   GET /api/shipping-info/:id
 // @desc    Get single shipping info by ID
 // @access  Public
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { ShippingInfo } = req.models!;
+
     const shippingInfo = await ShippingInfo.findById(req.params.id);
 
     if (!shippingInfo) {
@@ -108,8 +114,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 // @route   POST /api/shipping-info
 // @desc    Create new shipping info (Admin only)
 // @access  Private
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: TenantRequest, res: Response) => {
   try {
+    const { ShippingInfo } = req.models!;
+
     const { title, description, category, type, content, metadata, order } =
       req.body;
 
@@ -149,8 +157,10 @@ router.post('/', async (req: Request, res: Response) => {
 // @route   PATCH /api/shipping-info/:id
 // @desc    Update shipping info (Admin only)
 // @access  Private
-router.patch('/:id', async (req: Request, res: Response) => {
+router.patch('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { ShippingInfo } = req.models!;
+
     const { title, description, category, type, content, metadata, order, isActive } =
       req.body;
 
@@ -192,8 +202,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
 // @route   DELETE /api/shipping-info/:id
 // @desc    Delete shipping info (Admin only)
 // @access  Private
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: TenantRequest, res: Response) => {
   try {
+    const { ShippingInfo } = req.models!;
+
     const shippingInfo = await ShippingInfo.findByIdAndDelete(req.params.id);
 
     if (!shippingInfo) {
