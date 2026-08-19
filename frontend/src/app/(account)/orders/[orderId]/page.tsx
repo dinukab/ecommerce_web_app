@@ -7,12 +7,12 @@ import { api, Order } from '@/lib/api';
 import OrderStatusBadge from '@/components/OrderStatusBadge';
 import OrderTimeline from '@/components/OrderTimeline';
 import OrderInvoiceButton from '@/components/OrderInvoiceButton';
-import { 
-  ArrowLeft, 
-  Copy, 
-  Truck, 
-  MapPin, 
-  CreditCard, 
+import {
+  ArrowLeft,
+  Copy,
+  Truck,
+  MapPin,
+  CreditCard,
   Calendar,
   CheckCircle,
   Clock,
@@ -62,13 +62,13 @@ export default function OrderDetailsPage() {
   if (!order) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 py-0">
+      <div className="max-w-6xl mx-auto ">
         {/* Breadcrumb & Top Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-          <Link 
-            href="/orders" 
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-brand transition-colors"
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <Link
+            href="/orders"
+            className="inline-flex items-center gap-2 text-md font-bold text-gray-800 hover:text-brand transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Orders
@@ -79,32 +79,32 @@ export default function OrderDetailsPage() {
         </div>
 
         {/* Order Header Card */}
-        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 mb-8">
+        <div className="bg-white rounded-md p-6 shadow-sm border border-gray-100 mb-5">
           <div className="flex flex-col md:flex-row justify-between gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-black text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900">
                   Order #{order._id.slice(-8).toUpperCase()}
                 </h1>
                 <OrderStatusBadge status={order.orderStatus} />
               </div>
               <div className="flex flex-wrap gap-x-8 gap-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-gray-700">
                   <Calendar className="w-4 h-4" />
                   Placing on {new Date(order.createdAt).toLocaleDateString()}
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-gray-700">
                   <Clock className="w-4 h-4" />
                   Estimated Delivery: <span className="font-bold text-gray-900">{new Date(order.estimatedDeliveryDate).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-6 bg-brand-light rounded-2xl border border-brand-light flex flex-col justify-center">
+            <div className="p-4 rounded-md border border-gray-400 shadow-sm flex flex-col justify-center">
               <p className="text-[10px] font-black text-black uppercase tracking-widest mb-2">Tracking Number</p>
               <div className="flex items-center gap-4">
                 <code className="text-xl font-black text-brand-dark">{order.trackingNumber}</code>
-                <button 
+                <button
                   onClick={() => copyToClipboard(order.trackingNumber)}
                   className="p-2 rounded-lg bg-white text-black hover:bg-gray-300 hover:text-black transition-all shadow-sm"
                 >
@@ -113,26 +113,21 @@ export default function OrderDetailsPage() {
               </div>
             </div>
           </div>
-
-          <div className="mt-12 pt-12 border-t border-gray-50">
-            <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-6 text-center">Delivery Progress</h3>
-            <OrderTimeline status={order.orderStatus} />
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Items & Price Breakdown */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-md p-8 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-8">Order Items</h2>
               <div className="space-y-6">
                 {order.orderItems.map((item, idx) => (
                   <div key={idx} className="flex gap-6 items-center">
                     <div className="w-20 h-20 rounded-2xl bg-gray-50 p-3 border border-gray-100 flex-shrink-0">
-                      <img 
-                        src={item.image || 'https://placehold.co/200x200?text=Product'} 
-                        alt={item.name} 
-                        className="w-full h-full object-contain" 
+                      <img
+                        src={item.image || 'https://placehold.co/200x200?text=Product'}
+                        alt={item.name}
+                        className="w-full h-full object-contain"
                       />
                     </div>
                     <div className="flex-1">
@@ -149,11 +144,11 @@ export default function OrderDetailsPage() {
 
               <div className="mt-10 pt-8 border-t border-dashed border-gray-100 space-y-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Items Subtotal</span>
+                  <span className="text-gray-800">Items Subtotal</span>
                   <span className="font-bold text-gray-900">LKR {order.itemsPrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Delivery Fee ({order.deliveryMethod})</span>
+                  <span className="text-gray-800">Delivery Fee ({order.deliveryMethod})</span>
                   <span className="font-bold text-gray-900">LKR {order.deliveryFee.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between pt-4 border-t border-gray-50">
@@ -167,11 +162,8 @@ export default function OrderDetailsPage() {
           {/* Customer & Shipping Details */}
           <div className="space-y-8">
             {/* Shipping Info */}
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-md p-8 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand">
-                  <Truck className="w-5 h-5" />
-                </div>
                 <h2 className="text-lg font-bold text-gray-900">Shipping Info</h2>
               </div>
               <div className="space-y-6">
@@ -196,11 +188,8 @@ export default function OrderDetailsPage() {
             </div>
 
             {/* Payment Info */}
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-md p-8 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
-                  <CreditCard className="w-5 h-5" />
-                </div>
                 <h2 className="text-lg font-bold text-gray-900">Payment Info</h2>
               </div>
               <div className="space-y-4">
@@ -210,9 +199,8 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Status</p>
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
-                    order.paymentStatus === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${order.paymentStatus === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
                     {order.paymentStatus}
                   </span>
                 </div>

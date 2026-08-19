@@ -2,14 +2,13 @@ import { Product } from '@/types';
 
 export const products: Product[] = [
   {
-    id: 1,
+    _id: '',
     name: 'Wireless Bluetooth Headphones',
-    price: 79.99,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop',
+    sellingPrice: 79.99,
     category: 'Electronics',
     description: 'Premium wireless headphones with active noise cancellation, 30-hour battery life, and superior sound quality. Perfect for music lovers and professionals.',
     rating: 4.5,
-    reviews: 328,
+    numReviews: 328,
     stock: 45,
     images: [
       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop',
@@ -18,14 +17,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 2,
+    _id: '',
     name: 'Smart Watch Pro',
-    price: 299.99,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop',
+    sellingPrice: 299.99,
     category: 'Electronics',
     description: 'Advanced fitness tracking, heart rate monitoring, GPS, and smartphone notifications. Water-resistant design with a stunning AMOLED display.',
     rating: 4.8,
-    reviews: 512,
+    numReviews: 512,
     stock: 28,
     images: [
       'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop',
@@ -34,14 +32,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 3,
+    _id: '',
     name: 'Premium Laptop Backpack',
-    price: 49.99,
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=500&fit=crop',
+    sellingPrice: 49.99,
     category: 'Accessories',
     description: 'Durable and stylish laptop backpack with padded compartments, USB charging port, and water-resistant fabric. Perfect for students and professionals.',
     rating: 4.3,
-    reviews: 189,
+    numReviews: 189,
     stock: 67,
     images: [
       'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=500&fit=crop',
@@ -50,14 +47,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 4,
+    _id: '',
     name: 'Mechanical Gaming Keyboard',
-    price: 129.99,
-    image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&h=500&fit=crop',
+    sellingPrice: 129.99,
     category: 'Electronics',
     description: 'RGB mechanical keyboard with customizable lighting, tactile switches, and anti-ghosting technology. Perfect for gamers and typists.',
     rating: 4.7,
-    reviews: 421,
+    numReviews: 421,
     stock: 33,
     images: [
       'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&h=500&fit=crop',
@@ -66,14 +62,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 5,
+    _id: '',
     name: 'Wireless Gaming Mouse',
-    price: 69.99,
-    image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&h=500&fit=crop',
+    sellingPrice: 69.99,
     category: 'Electronics',
     description: 'High-precision wireless gaming mouse with adjustable DPI, programmable buttons, and long battery life. Ergonomic design for extended gaming sessions.',
     rating: 4.6,
-    reviews: 267,
+    numReviews: 267,
     stock: 52,
     images: [
       'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&h=500&fit=crop',
@@ -82,14 +77,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 6,
+    _id: '',
     name: 'USB-C Hub Adapter',
-    price: 34.99,
-    image: 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=500&h=500&fit=crop',
+    sellingPrice: 34.99,
     category: 'Accessories',
     description: '7-in-1 USB-C hub with HDMI, USB 3.0 ports, SD card reader, and 100W power delivery. Essential for modern laptops and tablets.',
     rating: 4.4,
-    reviews: 156,
+    numReviews: 156,
     stock: 89,
     images: [
       'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=500&h=500&fit=crop',
@@ -98,14 +92,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 7,
+    _id: '',
     name: 'Portable Bluetooth Speaker',
-    price: 59.99,
-    image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&h=500&fit=crop',
+    sellingPrice: 59.99,
     category: 'Electronics',
     description: 'Waterproof portable speaker with 360-degree sound, 12-hour battery life, and deep bass. Perfect for outdoor adventures and parties.',
     rating: 4.5,
-    reviews: 298,
+    numReviews: 298,
     stock: 41,
     images: [
       'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&h=500&fit=crop',
@@ -114,14 +107,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 8,
+    _id: '',
     name: 'LED Desk Lamp',
-    price: 39.99,
-    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&h=500&fit=crop',
+    sellingPrice: 39.99,
     category: 'Home',
     description: 'Modern LED desk lamp with adjustable brightness, color temperature control, and USB charging port. Energy-efficient and eye-friendly.',
     rating: 4.2,
-    reviews: 134,
+    numReviews: 134,
     stock: 58,
     images: [
       'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&h=500&fit=crop',
@@ -130,14 +122,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 9,
+    _id: '',
     name: 'Stainless Steel Water Bottle',
-    price: 24.99,
-    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&h=500&fit=crop',
+    sellingPrice: 24.99,
     category: 'Lifestyle',
     description: 'Insulated stainless steel water bottle keeps drinks cold for 24 hours or hot for 12 hours. BPA-free and eco-friendly.',
     rating: 4.7,
-    reviews: 445,
+    numReviews: 445,
     stock: 76,
     images: [
       'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500&h=500&fit=crop',
@@ -146,14 +137,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 10,
+    _id: '',
     name: 'Yoga Mat Premium',
-    price: 29.99,
-    image: 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=500&h=500&fit=crop',
+    sellingPrice: 29.99,
     category: 'Sports',
     description: 'Non-slip yoga mat with extra cushioning and alignment lines. Eco-friendly materials with carrying strap included.',
     rating: 4.6,
-    reviews: 312,
+    numReviews: 312,
     stock: 64,
     images: [
       'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=500&h=500&fit=crop',
@@ -162,14 +152,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 11,
+    _id: '',
     name: 'Wireless Phone Charger',
-    price: 19.99,
-    image: 'https://images.unsplash.com/photo-1591290619762-9b2c16e8a01b?w=500&h=500&fit=crop',
+    sellingPrice: 19.99,
     category: 'Electronics',
     description: 'Fast wireless charging pad compatible with all Qi-enabled devices. Sleek design with LED indicator and overcharge protection.',
     rating: 4.3,
-    reviews: 187,
+    numReviews: 187,
     stock: 92,
     images: [
       'https://images.unsplash.com/photo-1591290619762-9b2c16e8a01b?w=500&h=500&fit=crop',
@@ -178,14 +167,13 @@ export const products: Product[] = [
     ]
   },
   {
-    id: 12,
+    _id: '',
     name: 'Coffee Maker Deluxe',
-    price: 89.99,
-    image: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=500&h=500&fit=crop',
+    sellingPrice: 89.99,
     category: 'Home',
     description: 'Programmable coffee maker with thermal carafe, brew strength control, and auto shut-off. Makes up to 12 cups of perfect coffee.',
     rating: 4.5,
-    reviews: 223,
+    numReviews: 223,
     stock: 37,
     images: [
       'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=500&h=500&fit=crop',
@@ -195,13 +183,13 @@ export const products: Product[] = [
   }
 ];
 
-export const getProductById = (id: number): Product | undefined => {
-  return products.filter(product => product.id === id)[0];
+export const getProductById = (id: string): Product | undefined => {
+  return products.filter(product => product._id === id)[0];
 };
 
-export const getRelatedProducts = (productId: number, category: string): Product[] => {
+export const getRelatedProducts = (productId: string, category: string): Product[] => {
   return products
-    .filter(product => product.category === category && product.id !== productId)
+    .filter(product => product.category === category && product._id !== productId)
     .slice(0, 4);
 };
 

@@ -180,8 +180,6 @@ export interface Order {
   cancelledAt?: string;
   cancelReason?: string;
   orderNotes?: string;
-  payhereMerchantId?: string;
-  payhereHash?: string;
   createdAt: string;
   updatedAt: string;
 }

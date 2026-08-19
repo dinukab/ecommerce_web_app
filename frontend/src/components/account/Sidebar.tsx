@@ -206,10 +206,10 @@ export default function AccountSidebar() {
       {/* Navigation Menu */}
       <nav className="space-y-1">
         <Link
-          href="/profile"
+          href="/profile?tab=settings"
           className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-            pathname === '/profile' && !searchParams.get('tab')
-              ? 'bg-brand-light  text-brand'
+            searchParams.get('tab') === 'settings' || (pathname === '/profile' && !searchParams.get('tab'))
+              ? 'bg-brand-light text-brand'
               : 'text-gray-700 hover:bg-gray-100'
           }`}
         >
@@ -289,17 +289,7 @@ export default function AccountSidebar() {
           <span className="font-medium text-sm">Message Centre</span>
         </Link>
 
-        <Link
-          href="/profile?tab=settings"
-          className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-            searchParams.get('tab') === 'settings'
-              ? 'bg-brand-light text-brand'
-              : 'text-gray-700 hover:bg-gray-50'
-          }`}
-        >
-          <Settings className="h-5 w-5" />
-          <span className="font-medium text-sm">Setting</span>
-        </Link>
+
       </nav>
     </div>
   );

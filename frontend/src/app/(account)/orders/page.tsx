@@ -10,8 +10,10 @@ import {
   ChevronDown,
   ChevronUp,
   Package,
-  Search
+  Search,
+  Store
 } from 'lucide-react';
+import { storeConfig } from '@/lib/storeConfig';
 import { useRouter } from 'next/navigation';
 
 export default function MyOrdersPage() {
@@ -106,126 +108,46 @@ export default function MyOrdersPage() {
           </div>
         ) : (
           filteredOrders.map((order) => (
-            <div key={order._id} className="bg-[#f8fbf9] rounded-[1.5rem] shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-5 pb-4">
-                {/* Header Row */}
-                <div className="flex justify-between items-start mb-5">
-                  <div>
-                    <h3 className="text-[1.05rem] font-bold text-gray-800 flex items-center gap-1.5">
-                      order <span className="text-brand">#{order._id.slice(-6).toLowerCase()}</span>
-                    </h3>
-                    <p className="text-[0.7rem] text-gray-500 mt-1 font-medium">
-                      {new Date(order.createdAt).toLocaleDateString('en-US', {
-                        month: 'numeric',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}, {new Date(order.createdAt).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
-                    </p>
-                  </div>
-                  {/* Cancel Button / Status Pill */}
-                  {['pending', 'confirmed', 'processing'].includes(order.orderStatus) ? (
-                    <Link
-                      href={`/orders/cancel/${order._id}`}
-                      className="bg-blue-50 text-blue-800 text-xs font-bold px-4 py-1.5 rounded-full hover:bg-blue-100 transition-colors border border-blue-100 shadow-sm"
-                    >
-                      Cancel
+            <div key={order._id} className="bg-white rounded-[0.5rem] shadow-sm border border-gray-200 overflow-hidden mb-4">
+              {/* Store Name and Status Header */}
+              <div className="flex justify-between items-center p-4 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <Store className="w-5 h-5 text-gray-700" />
+                  <span className="font-bold text-gray-800 text-[0.95rem]">{storeConfig.storeName}</span>
+                </div>
+                <span className={`text-[0.75rem] font-bold px-3 py-1 rounded-full capitalize ${order.orderStatus === 'cancelled' ? 'bg-gray-100 text-gray-700' : (order.orderStatus === 'success' || order.orderStatus === 'delivered') ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+                  {order.orderStatus === 'success' ? 'delivered' : order.orderStatus === 'pending' && order.paymentStatus === 'paid' ? 'confirmed' : order.orderStatus || 'pending'}
+                </span>
+              </div>
+
+              {/* Items List */}
+              <div className="flex flex-col">
+                {order.orderItems?.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-6 p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                    <Link href={`/orders/${order._id}`} className="flex-shrink-0 block">
+                      <div className="w-20 h-20 rounded-md bg-gray-50 border border-gray-200 p-1">
+                        <img 
+                          src={item.image || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlByb2R1Y3Q8L3RleHQ+PC9zdmc+'} 
+                          alt={item.name} 
+                          className="w-full h-full object-contain mix-blend-multiply"
+                        />
+                      </div>
                     </Link>
-                  ) : order.orderStatus === 'cancelled' ? (
-                    <span className="bg-gray-100 text-gray-700 text-xs font-bold px-4 py-1.5 rounded-full border border-gray-200 shadow-sm">
-                      Cancelled
-                    </span>
-                  ) : null}
-                </div>
-
-                {/* Info Rows */}
-                <div className="space-y-4 mb-5 pl-1">
-                  <div className="flex items-center gap-5">
-                    <Truck className="w-5 h-5 text-brand" strokeWidth={2} />
-                    <span className="text-[0.85rem] text-gray-600 font-medium capitalize">
-                      {order.paymentMethod === 'cash-on-delivery' ? 'Cash On Delivery' : order.paymentMethod || 'Online Payment'}
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-5">
-                    <MapPin className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" strokeWidth={2} />
-                    <span className="text-[0.85rem] text-gray-500 font-medium leading-snug">
-                      {order.shippingAddress?.addressLine1}{order.shippingAddress?.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}, {order.shippingAddress?.city}, {order.shippingAddress?.district}, {order.shippingAddress?.postalCode}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Items Accordion Toggle */}
-                <button 
-                  onClick={() => toggleOrder(order._id)}
-                  className="w-full flex items-center justify-between py-4 border-t border-b border-gray-200/60 text-[0.85rem] font-bold text-brand-dark transition-colors"
-                >
-                  <div className="flex items-center gap-5 pl-1">
-                    <Package className="w-5 h-5" strokeWidth={2} />
-                    <span>view {order.orderItems?.length || 0} Items</span>
-                  </div>
-                  {expandedOrder === order._id ? (
-                    <ChevronUp className="w-5 h-5" strokeWidth={2} />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" strokeWidth={2} />
-                  )}
-                </button>
-
-                {/* Expanded Items Area */}
-                {expandedOrder === order._id && (
-                  <div className="py-4 border-b border-gray-200/60 space-y-4 bg-white/50 px-4 -mx-5">
-                    {order.orderItems?.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-4 pl-1">
-                        <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 p-1 flex-shrink-0">
-                          <img 
-                            src={item.image || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlByb2R1Y3Q8L3RleHQ+PC9zdmc+'} 
-                            alt={item.name} 
-                            className="w-full h-full object-contain"
-                          />
+                    <div className="flex-1 min-w-0 flex items-start justify-between gap-6">
+                      <Link href={`/orders/${order._id}`} className="flex-1 block">
+                        <p className="text-[0.95rem] text-gray-800 line-clamp-2 hover:text-brand transition-colors">{item.name}</p>
+                      </Link>
+                      <div className="flex gap-12 items-center flex-shrink-0">
+                        <div className="text-[0.95rem] text-gray-800 w-24">
+                          Rs. {item.price?.toLocaleString()}
                         </div>
-                        <div className="flex-1">
-                          <p className="text-[0.85rem] font-bold text-gray-800 line-clamp-1">{item.name}</p>
-                          <p className="text-xs text-gray-500 font-medium mt-0.5">Qty: {item.quantity}</p>
-                        </div>
-                        <div className="text-[0.85rem] font-bold text-gray-800">
-                          Rs {item.price?.toLocaleString()}
+                        <div className="text-[0.95rem] text-gray-600 w-16 font-medium">
+                          Qty: {item.quantity}
                         </div>
                       </div>
-                    ))}
-                    
-                    {/* Embedded Action Buttons */}
-                    <div className="pt-3 flex gap-3 px-1 flex-wrap">
-                      <Link 
-                        href={`/orders/${order._id}`}
-                        className="flex-1 text-center py-2.5 bg-brand text-white rounded-xl text-xs font-bold hover:bg-brand-dark transition-colors"
-                      >
-                        Order Summary
-                      </Link>
-                      <Link 
-                        href={`/track?trackingNumber=${order.trackingNumber}`}
-                        className="flex-1 text-center py-2.5 bg-white border-2 border-brand-light text-brand-dark hover:bg-brand-light rounded-xl text-xs font-bold transition-colors"
-                      >
-                        Track
-                      </Link>
                     </div>
                   </div>
-                )}
-
-                {/* Bottom Row */}
-                <div className="flex items-center justify-between pt-5 pl-1">
-                  <div className="flex items-center gap-5">
-                    <Truck className="w-5 h-5 text-brand" strokeWidth={2} />
-                    <span className="text-[0.85rem] font-bold text-gray-700">
-                      Delivery: <span className="text-brand capitalize">{order.orderStatus === 'pending' && order.paymentStatus === 'paid' ? 'confirmed' : order.orderStatus || 'pending'}</span>
-                    </span>
-                  </div>
-                  <div className="text-[0.85rem] font-bold text-gray-800">
-                    Total: <span className="text-brand">Rs {order.totalPrice?.toLocaleString()}</span>
-                  </div>
-                </div>
-
+                ))}
               </div>
             </div>
           ))

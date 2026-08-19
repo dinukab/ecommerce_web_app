@@ -23,7 +23,7 @@ interface SavedCard extends PaymentMethod {
 }
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('settings');
   const [userAvatar, setUserAvatar] = useState('');
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -33,10 +33,10 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  
+
   // Toast notifications
   const [toasts, setToasts] = useState<Array<{ id: string; message: string; type: 'success' | 'error' | 'info' }>>([]);
-  
+
   // Address management states
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
@@ -86,7 +86,7 @@ export default function ProfilePage() {
       const user = JSON.parse(storedUser);
       setUserName(user.name);
       setUserEmail(user.email);
-      
+
       // Fetch full user data including avatar
       fetchUserProfile();
     }
@@ -122,8 +122,8 @@ export default function ProfilePage() {
 
       const wishlistRes = await api.getWishlist(token);
       if (wishlistRes.success && wishlistRes.data) {
-        const wishlistItems = Array.isArray(wishlistRes.data.products) 
-          ? wishlistRes.data.products.length 
+        const wishlistItems = Array.isArray(wishlistRes.data.products)
+          ? wishlistRes.data.products.length
           : (wishlistRes.data.length || 0);
         setWishlistCount(wishlistItems);
       }
@@ -157,7 +157,7 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result as string;
-        
+
         const token = localStorage.getItem('auth_token');
         if (!token) {
           showToast('Please login again', 'error');
@@ -166,12 +166,12 @@ export default function ProfilePage() {
 
         try {
           const response = await api.updateAvatar(token, base64String);
-          
+
           if (response.success) {
             setUserAvatar(base64String);
             setShowPhotoUpload(false);
             showToast('Profile photo updated successfully!', 'success');
-            
+
             // Update user data in localStorage
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
@@ -205,7 +205,7 @@ export default function ProfilePage() {
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Date.now().toString();
     setToasts(prev => [...prev, { id, message, type }]);
-    
+
     // Auto-remove toast after 3 seconds
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
@@ -262,7 +262,7 @@ export default function ProfilePage() {
     try {
       setAddressLoading(true);
       const response = await api.removeAddress(token, addressId);
-      
+
       if (response.success) {
         // Refresh user data
         await fetchUserProfile();
@@ -534,572 +534,572 @@ export default function ProfilePage() {
 
   return (
     <>
-            {/* Overview Tab */}
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Total Orders</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">{userData?.totalOrders || 0}</p>
-                      </div>
-                      <div className="bg-brand-light p-3 rounded-lg">
-                        <Package className="h-6 w-6 text-brand" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Wishlist Items</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">{wishlistCount}</p>
-                      </div>
-                      <div className="bg-red-100 p-3 rounded-lg">
-                        <Heart className="h-6 w-6 text-red-600" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Total Spent</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">Rs {(userData?.totalSpent || 0).toLocaleString()}</p>
-                      </div>
-                      <div className="bg-green-100 p-3 rounded-lg">
-                        <CreditCard className="h-6 w-6 text-green-600" />
-                      </div>
-                    </div>
-                  </div>
+      {/* Overview Tab */}
+      {activeTab === 'overview' && (
+        <div className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total Orders</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{userData?.totalOrders || 0}</p>
                 </div>
-                
-                {/* Recent Orders Section */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <div className="p-6 border-b">
-                    <h3 className="font-bold text-gray-900">Recent Orders</h3>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead className="bg-gray-50 text-gray-600 text-xs uppercase font-semibold">
-                        <tr>
-                          <th className="px-6 py-4">Order Info</th>
-                          <th className="px-6 py-4">Customer</th>
-                          <th className="px-6 py-4">Items</th>
-                          <th className="px-6 py-4">Pricing</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4">Payment</th>
-                          <th className="px-6 py-4">Store/Tracking</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100">
-                        {recentOrders.length > 0 ? (
-                          recentOrders.map((order) => (
-                            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                              <td className="px-6 py-4">
-                                <p className="font-bold text-gray-900">{order.orderId}</p>
-                                <p className="text-xs text-gray-500">{order.date}</p>
-                              </td>
-                              <td className="px-6 py-4">
-                                <p className="text-sm text-gray-900">{order.customerName}</p>
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-600">
-                                {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
-                              </td>
-                              <td className="px-6 py-4">
-                                <p className="text-sm font-bold text-gray-900">Rs {order.total.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Sub: Rs {order.subtotal.toLocaleString()}</p>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(order.status)}`}>
-                                  {order.status}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4">
-                                <p className="text-xs font-medium text-gray-900">{order.paymentMethod}</p>
-                                <p className={`text-[10px] font-bold uppercase ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-amber-600'}`}>
-                                  {order.paymentStatus}
-                                </p>
-                              </td>
-                              <td className="px-6 py-4">
-                                <p className="text-xs text-gray-500">Store: {order.storeId}</p>
-                                <p className="text-xs font-mono text-brand mt-1">{order.trackingNumber}</p>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
-                              No orders found.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="bg-brand-light p-3 rounded-lg">
+                  <Package className="h-6 w-6 text-brand" />
                 </div>
               </div>
-            )}
+            </div>
 
-
-
-            {/* Addresses Tab */}
-            {activeTab === 'addresses' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Saved Addresses</h2>
-                  <Button className="bg-brand hover:bg-brand-dark text-white" onClick={handleAddAddressClick}>Add New Address</Button>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Wishlist Items</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{wishlistCount}</p>
                 </div>
+                <div className="bg-red-100 p-3 rounded-lg">
+                  <Heart className="h-6 w-6 text-red-600" />
+                </div>
+              </div>
+            </div>
 
-                {addresses.length === 0 ? (
-                  <p className="text-gray-600 text-center py-8">No addresses saved yet. Add one to get started!</p>
-                ) : (
-                  <div className="space-y-4">
-                    {addresses.map((address) => (
-                      <div
-                        key={address.id}
-                        className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition-colors"
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total Spent</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">Rs {(userData?.totalSpent || 0).toLocaleString()}</p>
+                </div>
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <CreditCard className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Orders Section */}
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="p-6 border-b">
+              <h3 className="font-bold text-gray-900">Recent Orders</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-gray-50 text-gray-600 text-xs uppercase font-semibold">
+                  <tr>
+                    <th className="px-6 py-4">Order Info</th>
+                    <th className="px-6 py-4">Customer</th>
+                    <th className="px-6 py-4">Items</th>
+                    <th className="px-6 py-4">Pricing</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4">Payment</th>
+                    <th className="px-6 py-4">Store/Tracking</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {recentOrders.length > 0 ? (
+                    recentOrders.map((order) => (
+                      <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-gray-900">{order.orderId}</p>
+                          <p className="text-xs text-gray-500">{order.date}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm text-gray-900">{order.customerName}</p>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-bold text-gray-900">Rs {order.total.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500">Sub: Rs {order.subtotal.toLocaleString()}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-xs font-medium text-gray-900">{order.paymentMethod}</p>
+                          <p className={`text-[10px] font-bold uppercase ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-amber-600'}`}>
+                            {order.paymentStatus}
+                          </p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-xs text-gray-500">Store: {order.storeId}</p>
+                          <p className="text-xs font-mono text-brand mt-1">{order.trackingNumber}</p>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
+                        No orders found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
+      {/* Addresses Tab */}
+      {activeTab === 'addresses' && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Saved Addresses</h2>
+            <Button className="bg-brand hover:bg-brand-dark text-white" onClick={handleAddAddressClick}>Add New Address</Button>
+          </div>
+
+          {addresses.length === 0 ? (
+            <p className="text-gray-600 text-center py-8">No addresses saved yet. Add one to get started!</p>
+          ) : (
+            <div className="space-y-4">
+              {addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-bold text-gray-900">{address.type}</h3>
+                      {address.isDefault && (
+                        <span className="px-2 py-1 bg-brand-light text-brand-dark text-xs font-medium rounded">
+                          Default
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleEditAddressClick(address.id)}
+                        className="text-brand hover:text-brand-dark p-1"
+                        title="Edit address"
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center space-x-2">
-                            <h3 className="font-bold text-gray-900">{address.type}</h3>
-                            {address.isDefault && (
-                              <span className="px-2 py-1 bg-brand-light text-brand-dark text-xs font-medium rounded">
-                                Default
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button 
-                              onClick={() => handleEditAddressClick(address.id)}
-                              className="text-brand hover:text-brand-dark p-1"
-                              title="Edit address"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteAddress(address.id)}
-                              disabled={addressLoading}
-                              className="text-red-600 hover:text-red-700 p-1 disabled:opacity-50"
-                              title="Delete address"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                        <p className="text-gray-900 font-medium mb-1">{address.name}</p>
-                        <p className="text-gray-600 text-sm mb-1">{address.address}</p>
-                        <p className="text-gray-600 text-sm">{address.phone}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Address Form Modal */}
-                {showAddressForm && (
-                  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-gray-100">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                        {editingAddressId ? 'Edit Address' : 'Add New Address'}
-                      </h3>
-                      <p className="text-gray-500 text-sm mb-6">
-                        {editingAddressId ? 'Update your address details' : 'Add a new delivery address'}
-                      </p>
-
-                      {addressError && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start gap-3">
-                          <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                          </svg>
-                          <span>{addressError}</span>
-                        </div>
-                      )}
-
-                      <form onSubmit={handleAddressFormSubmit} className="space-y-5">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Address Type
-                          </label>
-                          <select
-                            value={addressFormData.type}
-                            onChange={(e) => setAddressFormData({ ...addressFormData, type: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
-                          >
-                            <option value="Home">≡ƒÅá Home</option>
-                            <option value="Office">≡ƒÅó Office</option>
-                            <option value="Other">≡ƒôì Other</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Label (e.g., My Home)
-                          </label>
-                          <input
-                            type="text"
-                            value={addressFormData.name}
-                            onChange={(e) => setAddressFormData({ ...addressFormData, name: e.target.value })}
-                            placeholder="Enter address label"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Full Address
-                          </label>
-                          <textarea
-                            value={addressFormData.address}
-                            onChange={(e) => setAddressFormData({ ...addressFormData, address: e.target.value })}
-                            placeholder="Enter your full address including street, city, and postal code"
-                            rows={4}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors resize-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Phone Number
-                          </label>
-                          <input
-                            type="tel"
-                            value={addressFormData.phone}
-                            onChange={(e) => setAddressFormData({ ...addressFormData, phone: e.target.value })}
-                            placeholder="Enter phone number"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
-                          />
-                        </div>
-
-                        <div className="flex items-center space-x-3 p-4 bg-brand-light rounded-lg border border-brand-light">
-                          <input
-                            type="checkbox"
-                            id="isDefault"
-                            checked={addressFormData.isDefault}
-                            onChange={(e) => setAddressFormData({ ...addressFormData, isDefault: e.target.checked })}
-                            className="h-5 w-5 text-brand focus:ring-brand-light0 border-gray-300 rounded cursor-pointer"
-                          />
-                          <label htmlFor="isDefault" className="text-sm font-medium text-gray-700 cursor-pointer">
-                            Set as default address
-                          </label>
-                        </div>
-
-                        <div className="flex gap-3 pt-2">
-                          <button
-                            type="button"
-                            onClick={() => setShowAddressForm(false)}
-                            disabled={addressLoading}
-                            className="flex-1 px-4 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 font-medium transition-colors"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            disabled={addressLoading}
-                            className="flex-1 px-4 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
-                          >
-                            {addressLoading ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Saving...
-                              </>
-                            ) : (
-                              editingAddressId ? 'Γ£ô Update Address' : '+ Add Address'
-                            )}
-                          </button>
-                        </div>
-                      </form>
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAddress(address.id)}
+                        disabled={addressLoading}
+                        className="text-red-600 hover:text-red-700 p-1 disabled:opacity-50"
+                        title="Delete address"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* Payment Methods Tab */}
-            {activeTab === 'payment' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Payment Methods</h2>
-                  <Button className="bg-brand hover:bg-brand-dark text-white" onClick={handleAddPaymentClick}>Add New Card</Button>
+                  <p className="text-gray-900 font-medium mb-1">{address.name}</p>
+                  <p className="text-gray-600 text-sm mb-1">{address.address}</p>
+                  <p className="text-gray-600 text-sm">{address.phone}</p>
                 </div>
+              ))}
+            </div>
+          )}
 
-                <div className="space-y-4">
-                  {savedCards.map((card) => (
-                    <div
-                      key={card.id}
-                      className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="bg-gray-100 p-3 rounded-lg">
-                            <CreditCard className="h-6 w-6 text-gray-600" />
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-2 mb-1">
-                              <p className="font-bold text-gray-900">{card.type}</p>
-                              {card.isDefault && (
-                                <span className="px-2 py-1 bg-brand-light text-brand-dark text-xs font-medium rounded">
-                                  Default
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-gray-600 text-sm">
-                              ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó {card.last4}
-                            </p>
-                            <p className="text-gray-500 text-xs mt-1">Expires {card.expiry}</p>
-                          </div>
-                        </div>
-                        <button onClick={() => handleDeletePayment(card.id)} className="text-red-600 hover:text-red-700 p-1">
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {/* Address Form Modal */}
+          {showAddressForm && (
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-gray-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                  {editingAddressId ? 'Edit Address' : 'Add New Address'}
+                </h3>
+                <p className="text-gray-500 text-sm mb-6">
+                  {editingAddressId ? 'Update your address details' : 'Add a new delivery address'}
+                </p>
 
-                {/* Payment Form Modal */}
-                {showPaymentForm && (
-                  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-gray-100">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                        Add New Card
-                      </h3>
-                      <p className="text-gray-500 text-sm mb-6">
-                        Add a new payment method
-                      </p>
-
-                      {paymentError && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start gap-3">
-                          <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                          </svg>
-                          <span>{paymentError}</span>
-                        </div>
-                      )}
-
-                      <form onSubmit={handlePaymentFormSubmit} className="space-y-5">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Card Type
-                          </label>
-                          <select
-                            value={paymentFormData.type}
-                            onChange={(e) => setPaymentFormData({ ...paymentFormData, type: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
-                          >
-                            <option value="Visa">Visa</option>
-                            <option value="Mastercard">Mastercard</option>
-                            <option value="Amex">American Express</option>
-                            <option value="Discover">Discover</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Card Number
-                          </label>
-                          <input
-                            type="text"
-                            value={paymentFormData.cardNumber}
-                            onChange={(e) => setPaymentFormData({ ...paymentFormData, cardNumber: e.target.value })}
-                            placeholder="0000 0000 0000 0000"
-                            maxLength={19}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Expiry Date
-                            </label>
-                            <input
-                              type="text"
-                              value={paymentFormData.expiry}
-                              onChange={(e) => setPaymentFormData({ ...paymentFormData, expiry: e.target.value })}
-                              placeholder="MM/YY"
-                              maxLength={5}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              CVV
-                            </label>
-                            <input
-                              type="password"
-                              value={paymentFormData.cvv}
-                              onChange={(e) => setPaymentFormData({ ...paymentFormData, cvv: e.target.value })}
-                              placeholder="123"
-                              maxLength={4}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3 p-4 bg-brand-light rounded-lg border border-brand-light">
-                          <input
-                            type="checkbox"
-                            id="isDefaultPayment"
-                            checked={paymentFormData.isDefault}
-                            onChange={(e) => setPaymentFormData({ ...paymentFormData, isDefault: e.target.checked })}
-                            className="h-5 w-5 text-brand focus:ring-brand-light0 border-gray-300 rounded cursor-pointer"
-                          />
-                          <label htmlFor="isDefaultPayment" className="text-sm font-medium text-gray-700 cursor-pointer">
-                            Set as default payment method
-                          </label>
-                        </div>
-
-                        <div className="flex gap-3 pt-2">
-                          <button
-                            type="button"
-                            onClick={() => setShowPaymentForm(false)}
-                            disabled={paymentLoading}
-                            className="flex-1 px-4 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 font-medium transition-colors"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            disabled={paymentLoading}
-                            className="flex-1 px-4 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
-                          >
-                            {paymentLoading ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Saving...
-                              </>
-                            ) : (
-                              '+ Add Card'
-                            )}
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Settings Tab */}
-            {activeTab === 'settings' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Account Settings</h2>
-
-                {settingsError && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-3">
+                {addressError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start gap-3">
                     <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
-                    <span>{settingsError}</span>
+                    <span>{addressError}</span>
                   </div>
                 )}
 
-                <form onSubmit={handleSettingsSave} className="space-y-6">
-                  {/* Personal Information */}
+                <form onSubmit={handleAddressFormSubmit} className="space-y-5">
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-4">Personal Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          value={settingsFormData.name}
-                          onChange={(e) => setSettingsFormData({ ...settingsFormData, name: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          value={userInfo.email}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-                          disabled
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          value={settingsFormData.phone}
-                          onChange={(e) => setSettingsFormData({ ...settingsFormData, phone: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
-                        />
-                      </div>
-                    </div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Address Type
+                    </label>
+                    <select
+                      value={addressFormData.type}
+                      onChange={(e) => setAddressFormData({ ...addressFormData, type: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                      <option value="Home">≡ƒÅá Home</option>
+                      <option value="Office">≡ƒÅó Office</option>
+                      <option value="Other">≡ƒôì Other</option>
+                    </select>
                   </div>
 
-                  {/* Change Password */}
-                  <div className="pt-6 border-t">
-                    <h3 className="font-bold text-gray-900 mb-4">Change Password</h3>
-                    <p className="text-sm text-gray-600 mb-4">Leave blank to keep your current password</p>
-                    <div className="space-y-4 max-w-md">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Current Password
-                        </label>
-                        <input
-                          type="password"
-                          value={settingsFormData.currentPassword}
-                          onChange={(e) => setSettingsFormData({ ...settingsFormData, currentPassword: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          New Password
-                        </label>
-                        <input
-                          type="password"
-                          value={settingsFormData.newPassword}
-                          onChange={(e) => setSettingsFormData({ ...settingsFormData, newPassword: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Confirm New Password
-                        </label>
-                        <input
-                          type="password"
-                          value={settingsFormData.confirmPassword}
-                          onChange={(e) => setSettingsFormData({ ...settingsFormData, confirmPassword: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Label (e.g., My Home)
+                    </label>
+                    <input
+                      type="text"
+                      value={addressFormData.name}
+                      onChange={(e) => setAddressFormData({ ...addressFormData, name: e.target.value })}
+                      placeholder="Enter address label"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                    />
                   </div>
 
-                  {/* Save Button */}
-                  <div className="pt-6 border-t">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Full Address
+                    </label>
+                    <textarea
+                      value={addressFormData.address}
+                      onChange={(e) => setAddressFormData({ ...addressFormData, address: e.target.value })}
+                      placeholder="Enter your full address including street, city, and postal code"
+                      rows={4}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={addressFormData.phone}
+                      onChange={(e) => setAddressFormData({ ...addressFormData, phone: e.target.value })}
+                      placeholder="Enter phone number"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-4 bg-brand-light rounded-lg border border-brand-light">
+                    <input
+                      type="checkbox"
+                      id="isDefault"
+                      checked={addressFormData.isDefault}
+                      onChange={(e) => setAddressFormData({ ...addressFormData, isDefault: e.target.checked })}
+                      className="h-5 w-5 text-brand focus:ring-brand-light0 border-gray-300 rounded cursor-pointer"
+                    />
+                    <label htmlFor="isDefault" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Set as default address
+                    </label>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddressForm(false)}
+                      disabled={addressLoading}
+                      className="flex-1 px-4 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
                     <button
                       type="submit"
-                      disabled={settingsLoading}
-                      className="px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2"
+                      disabled={addressLoading}
+                      className="flex-1 px-4 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
                     >
-                      {settingsLoading ? (
+                      {addressLoading ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Saving Changes...
+                          Saving...
                         </>
                       ) : (
-                        'Save Changes'
+                        editingAddressId ? 'Γ£ô Update Address' : '+ Add Address'
                       )}
                     </button>
                   </div>
                 </form>
               </div>
-            )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Payment Methods Tab */}
+      {activeTab === 'payment' && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Payment Methods</h2>
+            <Button className="bg-brand hover:bg-brand-dark text-white" onClick={handleAddPaymentClick}>Add New Card</Button>
+          </div>
+
+          <div className="space-y-4">
+            {savedCards.map((card) => (
+              <div
+                key={card.id}
+                className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-gray-100 p-3 rounded-lg">
+                      <CreditCard className="h-6 w-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <p className="font-bold text-gray-900">{card.type}</p>
+                        {card.isDefault && (
+                          <span className="px-2 py-1 bg-brand-light text-brand-dark text-xs font-medium rounded">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-gray-600 text-sm">
+                        ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó {card.last4}
+                      </p>
+                      <p className="text-gray-500 text-xs mt-1">Expires {card.expiry}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => handleDeletePayment(card.id)} className="text-red-600 hover:text-red-700 p-1">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Payment Form Modal */}
+          {showPaymentForm && (
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-gray-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                  Add New Card
+                </h3>
+                <p className="text-gray-500 text-sm mb-6">
+                  Add a new payment method
+                </p>
+
+                {paymentError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start gap-3">
+                    <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <span>{paymentError}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handlePaymentFormSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Card Type
+                    </label>
+                    <select
+                      value={paymentFormData.type}
+                      onChange={(e) => setPaymentFormData({ ...paymentFormData, type: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                      <option value="Visa">Visa</option>
+                      <option value="Mastercard">Mastercard</option>
+                      <option value="Amex">American Express</option>
+                      <option value="Discover">Discover</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Card Number
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentFormData.cardNumber}
+                      onChange={(e) => setPaymentFormData({ ...paymentFormData, cardNumber: e.target.value })}
+                      placeholder="0000 0000 0000 0000"
+                      maxLength={19}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Expiry Date
+                      </label>
+                      <input
+                        type="text"
+                        value={paymentFormData.expiry}
+                        onChange={(e) => setPaymentFormData({ ...paymentFormData, expiry: e.target.value })}
+                        placeholder="MM/YY"
+                        maxLength={5}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        CVV
+                      </label>
+                      <input
+                        type="password"
+                        value={paymentFormData.cvv}
+                        onChange={(e) => setPaymentFormData({ ...paymentFormData, cvv: e.target.value })}
+                        placeholder="123"
+                        maxLength={4}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-4 bg-brand-light rounded-lg border border-brand-light">
+                    <input
+                      type="checkbox"
+                      id="isDefaultPayment"
+                      checked={paymentFormData.isDefault}
+                      onChange={(e) => setPaymentFormData({ ...paymentFormData, isDefault: e.target.checked })}
+                      className="h-5 w-5 text-brand focus:ring-brand-light0 border-gray-300 rounded cursor-pointer"
+                    />
+                    <label htmlFor="isDefaultPayment" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Set as default payment method
+                    </label>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowPaymentForm(false)}
+                      disabled={paymentLoading}
+                      className="flex-1 px-4 py-3 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={paymentLoading}
+                      className="flex-1 px-4 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 font-medium transition-colors flex items-center justify-center gap-2"
+                    >
+                      {paymentLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        '+ Add Card'
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Settings Tab */}
+      {activeTab === 'settings' && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Account Settings</h2>
+
+          {settingsError && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-3">
+              <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{settingsError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSettingsSave} className="space-y-6">
+            {/* Personal Information */}
+            <div>
+              <h3 className="font-bold text-gray-900 mb-4">Personal Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={settingsFormData.name}
+                    onChange={(e) => setSettingsFormData({ ...settingsFormData, name: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={userInfo.email}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                    disabled
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={settingsFormData.phone}
+                    onChange={(e) => setSettingsFormData({ ...settingsFormData, phone: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Change Password */}
+            <div className="pt-6 border-t">
+              <h3 className="font-bold text-gray-900 mb-4">Change Password</h3>
+              <p className="text-sm text-gray-600 mb-4">Leave blank to keep your current password</p>
+              <div className="space-y-4 max-w-md">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    value={settingsFormData.currentPassword}
+                    onChange={(e) => setSettingsFormData({ ...settingsFormData, currentPassword: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={settingsFormData.newPassword}
+                    onChange={(e) => setSettingsFormData({ ...settingsFormData, newPassword: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={settingsFormData.confirmPassword}
+                    onChange={(e) => setSettingsFormData({ ...settingsFormData, confirmPassword: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-6 border-t">
+              <button
+                type="submit"
+                disabled={settingsLoading}
+                className="px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2"
+              >
+                {settingsLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving Changes...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </>
   );
 }

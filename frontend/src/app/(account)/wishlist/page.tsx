@@ -50,7 +50,6 @@ export default function WishlistPage() {
   return (
     <div className="w-full">
         <div className="mb-8 flex items-center gap-3">
-          <Heart className="h-8 w-8 text-red-500 fill-current" />
           <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
         </div>
 
