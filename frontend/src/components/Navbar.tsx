@@ -230,9 +230,8 @@ export default function Navbar() {
 
 
             <div className="relative group">
-              <Link
-                href="/profile"
-                className="flex items-center space-x-2 text-gray-600 transition-colors whitespace-nowrap py-2"
+              <div
+                className="flex items-center space-x-2 text-gray-600 transition-colors whitespace-nowrap py-2 cursor-pointer"
                 onMouseEnter={(e) => (e.currentTarget.style.color = storeConfig.primaryColor)}
                 onMouseLeave={(e) => (e.currentTarget.style.color = '')}
               >
@@ -243,13 +242,13 @@ export default function Navbar() {
                   </span>
                   <span className="font-bold text-sm text-gray-900">Account</span>
                 </div>
-              </Link>
+              </div>
 
               {/* Dropdown Menu */}
               <div className="absolute top-full right-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden">
                   <div className="p-2 space-y-1">
-                    <Link href="/profile" className="block px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                    <Link href="/profile?tab=settings" className="block px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
                       Manage My Account
                     </Link>
                     <Link href="/orders" className="block px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
@@ -269,9 +268,7 @@ export default function Navbar() {
                     <Link href="/messages" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
                       message centre
                     </Link>
-                    <Link href="/profile?tab=settings" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
-                      setting
-                    </Link>
+
                   </div>
                   <div className="border-t border-gray-100 p-2">
                     <button 

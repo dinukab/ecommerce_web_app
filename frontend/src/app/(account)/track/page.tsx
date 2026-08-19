@@ -52,33 +52,33 @@ function TrackContent() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-20">
+    <div className="max-w-4xl mx-auto">
       {/* Tracking Search Header */}
       <div className="text-center mb-16">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-brand text-white shadow-xl shadow-brand-light mb-6">
-          <Truck className="w-8 h-8" />
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand text-white shadow-xl  mb-6">
+          <Truck className="w-6 h-6" />
         </div>
-        <h1 className="text-4xl font-black text-gray-900 mb-4">Track Your Order</h1>
+        <h1 className="text-2xl font-black text-gray-900 mb-4">Track Your Order</h1>
         <p className="text-gray-500 max-w-md mx-auto">
           Enter your tracking number (e.g. OS240423XYZ) to see your order's real-time status.
         </p>
       </div>
 
       {/* Search Input */}
-      <form onSubmit={handleTrack} className="relative max-w-xl mx-auto mb-16">
+      <form onSubmit={handleTrack} className="relative max-w-md mx-auto mb-8">
         <div className="relative">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             required
             value={trackingNumber}
             onChange={(e) => setTrackingNumber(e.target.value.toUpperCase())}
             placeholder="Enter Tracking Number..."
-            className="w-full pl-16 pr-32 py-6 rounded-[2rem] border-2 border-white bg-white shadow-2xl shadow-brand-light/50 focus:border-brand-light0 outline-none transition-all text-lg font-bold text-gray-900 placeholder:text-gray-300"
+            className="w-full pl-12 pr-28 py-3 rounded-3xl border-1 border-gray-300 bg-white shadow-md shadow-brand-light/40 focus:border-gray-500 outline-none transition-all text-base  text-gray-900 placeholder:text-gray-400"
           />
           <button
             type="submit"
             disabled={loading}
-            className="absolute right-3 top-1/2 -translate-y-1/2 px-8 py-3.5 bg-brand text-white font-black rounded-[1.5rem] hover:bg-brand-dark transition-all active:scale-95 disabled:opacity-50"
+            className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2.5 bg-brand text-white font-bold rounded-full hover:bg-brand-dark transition-all active:scale-95 disabled:opacity-50 text-sm"
           >
             {loading ? 'Tracking...' : 'Track'}
           </button>
@@ -200,11 +200,11 @@ function TrackContent() {
 
 export default function OrderTrackingPage() {
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-brand border-t-transparent rounded-full animate-spin"></div></div>}>
+    <>
+      <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-12 h-12 border-4 border-brand border-t-transparent rounded-full animate-spin"></div></div>}>
         <TrackContent />
       </Suspense>
-    </div>
+    </>
   );
 }
 

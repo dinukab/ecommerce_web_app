@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface Category {
   _id: string;
@@ -29,6 +30,20 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Fetch categories when component mounts
   useEffect(() => {
@@ -76,27 +91,25 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   };
 
   return (
-    <div className="relative inline-block w-full max-w-xs">
+    <div className="relative inline-block w-full max-w-xs" ref={dropdownRef}>
       {/* Button */}
       <button
         onClick={handleButtonClick}
-        className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg font-medium text-gray-800 text-base flex justify-between items-center transition-all duration-300 hover:border-brand hover:shadow-md focus:outline-none focus:border-brand"
+        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg font-medium text-gray-800 text-sm flex justify-between items-center transition-all duration-200 hover:border-brand hover:shadow-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
       >
-        <span>
+        <span className="truncate pr-2">
           {loading ? 'Loading...' : selectedCategory?.name || 'Select Category'}
         </span>
-        <span
-          className={`text-xs transition-transform duration-300 ${
+        <ChevronDown 
+          className={`w-4 h-4 text-gray-500 transition-transform duration-300 flex-shrink-0 ${
             isOpen ? 'transform rotate-180' : ''
-          }`}
-        >
-          ▼
-        </span>
+          }`} 
+        />
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-0 bg-white border-2 border-gray-300 border-t-0 rounded-b-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
           {/* Error State */}
           {error && (
             <div className="px-4 py-4 bg-red-50 text-red-600 text-center text-sm">
@@ -116,30 +129,22 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
             <div
               key={category._id}
               onClick={() => handleSelectCategory(category)}
-              className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors duration-200 hover:bg-gray-100 ${
-                index !== categories.length - 1 ? 'border-b border-gray-200' : ''
+              className={`px-4 py-3 flex items-center justify-between cursor-pointer group transition-colors duration-200 hover:bg-brand-light ${
+                index !== categories.length - 1 ? 'border-b border-gray-100' : ''
               }`}
             >
-              {/* Icon */}
-              <span className="text-2xl min-w-fit">{category.icon}</span>
-
               {/* Category Info */}
-              <div className="flex-1 flex flex-col gap-1">
-                <span className="font-medium text-gray-900 text-sm">
+              <div className="flex-1 flex flex-col gap-0.5 min-w-0 pr-3">
+                <span className="font-medium text-gray-900 text-sm truncate group-hover:text-brand-dark transition-colors">
                   {category.name}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {category.productCount} product
-                  {category.productCount !== 1 ? 's' : ''}
+                  {category.productCount} product{category.productCount !== 1 ? 's' : ''}
                 </span>
               </div>
 
-              {/* Color Dot */}
-              <div
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: category.color }}
-                title={category.color}
-              />
+              {/* Chevron Icon */}
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-brand transition-all duration-200 group-hover:translate-x-1 flex-shrink-0" />
             </div>
           ))}
         </div>
