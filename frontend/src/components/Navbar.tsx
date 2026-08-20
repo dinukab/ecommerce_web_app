@@ -265,7 +265,7 @@ export default function Navbar() {
                     <Link href="/profile?tab=overview" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
                       overview
                     </Link>
-                    <Link href="/messages" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
+                    <Link href="/contact" className="block px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl hover:text-brand transition-colors">
                       message centre
                     </Link>
 

@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import ContactMessage from '../models/contactMessage.js';
+import Conversation from '../models/Conversation.js';
+import Message from '../models/Message.js';
 
 const router = express.Router();
 
@@ -18,16 +20,44 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Create new contact message
+    // Create new contact message (legacy)
     const contactMessage = new ContactMessage({
       name,
       email,
       subject,
       message
     });
-
-    // Save to database
     await contactMessage.save();
+
+    // ── Save to Conversation & Message collections for POS Message Center ──
+    let conversation = await Conversation.findOne({
+      customerEmail: email.toLowerCase(),
+      status: { $ne: 'closed' }
+    });
+
+    if (!conversation) {
+      conversation = new Conversation({
+        customerName: name,
+        customerEmail: email.toLowerCase(),
+        subject: subject,
+        lastMessage: message,
+        status: 'open'
+      });
+      await conversation.save();
+    } else {
+      conversation.lastMessage = message;
+      // Mark as updatedAt so it bubbles up in inbox
+      conversation.set('updatedAt', new Date());
+      await conversation.save();
+    }
+
+    const messageDoc = new Message({
+      conversationId: conversation._id,
+      sender: 'customer',
+      senderName: name,
+      text: message
+    });
+    await messageDoc.save();
 
     res.status(201).json({
       success: true,

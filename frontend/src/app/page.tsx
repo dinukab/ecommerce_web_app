@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/category/ProductCard';
-import { ArrowRight, Tag, Sparkles, Clock } from 'lucide-react';
+import { ArrowRight, Tag, Sparkles, Clock, ChevronDown } from 'lucide-react';
 import CategoriesDropdown from '@/components/CategoriesDropdown';
 import { fetchProducts, type Product } from '@/api/Productapi';
+import { fetchCategories, type Category } from '@/api/Categoryapi';
 import {
   Carousel,
   CarouselContent,
@@ -20,7 +21,6 @@ const heroSlides = [
   {
     id: 1,
     image: '/hero-banner-1.jpg',
-    badge: 'Limited Time Offer',
     title: 'Elevate Your Everyday Essentials',
     description: 'Discover curated premium goods for a life well-lived.',
     buttons: [
@@ -57,19 +57,30 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notification, setNotification] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('auth_token'));
+  }, []);
 
   useEffect(() => {
     const loadAll = async () => {
       try {
         setLoading(true);
-        const [trendingRes, newRes, allRes] = await Promise.all([
+        const [trendingRes, newRes, allRes, categoriesData] = await Promise.all([
           fetchProducts({ limit: 12, sort: 'rating' }),
           fetchProducts({ limit: 12, sort: 'newest' }),
-          fetchProducts({ limit: 40, sort: 'name' })
+          fetchProducts({ limit: 40, sort: 'name' }),
+          fetchCategories()
         ]);
         setTrending(trendingRes.data || []);
         setNewArrivals(newRes.data || []);
         setAllProducts(allRes.data || []);
+        const sortedCats = (categoriesData || []).sort(
+          (a: Category, b: Category) => (b.productCount || 0) - (a.productCount || 0)
+        );
+        setCategories(sortedCats);
       } catch (err) {
         console.error('Error fetching home products:', err);
         setError('Failed to load products');
@@ -91,6 +102,48 @@ export default function HomePage() {
 
       {/* ── Hero Carousel Section ── */}
       <section className="relative overflow-visible">
+        {/* Top-Right Category Quick Links */}
+        {categories.length > 0 && (
+          <div className="absolute top-6 left-0 right-0 z-30 pointer-events-none">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
+              <div className="flex items-center gap-2 pointer-events-auto">
+                {categories.slice(0, 3).map((cat) => (
+                  <Link
+                    key={cat._id}
+                    href={`/category/${cat.slug || cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                    className="px-4 py-2 bg-white text-gray-800 hover:text-brand border border-gray-200 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-102"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+                {categories.length > 3 && (
+                  <div className="relative group">
+                    <button
+                      className="flex items-center gap-1.5 px-4 py-2 bg-white text-gray-800 hover:text-brand border border-gray-200 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
+                    >
+                      More
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 top-full mt-2 w-52 bg-white text-gray-800 rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2.5">
+                      <div className="max-h-72 overflow-y-auto pr-1">
+                        {categories.slice(3).map((cat) => (
+                          <Link
+                            key={cat._id}
+                            href={`/category/${cat.slug || cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                            className="block px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-brand-light hover:text-brand transition-colors"
+                          >
+                            {cat.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         <Carousel opts={{ align: 'start', loop: true }} className="w-full">
           <CarouselContent className="ml-0 ">
             {heroSlides.map((slide) => (
@@ -140,20 +193,22 @@ export default function HomePage() {
                       {/* Dynamic Buttons */}
                       <div className="flex flex-wrap gap-4">
                         {slide.buttons ? (
-                          slide.buttons.map((btn, idx) => (
-                            <Link
-                              key={idx}
-                              href={btn.link}
-                              className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all hover:scale-102 ${
-                                btn.primary 
-                                  ? "bg-white text-brand hover:bg-brand-light" 
-                                  : "border-2 border-white text-white hover:bg-white/20"
-                              }`}
-                            >
-                              {btn.text}
-                              {btn.primary && <ArrowRight className="w-4 h-4" />}
-                            </Link>
-                          ))
+                          slide.buttons
+                            .filter(btn => !isLoggedIn || btn.link !== '/register')
+                            .map((btn, idx) => (
+                              <Link
+                                key={idx}
+                                href={btn.link}
+                                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all hover:scale-102 ${
+                                  btn.primary 
+                                    ? "bg-white text-brand hover:bg-brand-light" 
+                                    : "border-2 border-white text-white hover:bg-white/20"
+                                }`}
+                              >
+                                {btn.text}
+                                {btn.primary && <ArrowRight className="w-4 h-4" />}
+                              </Link>
+                            ))
                         ) : (
                           <>
                             <Link
@@ -163,12 +218,14 @@ export default function HomePage() {
                               Shop Now
                               <ArrowRight className="w-4 h-4" />
                             </Link>
-                            <Link
-                              href="/register"
-                              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white text-white font-bold hover:bg-white/20 transition-colors"
-                            >
-                              Create Account
-                            </Link>
+                            {!isLoggedIn && (
+                              <Link
+                                href="/register"
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white text-white font-bold hover:bg-white/20 transition-colors"
+                              >
+                                Create Account
+                              </Link>
+                            )}
                           </>
                         )}
                       </div>
@@ -184,17 +241,6 @@ export default function HomePage() {
             <CarouselNext className="right-4 bg-white/20 border-white/30 text-white hover:bg-white/30" />
           </div>
         </Carousel>
-      </section>
-
-      {/* Categories Dropdown - Placed near Hero Section */}
-      <section className="py-8 bg-gray-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-start gap-8">
-          <div className="text-left">
-            <h3 className="text-lg font-bold text-gray-900">Browse by Category</h3>
-            <p className="text-sm text-gray-500">Find exactly what you need</p>
-          </div>
-          <CategoriesDropdown />
-        </div>
       </section>
 
       {/* ── Trending Now Section ── */}

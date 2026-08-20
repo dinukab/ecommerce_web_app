@@ -279,9 +279,9 @@ export default function AccountSidebar() {
         </Link>
 
         <Link
-          href="/messages"
+          href="/contact"
           className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-            isActive('/messages')
+            isActive('/contact')
               ? 'bg-brand-light text-brand'
               : 'text-gray-700 hover:bg-gray-50'
           }`}

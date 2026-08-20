@@ -42,6 +42,155 @@ const getCitiesForDistrict = (districtValue: string) => {
   return [];
 };
 
+const CITY_POSTAL_CODES: Record<string, string> = {
+  // Colombo
+  "colombo city": "00100",
+  "fort": "00100",
+  "dehiwala": "10350",
+  "moratuwa": "10400",
+  "sri jayawardenepura kotte": "10100",
+  "maharagama": "10280",
+  "kolonnawa": "10600",
+  "nugegoda": "10250",
+  "rajagiriya": "10100",
+  "battaramulla": "10120",
+  "mount lavinia": "10370",
+  "malabe": "10570",
+  "kaduwela": "10640",
+  "hanwella": "10520",
+  "homagama": "10200",
+  "kottawa": "10230",
+  "piliyandala": "10300",
+  "ratmalana": "10390",
+  "wellawatte": "00600",
+  "borella": "00800",
+  "havelock town": "00500",
+  "kirulapone": "00500",
+  "narahenpita": "00500",
+  "dematagoda": "00900",
+  "cinnamon gardens": "00700",
+  "kollupitiya": "00300",
+  "bambalapitiya": "00400",
+  "wellampitiya": "10620",
+  "mulleriyawa": "10620",
+  "awissawella": "10700",
+  "padukka": "10500",
+
+  // Gampaha
+  "gampaha city": "11000",
+  "negombo": "11500",
+  "katunayake": "11450",
+  "ja-ela": "11350",
+  "wattala": "11300",
+  "kelaniya": "11600",
+  "kiribathgoda": "11600",
+  "kadawatha": "11850",
+  "ragama": "11010",
+  "kandana": "11320",
+  "seeduwa": "11410",
+  "minuwangoda": "11550",
+  "veyangoda": "11100",
+
+  // Kalutara
+  "kalutara": "12000",
+  "panadura": "12500",
+  "horana": "12400",
+  "aluthgama": "12080",
+  "bandaragama": "12530",
+  "wadduwa": "12560",
+  "matugama": "12100",
+  "beruwala": "12070",
+
+  // Kandy
+  "kandy city": "20000",
+  "peradeniya": "20400",
+  "katugastota": "20800",
+  "gampola": "20500",
+  "nawalapitiya": "20650",
+  "gelioya": "20620",
+  "kadugannawa": "20300",
+  "kundasale": "20068",
+  "pilimathalawa": "20450",
+  "wattegama": "20810",
+
+  // Matale
+  "matale city": "21000",
+  "dambulla": "21100",
+  "sigiriya": "21120",
+
+  // Nuwara Eliya
+  "nuwara eliya city": "22200",
+  "hatton": "22000",
+  "talawakele": "22100",
+
+  // Galle
+  "galle city": "80000",
+  "hikkaduwa": "80240",
+  "karapitiya": "80000",
+  "unawatuna": "80600",
+  "ahangama": "80650",
+  "habaraduwa": "80630",
+  "ambalangoda": "80300",
+  "bentota": "80500",
+  "elpitiya": "80400",
+  "baddegama": "80200",
+
+  // Matara
+  "matara city": "81000",
+  "weligama": "81700",
+  "mirissa": "81740",
+  "dikwella": "81200",
+
+  // Hambantota
+  "hambantota city": "82000",
+  "tangalle": "82200",
+  "tissamaharama": "82600",
+
+  // Jaffna
+  "jaffna city": "40000",
+  "chavakachcheri": "40520",
+  "point pedro": "40500",
+
+  // Vavuniya
+  "vavuniya city": "43000",
+
+  // Kurunegala
+  "kurunegala city": "60000",
+  "kuliyapitiya": "60200",
+
+  // Puttalam
+  "puttalam city": "61300",
+  "chilaw": "61000",
+
+  // Anuradhapura
+  "anuradhapura city": "50000",
+
+  // Polonnaruwa
+  "polonnaruwa city": "51000",
+
+  // Kegalle
+  "kegalle city": "71000",
+  "mawanella": "71500",
+
+  // Ratnapura
+  "ratnapura city": "70000",
+  "embilipitiya": "70200",
+
+  // Badulla
+  "badulla city": "90000",
+  "bandarawela": "90100",
+  "ella": "90090",
+  "diyatalawa": "90150",
+
+  // Monaragala
+  "monaragala city": "91000"
+};
+
+const getPostalCodeForCity = (cityName: string): string => {
+  const normalized = cityName.trim().toLowerCase();
+  return CITY_POSTAL_CODES[normalized] || "";
+};
+
 export default function CheckoutPage() {
   const { cart, clearSelectedItems, getCartTotal } = useCart();
   const router = useRouter();
@@ -184,9 +333,15 @@ export default function CheckoutPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    // Reset city when district changes
     if (name === 'district') {
-      setFormData(prev => ({ ...prev, district: value, city: '' }));
+      setFormData(prev => ({ ...prev, district: value, city: '', postalCode: '' }));
+    } else if (name === 'city') {
+      const code = getPostalCodeForCity(value);
+      setFormData(prev => ({ 
+        ...prev, 
+        city: value, 
+        postalCode: code || prev.postalCode 
+      }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -518,16 +673,43 @@ export default function CheckoutPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">City</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
-                    <input
-                      required
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="Enter City"
-                      className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
-                    />
-                  </div>
+                  {availableCities.length > 0 ? (
+                    <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300 relative">
+                      <select
+                        required
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        className={`w-full px-5 py-4 bg-transparent outline-none text-sm font-medium appearance-none cursor-pointer ${!formData.city ? "text-gray-400" : "text-gray-900"
+                          }`}
+                      >
+                        <option value="" disabled>Select City</option>
+                        {availableCities.map(c => (
+                          <option key={c.value} value={c.label} className="text-gray-900">
+                            {c.label}
+                          </option>
+                        ))}
+                      </select>
+                      {/* Custom Arrow */}
+                      <div className="absolute right-4 pointer-events-none">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
+                      <input
+                        required
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        placeholder={formData.district ? "Enter City" : "Select District first"}
+                        disabled={!formData.district}
+                        className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400 disabled:opacity-50"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Postal Code</label>

@@ -23,10 +23,10 @@ export default function ContactInfo() {
             <div>
               <p className="font-semibold text-gray-900 text-sm">Email</p>
               <a
-                href="mailto:support@oneshop.com"
+                href="mailto:info@opendoor.lk"
                 className="text-gray-600 hover:text-brand transition text-sm"
               >
-                support@oneshop.com
+                info@opendoor.lk
               </a>
             </div>
           </div>
@@ -46,10 +46,10 @@ export default function ContactInfo() {
             <div>
               <p className="font-semibold text-gray-900 text-sm">Phone</p>
               <a
-                href="tel:+15551234567"
+                href="tel:+94112345678"
                 className="text-gray-600 hover:text-brand transition text-sm"
               >
-                +1 (555) 123-4567
+                +94 11 234 5678
               </a>
             </div>
           </div>
@@ -73,11 +73,9 @@ export default function ContactInfo() {
             <div>
               <p className="font-semibold text-gray-900 text-sm">Address</p>
               <p className="text-gray-600 text-sm">
-                123 Business Street
+                No. 1, Main Street,
                 <br />
-                New York, NY 10001
-                <br />
-                United States
+                Colombo 01
               </p>
             </div>
           </div>
