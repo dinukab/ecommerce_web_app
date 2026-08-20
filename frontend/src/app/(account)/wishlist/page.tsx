@@ -44,14 +44,12 @@ export default function WishlistPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>;
+    return <div className="flex items-center justify-center py-20">Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full">
         <div className="mb-8 flex items-center gap-3">
-          <Heart className="h-8 w-8 text-red-500 fill-current" />
           <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
         </div>
 
@@ -86,7 +84,6 @@ export default function WishlistPage() {
           </div>
         )}
       </div>
-    </div>
   );
 }
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { User, Package, MapPin, CreditCard, Settings, ChevronRight, Edit2, Camera, Heart, X, ShoppingBag, RefreshCcw, LayoutDashboard, MessageSquare, Truck } from 'lucide-react';
@@ -525,7 +525,7 @@ export default function ProfilePage() {
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <span key={star} className={star <= rating ? 'text-yellow-400' : 'text-gray-300'}>
-            ★
+            Γÿà
           </span>
         ))}
       </div>
@@ -872,9 +872,9 @@ export default function ProfilePage() {
                             onChange={(e) => setAddressFormData({ ...addressFormData, type: e.target.value })}
                             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light0 focus:border-transparent bg-gray-50 hover:bg-gray-100 transition-colors"
                           >
-                            <option value="Home">🏠 Home</option>
-                            <option value="Office">🏢 Office</option>
-                            <option value="Other">📍 Other</option>
+                            <option value="Home">≡ƒÅá Home</option>
+                            <option value="Office">≡ƒÅó Office</option>
+                            <option value="Other">≡ƒôì Other</option>
                           </select>
                         </div>
 
@@ -950,7 +950,7 @@ export default function ProfilePage() {
                                 Saving...
                               </>
                             ) : (
-                              editingAddressId ? '✓ Update Address' : '+ Add Address'
+                              editingAddressId ? 'Γ£ô Update Address' : '+ Add Address'
                             )}
                           </button>
                         </div>
@@ -990,7 +990,7 @@ export default function ProfilePage() {
                               )}
                             </div>
                             <p className="text-gray-600 text-sm">
-                              •••• •••• •••• {card.last4}
+                              ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó ΓÇóΓÇóΓÇóΓÇó {card.last4}
                             </p>
                             <p className="text-gray-500 text-xs mt-1">Expires {card.expiry}</p>
                           </div>

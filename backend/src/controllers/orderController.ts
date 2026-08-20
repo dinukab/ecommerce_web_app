@@ -4,6 +4,8 @@ import Product from '../models/Product.js';
 import DeliveryZone from '../models/DeliveryZone.js';
 import StockHistory from '../models/StockHistory.js';
 import crypto from 'crypto';
+import { generateInvoicePdf } from '../utils/generateInvoicePdf.js';
+import { sendInvoiceEmail } from '../utils/mailer.js';
 
 async function logStockHistory(order: any) {
   try {
@@ -472,5 +474,45 @@ export const cancelOrder = async (req: any, res: Response) => {
   } catch (err: any) {
     console.error('cancelOrder error:', err);
     return res.status(500).json({ success: false, message: err.message || 'Server error' });
+  }
+};
+
+// POST /api/orders/:id/send-invoice
+export const sendInvoice = async (req: any, res: Response) => {
+  try {
+    const order: any = await Order.findById(req.params.id).populate('user', 'email name');
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    console.log('[sendInvoice] order.user:', order.user);
+    console.log('[sendInvoice] req.user:', req.user);
+    console.log('[sendInvoice] order.shippingAddress:', order.shippingAddress);
+
+    // Try to get email from populated user, falling back to req.user (auth token)
+    const userEmail = order.user?.email || req.user?.email;
+    if (!userEmail) {
+      return res.status(400).json({ success: false, message: "User email not found" });
+    }
+
+    console.log('[sendInvoice] Generating PDF for:', userEmail);
+    const pdfBuffer = await generateInvoicePdf(order, userEmail);
+    console.log('[sendInvoice] PDF generated, size:', pdfBuffer.length);
+
+    await sendInvoiceEmail({
+      to: userEmail,
+      subject: `Your Invoice - Order #${order.orderId || order._id}`,
+      text: `Hi ${order.customerName || 'Customer'}, please find your invoice attached.`,
+      pdfBuffer,
+      filename: `invoice-${order.orderId || order._id}.pdf`,
+    });
+
+    console.log('[sendInvoice] Email sent successfully to:', userEmail);
+    return res.json({ success: true, message: "Invoice sent to your email" });
+  } catch (err: any) {
+    console.error('[sendInvoice] FULL ERROR:', err);
+    return res.status(500).json({ 
+      success: false, 
+      message: err.message || "Failed to send invoice",
+      detail: err?.responseCode || err?.code || undefined
+    });
   }
 };

@@ -27,13 +27,20 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-const DISTRICTS = [
-  'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 'Nuwara Eliya',
-  'Galle', 'Matara', 'Hambantota', 'Jaffna', 'Kilinochchi', 'Mannar',
-  'Vavuniya', 'Mullaitivu', 'Batticaloa', 'Ampara', 'Trincomalee',
-  'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 'Badulla',
-  'Monaragala', 'Ratnapura', 'Kegalle'
-].sort();
+// Flatten all districts from provinces data
+const ALL_DISTRICTS = provinces
+  .flatMap(p => p.districts)
+  .filter((d, i, arr) => arr.findIndex(x => x.value === d.value) === i) // deduplicate
+  .sort((a, b) => a.label.localeCompare(b.label));
+
+// Get cities for a selected district value
+const getCitiesForDistrict = (districtValue: string) => {
+  for (const province of provinces) {
+    const district = province.districts.find(d => d.value === districtValue);
+    if (district) return district.cities;
+  }
+  return [];
+};
 
 export default function CheckoutPage() {
   const { cart, clearSelectedItems, getCartTotal } = useCart();
@@ -56,6 +63,48 @@ export default function CheckoutPage() {
     paymentMethod: 'cash-on-delivery',
     orderNotes: ''
   });
+
+  // Per-field inline validation errors
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({}); 
+
+  // ── Validation helpers ──────────────────────────────────────────────────────
+  const validateName = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return 'Full name is required.';
+    if (trimmed.length < 2) return 'Name must be at least 2 characters.';
+    if (trimmed.length > 80) return 'Name must be at most 80 characters.';
+    // Allow Unicode letters (Sinhala, Tamil, Arabic, Latin…), spaces, hyphens, apostrophes
+    if (!/^[\p{L}\p{M}][\p{L}\p{M}\s'\-\.]*[\p{L}\p{M}\.']?$/u.test(trimmed))
+      return 'Name must contain only letters (any language), spaces, hyphens, or apostrophes.';
+    return '';
+  };
+
+  const validatePhone = (value: string): string => {
+    const cleaned = value.trim().replace(/[\s\-\(\)]/g, '');
+    if (!cleaned) return 'Phone number is required.';
+    if (!/^(\+94|94|0)?7[0-9]{8}$/.test(cleaned))
+      return 'Enter a valid Sri Lankan mobile number (e.g. +94 77 123 4567 or 077 123 4567).';
+    return '';
+  };
+
+  const setFieldError = (field: string, msg: string) =>
+    setFieldErrors(prev => ({ ...prev, [field]: msg }));
+
+  const clearFieldError = (field: string) =>
+    setFieldErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
+
+  // Validate on blur
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === 'fullName') {
+      const msg = validateName(value);
+      msg ? setFieldError('fullName', msg) : clearFieldError('fullName');
+    }
+    if (name === 'phone') {
+      const msg = validatePhone(value);
+      msg ? setFieldError('phone', msg) : clearFieldError('phone');
+    }
+  };
 
   useEffect(() => {
     if (cart.length === 0) {
@@ -135,17 +184,11 @@ export default function CheckoutPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    // Reset city when district changes
     if (name === 'district') {
-      setFormData(prev => ({
-        ...prev,
-        district: value,
-        city: '' // Reset city when district changes
-      }));
+      setFormData(prev => ({ ...prev, district: value, city: '' }));
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -160,17 +203,28 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Basic validation
-    if (!formData.district) {
-      setError('Please select a delivery district.');
+    // ── Frontend validation ────────────────────────────────────────────────
+    const newErrors: Record<string, string> = {};
+
+    const nameErr = validateName(formData.fullName);
+    if (nameErr) newErrors.fullName = nameErr;
+
+    const phoneErr = validatePhone(formData.phone);
+    if (phoneErr) newErrors.phone = phoneErr;
+
+    if (!formData.district) newErrors.district = 'Please select a delivery district.';
+    if (!formData.addressLine1) newErrors.addressLine1 = 'Address is required.';
+    if (!formData.city) newErrors.city = 'City is required.';
+    if (!formData.postalCode) newErrors.postalCode = 'Postal code is required.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
+      setError('Please fix the highlighted fields before continuing.');
       setLoading(false);
       return;
     }
-    if (!formData.addressLine1 || !formData.city || !formData.postalCode) {
-      setError('Please fill in all required address fields.');
-      setLoading(false);
-      return;
-    }
+
+    setFieldErrors({});
 
     try {
       const orderData = {
@@ -327,23 +381,37 @@ export default function CheckoutPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Full Name */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Full Name</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
-                    <User className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <div className={`flex items-center rounded-2xl border-1 bg-white shadow-sm focus-within:ring-4 transition-all duration-300 ${
+                    fieldErrors.fullName
+                      ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-50/50'
+                      : 'border-gray-100 focus-within:border-blue-500 focus-within:ring-blue-50/50'
+                  }`}>
+                    <User className={`ml-4 w-4 h-4 flex-shrink-0 ${fieldErrors.fullName ? 'text-red-400' : 'text-gray-400'}`} />
                     <input
                       required
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="Enter your full name"
-                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
+                  {fieldErrors.fullName && (
+                    <p className="text-xs text-red-500 ml-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {fieldErrors.fullName}
+                    </p>
+                  )}
                 </div>
+
+                {/* Email Address */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
+                  <div className="flex items-center rounded-2xl border-1 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <Mail className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
@@ -352,23 +420,36 @@ export default function CheckoutPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
+
+                {/* Phone Number */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Phone Number</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
-                    <Phone className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <div className={`flex items-center rounded-2xl border-1 bg-white shadow-sm focus-within:ring-4 transition-all duration-300 ${
+                    fieldErrors.phone
+                      ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-50/50'
+                      : 'border-gray-100 focus-within:border-blue-500 focus-within:ring-blue-50/50'
+                  }`}>
+                    <Phone className={`ml-4 w-4 h-4 flex-shrink-0 ${fieldErrors.phone ? 'text-red-400' : 'text-gray-400'}`} />
                     <input
                       required
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="+94 7X XXX XXXX"
-                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
+                  {fieldErrors.phone && (
+                    <p className="text-xs text-red-500 ml-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {fieldErrors.phone}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -385,7 +466,7 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Address Line 1</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
+                  <div className="flex items-center rounded-2xl border-1 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
@@ -393,38 +474,38 @@ export default function CheckoutPage() {
                       value={formData.addressLine1}
                       onChange={handleChange}
                       placeholder="Street name, building number..."
-                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Address Line 2 (Optional)</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
+                  <div className="flex items-center rounded-2xl border-1 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
                     <Building2 className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       name="addressLine2"
                       value={formData.addressLine2}
                       onChange={handleChange}
                       placeholder="Apartment, suite, unit, etc."
-                      className="w-full px-4 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">District</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300 relative">
+                  <div className="flex items-center rounded-2xl border-1 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300 relative">
                     <LocateFixed className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <select
                       required
                       name="district"
                       value={formData.district}
                       onChange={handleChange}
-                      className={`w-full px-4 py-4 bg-transparent outline-none text-sm font-medium appearance-none cursor-pointer ${!formData.district ? "text-gray-400" : "text-gray-900"
+                      className={`w-full px-4 py-3 bg-transparent outline-none text-sm font-medium appearance-none cursor-pointer ${!formData.district ? "text-gray-400" : "text-gray-900"
                         }`}
                     >
                       <option value="" disabled>Select District</option>
-                      {DISTRICTS.map(d => (
-                        <option key={d} value={d} className="text-gray-900">{d}</option>
+                      {ALL_DISTRICTS.map(d => (
+                        <option key={d.value} value={d.value} className="text-gray-900">{d.label}</option>
                       ))}
                     </select>
                     {/* Custom Arrow */}
@@ -437,43 +518,16 @@ export default function CheckoutPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">City</label>
-                  {availableCities.length > 0 ? (
-                    <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300 relative">
-                      <select
-                        required
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        className={`w-full px-5 py-4 bg-transparent outline-none text-sm font-medium appearance-none cursor-pointer ${!formData.city ? "text-gray-400" : "text-gray-900"
-                          }`}
-                      >
-                        <option value="" disabled>Select City</option>
-                        {availableCities.map(c => (
-                          <option key={c.value} value={c.label} className="text-gray-900">
-                            {c.label}
-                          </option>
-                        ))}
-                      </select>
-                      {/* Custom Arrow */}
-                      <div className="absolute right-4 pointer-events-none">
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
-                      <input
-                        required
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        placeholder={formData.district ? "Enter City" : "Select District first"}
-                        disabled={!formData.district}
-                        className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400 disabled:opacity-50"
-                      />
-                    </div>
-                  )}
+                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
+                    <input
+                      required
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      placeholder="Enter City"
+                      className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Postal Code</label>
@@ -484,7 +538,7 @@ export default function CheckoutPage() {
                       value={formData.postalCode}
                       onChange={handleChange}
                       placeholder="E.g. 10000"
-                      className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className="w-full px-5 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
                 </div>
