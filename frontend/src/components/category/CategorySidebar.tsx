@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type Category } from '@/api/Categoryapi';
+import { ChevronRight } from 'lucide-react';
 
 interface Props {
   categories: Category[];
@@ -34,14 +35,16 @@ export default function CategorySidebar({ categories, activeSlug }: Props) {
           <li>
             <Link
               href="/category/all"
-              className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-brand-light ${
+              className={`flex items-center justify-between px-5 py-3 text-sm transition-colors hover:bg-brand-light group ${
                 isAllActive
                   ? 'bg-brand-light text-brand-dark font-semibold border-r-4 border-brand-light0'
                   : 'text-gray-600'
               }`}
             >
-              <span className="text-xl">🛍️</span>
-              <p className="font-medium">All Items</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium">All Items</p>
+              </div>
+              <ChevronRight className={`w-4 h-4 transition-transform ${isAllActive ? 'text-brand' : 'text-gray-400 group-hover:text-brand translate-x-0 group-hover:translate-x-1'}`} />
             </Link>
           </li>
 
@@ -49,17 +52,13 @@ export default function CategorySidebar({ categories, activeSlug }: Props) {
             <li key={cat._id}>
               <Link
                 href={`/category/${cat.slug}`}
-                className={getLinkClass(cat.slug)}
+                className={getLinkClass(cat.slug) + " justify-between group"}
               >
-                <span className="text-xl">{cat.icon || '📦'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{cat.name}</p>
-                  <p className="text-xs text-gray-400">{cat.productCount} products</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{cat.productCount} products</p>
                 </div>
-                <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ backgroundColor: cat.color || '#6366f1' }}
-                />
+                <ChevronRight className={`w-4 h-4 transition-transform ${pathname === '/category/' + cat.slug ? 'text-brand' : 'text-gray-400 group-hover:text-brand translate-x-0 group-hover:translate-x-1'}`} />
               </Link>
             </li>
           ))}

@@ -89,7 +89,7 @@ export default function OrderDetailsPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-black text-gray-900">
-                  Order #{order.orderId || order._id.slice(-8).toUpperCase()}
+                  Order #{order.orderId || (order._id || '').slice(-8).toUpperCase()}
                 </h1>
                 <OrderStatusBadge status={order.orderStatus} />
               </div>
@@ -110,7 +110,7 @@ export default function OrderDetailsPage() {
               <div className="flex items-center gap-4">
                 <code className="text-xl font-black text-brand-dark">{order.trackingNumber}</code>
                 <button 
-                  onClick={() => copyToClipboard(order.trackingNumber)}
+                  onClick={() => copyToClipboard(order.trackingNumber || '')}
                   className="p-2 rounded-lg bg-white text-brand hover:bg-brand hover:text-white transition-all shadow-sm"
                 >
                   {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -131,7 +131,7 @@ export default function OrderDetailsPage() {
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-8">Order Items</h2>
               <div className="space-y-6">
-                {order.orderItems.map((item, idx) => (
+                {(order.orderItems || []).map((item, idx) => (
                   <div key={idx} className="flex gap-6 items-center">
                     <div className="w-20 h-20 rounded-2xl bg-gray-50 p-3 border border-gray-100 flex-shrink-0">
                       <img 
@@ -155,15 +155,15 @@ export default function OrderDetailsPage() {
               <div className="mt-10 pt-8 border-t border-dashed border-gray-100 space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Items Subtotal</span>
-                  <span className="font-bold text-gray-900">LKR {order.itemsPrice.toLocaleString()}</span>
+                  <span className="font-bold text-gray-900">LKR {(order.itemsPrice || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Delivery Fee ({order.deliveryMethod})</span>
-                  <span className="font-bold text-gray-900">LKR {order.deliveryFee.toLocaleString()}</span>
+                  <span className="font-bold text-gray-900">LKR {(order.deliveryFee || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between pt-4 border-t border-gray-50">
                   <span className="text-lg font-bold text-gray-900">Grand Total</span>
-                  <span className="text-2xl font-black text-brand">LKR {order.totalPrice.toLocaleString()}</span>
+                  <span className="text-2xl font-black text-brand">LKR {(order.totalPrice || 0).toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -182,20 +182,20 @@ export default function OrderDetailsPage() {
               <div className="space-y-6">
                 <div>
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Recipient</p>
-                  <p className="text-sm font-bold text-gray-800">{order.shippingAddress.fullName}</p>
+                  <p className="text-sm font-bold text-gray-800">{order.shippingAddress?.fullName || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Address</p>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {order.shippingAddress.addressLine1},<br />
-                    {order.shippingAddress.addressLine2 && <>{order.shippingAddress.addressLine2},<br /></>}
-                    {order.shippingAddress.city}, {order.shippingAddress.district},<br />
-                    {order.shippingAddress.postalCode}
+                    {order.shippingAddress?.addressLine1 || 'N/A'},<br />
+                    {order.shippingAddress?.addressLine2 && <>{order.shippingAddress.addressLine2},<br /></>}
+                    {order.shippingAddress?.city}, {order.shippingAddress?.district},<br />
+                    {order.shippingAddress?.postalCode}
                   </p>
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Phone</p>
-                  <p className="text-sm font-bold text-gray-800">{order.shippingAddress.phone}</p>
+                  <p className="text-sm font-bold text-gray-800">{order.shippingAddress?.phone || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function OrderDetailsPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Method</p>
-                  <p className="text-sm font-bold text-gray-900 uppercase">{order.paymentMethod.replace(/-/g, ' ')}</p>
+                  <p className="text-sm font-bold text-gray-900 uppercase">{(order.paymentMethod || '').replace(/-/g, ' ')}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Status</p>
