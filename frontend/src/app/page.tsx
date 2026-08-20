@@ -19,13 +19,14 @@ export const dynamic = 'force-dynamic';
 const heroSlides = [
   {
     id: 1,
+    image: '/hero-banner-1.jpg',
     badge: 'Limited Time Offer',
-    title: 'Flash Sale',
-    subtitle: 'Up to 50% off on selected items',
-    description: 'Discover amazing deals on top products. Shop before the sale ends and save big on your favorite items.',
-    gradient: 'from-brand-dark via-brand to-brand-dark',
-    subtitleColor: 'text-brand-light',
-    descriptionColor: 'text-blue-200',
+    title: 'Elevate Your Everyday Essentials',
+    description: 'Discover curated premium goods for a life well-lived.',
+    buttons: [
+      { text: 'Shop Now', link: '/category/all', primary: true },
+      { text: 'Create Account', link: '/register', primary: false }
+    ]
   },
   {
     id: 2,
@@ -94,39 +95,82 @@ export default function HomePage() {
           <CarouselContent className="ml-0 ">
             {heroSlides.map((slide) => (
               <CarouselItem key={slide.id} className="pl-0">
-                <div className={`bg-linear-to-r ${slide.gradient} text-white`}>
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                <div className={`relative text-white overflow-hidden ${slide.image ? '' : `bg-linear-to-r ${slide.gradient}`}`}>
+                  {/* Background Image Layer */}
+                  {slide.image && (
+                    <div className="absolute inset-0 z-0">
+                      <img 
+                        src={slide.image} 
+                        alt="Hero Banner Background" 
+                        className="w-full h-full object-cover object-center"
+                      />
+                      {/* Subtly dark overlay to ensure readability of overlaid text */}
+                      <div className="absolute inset-0 bg-black/10"></div>
+                    </div>
+                  )}
+
+                  {/* Content Overlay */}
+                  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="max-w-2xl">
-                      <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-                        <Tag className="w-4 h-4" />
-                        <span className="text-sm font-semibold tracking-wide">{slide.badge}</span>
-                      </div>
+                      {slide.badge && (
+                        <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                          <Tag className="w-4 h-4" />
+                          <span className="text-sm font-semibold tracking-wide">{slide.badge}</span>
+                        </div>
+                      )}
 
-                      <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight">
-                        {slide.title}
-                      </h1>
+                      {slide.title && (
+                        <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight drop-shadow-md">
+                          {slide.title}
+                        </h1>
+                      )}
 
-                      <p className={`text-xl md:text-2xl mb-3 font-medium ${slide.subtitleColor}`}>
-                        {slide.subtitle}
-                      </p>
-                      <p className={`text-base mb-10 max-w-lg ${slide.descriptionColor}`}>
-                        {slide.description}
-                      </p>
+                      {slide.subtitle && (
+                        <p className={`text-xl md:text-2xl mb-3 font-medium ${slide.subtitleColor || ''}`}>
+                          {slide.subtitle}
+                        </p>
+                      )}
+                      
+                      {slide.description && (
+                        <p className={`text-base mb-10 max-w-lg ${slide.descriptionColor || 'text-white/90'} drop-shadow-sm`}>
+                          {slide.description}
+                        </p>
+                      )}
 
+                      {/* Dynamic Buttons */}
                       <div className="flex flex-wrap gap-4">
-                        <Link
-                          href="/category/all"
-                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-brand font-bold hover:bg-brand-light transition-colors"
-                        >
-                          Shop Now
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                        <Link
-                          href="/register"
-                          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white text-white font-bold hover:bg-white/20 transition-colors"
-                        >
-                          Create Account
-                        </Link>
+                        {slide.buttons ? (
+                          slide.buttons.map((btn, idx) => (
+                            <Link
+                              key={idx}
+                              href={btn.link}
+                              className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all hover:scale-102 ${
+                                btn.primary 
+                                  ? "bg-white text-brand hover:bg-brand-light" 
+                                  : "border-2 border-white text-white hover:bg-white/20"
+                              }`}
+                            >
+                              {btn.text}
+                              {btn.primary && <ArrowRight className="w-4 h-4" />}
+                            </Link>
+                          ))
+                        ) : (
+                          <>
+                            <Link
+                              href="/category/all"
+                              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-brand font-bold hover:bg-brand-light transition-colors"
+                            >
+                              Shop Now
+                              <ArrowRight className="w-4 h-4" />
+                            </Link>
+                            <Link
+                              href="/register"
+                              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white text-white font-bold hover:bg-white/20 transition-colors"
+                            >
+                              Create Account
+                            </Link>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -144,8 +188,8 @@ export default function HomePage() {
 
       {/* Categories Dropdown - Placed near Hero Section */}
       <section className="py-8 bg-gray-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-center sm:text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-start gap-8">
+          <div className="text-left">
             <h3 className="text-lg font-bold text-gray-900">Browse by Category</h3>
             <p className="text-sm text-gray-500">Find exactly what you need</p>
           </div>

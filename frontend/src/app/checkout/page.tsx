@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
+import { provinces } from '@/data/sri-lanka-locations';
 import OrderSummary from '@/components/OrderSummary';
 import {
   Truck,
@@ -115,8 +116,37 @@ export default function CheckoutPage() {
     calculateFee();
   }, [formData.district, formData.deliveryMethod]);
 
+  // Find cities belonging to the selected district
+  const availableCities = useMemo(() => {
+    if (!formData.district) return [];
+    
+    // Search in sri-lanka-locations data
+    for (const province of provinces) {
+      const match = province.districts.find(
+        (d) => d.label.toLowerCase() === formData.district.toLowerCase() || 
+               d.value.toLowerCase() === formData.district.toLowerCase()
+      );
+      if (match) {
+        return match.cities;
+      }
+    }
+    return [];
+  }, [formData.district]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'district') {
+      setFormData(prev => ({
+        ...prev,
+        district: value,
+        city: '' // Reset city when district changes
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -407,16 +437,43 @@ export default function CheckoutPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">City</label>
-                  <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
-                    <input
-                      required
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="Enter City"
-                      className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
-                    />
-                  </div>
+                  {availableCities.length > 0 ? (
+                    <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300 relative">
+                      <select
+                        required
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        className={`w-full px-5 py-4 bg-transparent outline-none text-sm font-medium appearance-none cursor-pointer ${!formData.city ? "text-gray-400" : "text-gray-900"
+                          }`}
+                      >
+                        <option value="" disabled>Select City</option>
+                        {availableCities.map(c => (
+                          <option key={c.value} value={c.label} className="text-gray-900">
+                            {c.label}
+                          </option>
+                        ))}
+                      </select>
+                      {/* Custom Arrow */}
+                      <div className="absolute right-4 pointer-events-none">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center rounded-2xl border-2 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
+                      <input
+                        required
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        placeholder={formData.district ? "Enter City" : "Select District first"}
+                        disabled={!formData.district}
+                        className="w-full px-5 py-4 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400 disabled:opacity-50"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Postal Code</label>
