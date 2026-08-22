@@ -11,14 +11,22 @@
  * <tenant>.allinoneshop.store reaches this same pair, so onboarding a shop
  * needs no deploy and no certificate work.
  */
-/** Reads a value from backend/.env at deploy time. Keeps secrets out of git. */
+/**
+ * Resolves a secret. Prefers the process environment so CI can inject values
+ * through repository secrets, and falls back to backend/.env for local deploys.
+ * Either way nothing sensitive is written into a tracked file.
+ */
 function env(key: string): string {
+  if (process.env[key]) return process.env[key] as string;
+
   const fs = require("fs");
-  const line = fs.readFileSync("backend/.env", "utf8")
-    .split("\n")
-    .find((l: string) => l.startsWith(key + "="));
-  if (!line) throw new Error(`${key} missing from backend/.env`);
-  return line.slice(key.length + 1).trim();
+  if (fs.existsSync("backend/.env")) {
+    const line = fs.readFileSync("backend/.env", "utf8")
+      .split("\n")
+      .find((l: string) => l.startsWith(key + "="));
+    if (line) return line.slice(key.length + 1).trim();
+  }
+  throw new Error(`${key} is not set — export it or add it to backend/.env`);
 }
 
 /** Route53 zone and the wildcard cert provisioned for this domain. */
