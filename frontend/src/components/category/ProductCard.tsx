@@ -181,10 +181,20 @@ export default function ProductCard({ product, initialWishlisted = false }: Prop
           </div>
         )}
 
+        {/* Expiry Date */}
+        {product.expiryDate && (
+          <p className="text-[11px] font-semibold text-rose-600 mt-1 flex items-center gap-1">
+            <span>📅</span> Exp: {new Date(product.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </p>
+        )}
+
         <div className="mt-auto pt-2 flex items-end justify-between">
           <div>
             <p className="text-lg font-bold" style={{ color: 'var(--brand)' }}>
               RS.{product.sellingPrice.toLocaleString()}
+              {(product.isWeightBased || product.unit === 'kg' || product.name.toLowerCase().includes('/kg') || product.name.toLowerCase().includes('(kg)')) && (
+                <span className="text-xs font-normal text-gray-500"> / kg</span>
+              )}
             </p>
             {costPrice > product.sellingPrice && (
               <p className="text-xs text-gray-400 line-through">

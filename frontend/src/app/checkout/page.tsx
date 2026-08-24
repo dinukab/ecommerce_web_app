@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { useCart } from '@/context/CartContext';
 import { api } from '@/lib/api';
+import { validateSriLankanPhone } from '@/lib/utils';
 import { provinces } from '@/data/sri-lanka-locations';
 import OrderSummary from '@/components/OrderSummary';
 import {
@@ -24,7 +25,8 @@ import {
   LocateFixed,
   ShoppingBag,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 
 // Flatten all districts from provinces data
@@ -197,6 +199,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [verifyingAuth, setVerifyingAuth] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [deliveryData, setDeliveryData] = useState({ fee: 0, days: 0 });
 
   const [formData, setFormData] = useState({
@@ -229,11 +232,7 @@ export default function CheckoutPage() {
   };
 
   const validatePhone = (value: string): string => {
-    const cleaned = value.trim().replace(/[\s\-\(\)]/g, '');
-    if (!cleaned) return 'Phone number is required.';
-    if (!/^(\+94|94|0)?7[0-9]{8}$/.test(cleaned))
-      return 'Enter a valid Sri Lankan mobile number (e.g. +94 77 123 4567 or 077 123 4567).';
-    return '';
+    return validateSriLankanPhone(value);
   };
 
   const setFieldError = (field: string, msg: string) =>
@@ -272,6 +271,7 @@ export default function CheckoutPage() {
         const res = await api.getMe(token);
         if (res.success && res.data) {
           const user = res.data;
+          setIsAuthenticated(true);
           setFormData(prev => ({
             ...prev,
             fullName: user.name || '',
@@ -538,21 +538,31 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Full Name */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Full Name</label>
-                  <div className={`flex items-center rounded-2xl border-1 bg-white shadow-sm focus-within:ring-4 transition-all duration-300 ${
-                    fieldErrors.fullName
-                      ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-50/50'
-                      : 'border-gray-100 focus-within:border-blue-500 focus-within:ring-blue-50/50'
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Full Name</label>
+                    {isAuthenticated && (
+                      <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md">
+                        <Lock className="w-3 h-3 text-brand" /> Account Locked
+                      </span>
+                    )}
+                  </div>
+                  <div className={`flex items-center rounded-2xl border-1 transition-all duration-300 ${
+                    isAuthenticated
+                      ? 'bg-gray-100/80 border-gray-200 cursor-not-allowed'
+                      : fieldErrors.fullName
+                      ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-50/50 bg-white shadow-sm'
+                      : 'border-gray-100 focus-within:border-blue-500 focus-within:ring-blue-50/50 bg-white shadow-sm'
                   }`}>
                     <User className={`ml-4 w-4 h-4 flex-shrink-0 ${fieldErrors.fullName ? 'text-red-400' : 'text-gray-400'}`} />
                     <input
                       required
+                      readOnly={isAuthenticated}
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="Enter your full name"
-                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className={`w-full px-4 py-3 bg-transparent outline-none text-sm font-medium ${isAuthenticated ? 'text-gray-600 cursor-not-allowed' : 'text-gray-900'} placeholder:text-gray-400`}
                     />
                   </div>
                   {fieldErrors.fullName && (
@@ -565,17 +575,29 @@ export default function CheckoutPage() {
 
                 {/* Email Address */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
-                  <div className="flex items-center rounded-2xl border-1 border-gray-100 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
+                    {isAuthenticated && (
+                      <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md">
+                        <Lock className="w-3 h-3 text-brand" /> Account Locked
+                      </span>
+                    )}
+                  </div>
+                  <div className={`flex items-center rounded-2xl border-1 transition-all duration-300 ${
+                    isAuthenticated
+                      ? 'bg-gray-100/80 border-gray-200 cursor-not-allowed'
+                      : 'border-gray-100 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50/50 bg-white shadow-sm'
+                  }`}>
                     <Mail className="ml-4 w-4 h-4 text-gray-400 flex-shrink-0" />
                     <input
                       required
+                      readOnly={isAuthenticated}
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className={`w-full px-4 py-3 bg-transparent outline-none text-sm font-medium ${isAuthenticated ? 'text-gray-600 cursor-not-allowed' : 'text-gray-900'} placeholder:text-gray-400`}
                     />
                   </div>
                 </div>
@@ -595,7 +617,7 @@ export default function CheckoutPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      placeholder="+94 7X XXX XXXX"
+                      placeholder="07XXXXXXXX (e.g. 0771234567)"
                       className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
                     />
                   </div>

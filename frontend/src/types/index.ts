@@ -11,6 +11,9 @@ export interface Product {
   stock: number;
   lowStockThreshold?: number;
   status?: 'in-stock' | 'out-of-stock' | 'low-stock';
+  isWeightBased?: boolean;
+  unit?: 'kg' | 'g' | 'item' | string;
+  expiryDate?: string | Date;
   badge?: string;
   brand?: string;
 }

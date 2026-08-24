@@ -41,8 +41,13 @@ export default function AccountSidebar() {
         setUserName(response.data.name || '');
         setUserEmail(response.data.email || '');
       }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('authorized') || error?.message?.includes('token')) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+      } else {
+        console.error('Error fetching profile:', error);
+      }
     }
   };
 

@@ -14,6 +14,9 @@ interface ProductCardProps {
   reviews: number;
   badge?: string;
   image?: string;
+  isWeightBased?: boolean;
+  unit?: string;
+  expiryDate?: string | Date;
   initialWishlisted?: boolean;
   onWishlistRemove?: (id: string) => void;
 }
@@ -27,6 +30,9 @@ export default function ProductCard({
   reviews,
   badge,
   image,
+  isWeightBased,
+  unit,
+  expiryDate,
   initialWishlisted = false,
   onWishlistRemove,
 }: ProductCardProps) {
@@ -175,7 +181,7 @@ export default function ProductCard({
           </h3>
 
           {/* Rating */}
-          <div className="flex items-center mb-3">
+          <div className="flex items-center mb-2">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -191,10 +197,20 @@ export default function ProductCard({
             <span className="text-sm text-gray-600 ml-2">({reviews})</span>
           </div>
 
+          {/* Expiry Date */}
+          {expiryDate && (
+            <p className="text-[11px] font-semibold text-rose-600 mb-2 flex items-center gap-1">
+              <span>📅</span> Exp: {new Date(expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </p>
+          )}
+
           {/* Price */}
-          <div className="flex items-center space-x-2 mt-auto">
+          <div className="flex items-baseline space-x-2 mt-auto">
             <span className="text-xl font-bold text-gray-900">
               {formatPrice(price)}
+              {(isWeightBased || unit === 'kg' || name.toLowerCase().includes('/kg') || name.toLowerCase().includes('(kg)')) && (
+                <span className="text-xs font-normal text-gray-500"> / kg</span>
+              )}
             </span>
             {originalPrice && originalPrice > price && (
               <span className="text-sm text-gray-500 line-through">

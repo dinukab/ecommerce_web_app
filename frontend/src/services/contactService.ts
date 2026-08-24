@@ -11,7 +11,7 @@ class ContactService {
 
   constructor() {
     // Use environment variable or default to localhost with /api suffix
-    this.apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    this.apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
     // Ensure URL ends with / for correct relative path resolution in Axios
     const formattedBaseUrl = this.apiUrl.endsWith('/') ? this.apiUrl : `${this.apiUrl}/`;

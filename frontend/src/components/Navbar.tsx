@@ -217,10 +217,10 @@ export default function Navbar() {
                   />
                   {cartCount > 0 && (
                     <span
-                      className="absolute -top-1.5 -right-2 text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white box-content"
+                      className="absolute -top-1.5 -right-2 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center border-2 border-white box-content"
                       style={{ backgroundColor: storeConfig.primaryColor }}
                     >
-                      {cartCount}
+                      {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
                 </div>

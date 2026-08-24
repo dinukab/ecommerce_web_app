@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatWeightOrQuantity } from '@/lib/utils';
 
 interface OrderItem {
   _id?: string;
@@ -40,7 +41,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-800 truncate">{item.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+              <p className="text-xs font-medium text-gray-500 mt-0.5">
+                Qty: {formatWeightOrQuantity(item.quantity, (item as any).unit, (item as any).isWeightBased)}
+              </p>
               <p className="text-sm font-bold mt-1" style={{ color: 'var(--brand)' }}>
                 LKR {((item.price || item.sellingPrice || 0) * item.quantity).toLocaleString()}
               </p>

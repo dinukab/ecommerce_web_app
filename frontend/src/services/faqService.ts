@@ -1,14 +1,14 @@
  import axios, { AxiosInstance, AxiosError } from 'axios';
 import { IFAQ, IFAQResponse, ICategoryCount, IFAQFilters } from '@/types/faq';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 class FAQService {
   private api: AxiosInstance;
 
   constructor() {
     // Use environment variable or default to localhost with /api suffix
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
     // Ensure URL ends with / for correct relative path resolution in Axios
     const formattedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;

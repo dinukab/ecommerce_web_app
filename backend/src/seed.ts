@@ -210,7 +210,8 @@ async function seed() {
       await Category.create({ ...cat, storeId: STORE_ID });
       console.log(`✓ Category created: ${cat.name}`);
     } else {
-      console.log(`  Category "${cat.name}" already exists – skipping`);
+      await Category.updateOne({ _id: exists._id }, { $set: { icon: cat.icon, color: cat.color } });
+      console.log(`  Category "${cat.name}" updated icon: ${cat.icon}`);
     }
   }
 
@@ -335,7 +336,7 @@ async function seed() {
     { name: 'Quaker Oats 500g',     sku: 'RCG-003', category: 'Rice & Grains', sellingPrice: 280, costPrice: 205, stock: 40,  lowStockThreshold: 10, description: 'Rolled oats — packaged' },
     { name: 'Samba Rice',           sku: 'RCG-004', category: 'Rice & Grains', sellingPrice: 210, costPrice: 156, stock: 150, lowStockThreshold: 20, description: 'White samba rice — price per 1 kg',                          isWeightBased: true, unit: 'kg' },
     { name: 'Pachchaperumal Rice',  sku: 'RCG-005', category: 'Rice & Grains', sellingPrice: 220, costPrice: 164, stock: 125, lowStockThreshold: 15, description: 'Traditional Sri Lankan rice variety — price per 1 kg',       isWeightBased: true, unit: 'kg' },
-    { name: 'Red Lentils (Dhal)',   sku: 'RCG-006', category: 'Rice & Grains', sellingPrice: 560, costPrice: 410, stock: 80,  lowStockThreshold: 15, description: 'Red lentils (dhal) — price per 1 kg',                        isWeightBased: true, unit: 'kg' },
+    { name: 'Red Lentils (Dhal)',   sku: 'RCG-006', category: 'Rice & Grains', sellingPrice: 560, costPrice: 410, stock: 150, lowStockThreshold: 15, description: 'Red lentils (dhal) — price per 1 kg',                        isWeightBased: true, unit: 'kg' },
     { name: 'Green Gram',           sku: 'RCG-007', category: 'Rice & Grains', sellingPrice: 520, costPrice: 380, stock: 70,  lowStockThreshold: 12, description: 'Whole green gram (moong) — price per 1 kg',                  isWeightBased: true, unit: 'kg' },
     { name: 'Black-eyed Peas',      sku: 'RCG-008', category: 'Rice & Grains', sellingPrice: 480, costPrice: 350, stock: 60,  lowStockThreshold: 10, description: 'Dried black-eyed peas — price per 1 kg',                     isWeightBased: true, unit: 'kg' },
     // ── Flour & Baking ───────────────────────────────────────────────────────
@@ -528,7 +529,7 @@ async function seed() {
     if (!exists) {
       await Product.create({
         ...p,
-        images: imageExists ? p.images : [],
+        images: imageExists ? p.images : (p.images || []),
         storeId: STORE_ID,
         createdBy: adminId,
       });

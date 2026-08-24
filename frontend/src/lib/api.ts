@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -34,6 +34,9 @@ export interface Product {
   rating: number;
   numReviews: number;
   badge?: string;
+  isWeightBased?: boolean;
+  unit?: 'kg' | 'g' | 'item' | string;
+  expiryDate?: string | Date;
   featured: boolean;
   specifications: {
     brand: string;
@@ -69,7 +72,8 @@ export interface ProductFilters {
 }
 
 export interface RegisterData {
-  fullName: string;
+  name?: string;
+  fullName?: string;
   email: string;
   password: string;
   phone?: string;
@@ -154,6 +158,7 @@ export interface Order {
   orderId?: string;
   user: string | any;
   orderItems: OrderItem[];
+  items?: OrderItem[];
   shippingAddress: {
     fullName: string;
     addressLine1: string;
@@ -242,6 +247,12 @@ class ApiService {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+          }
+        }
         throw new Error(data.message || 'Something went wrong');
       }
 
@@ -293,9 +304,16 @@ class ApiService {
 
   // Auth APIs
   async register(data: RegisterData): Promise<AuthResponse> {
+    const payload = {
+      name: data.name || data.fullName,
+      fullName: data.fullName || data.name,
+      email: data.email,
+      password: data.password,
+      phone: data.phone || undefined,
+    };
     return this.request<AuthResponse>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   }
 

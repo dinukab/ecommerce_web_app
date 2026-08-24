@@ -122,7 +122,7 @@ export default function MyOrdersPage() {
 
               {/* Items List */}
               <div className="flex flex-col">
-                {order.orderItems?.map((item, idx) => (
+                {(order.orderItems || order.items || [])?.map((item: any, idx: number) => (
                   <div key={idx} className="flex items-center gap-6 p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                     <Link href={`/orders/${order._id}`} className="flex-shrink-0 block">
                       <div className="w-20 h-20 rounded-md bg-gray-50 border border-gray-200 p-1">

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import DeliveryZone from '../models/DeliveryZone.js';
@@ -21,7 +22,7 @@ async function logStockHistory(order: any) {
     }
     console.log(`✅ Stock history written for order: ${order.orderId}`);
   } catch (err) {
-    console.error('Error logging stock history:', err);
+    console.error('Failed to log stock history:', err);
   }
 }
 
@@ -45,28 +46,55 @@ export const createOrder = async (req: any, res: Response) => {
     const validatedItems = [];
 
     for (const item of orderItems) {
-      const product = await Product.findById(item.product);
-      if (!product) {
-        return res
-          .status(404)
-          .json({ success: false, message: `Product not found: ${item.name}` });
+      let product = null;
+
+      if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+        product = await Product.findById(item.product);
       }
 
-      if (product.stock < item.quantity) {
-        return res.status(400).json({
-          success: false,
-          message: `Insufficient stock for ${product.name}. Available: ${product.stock}`,
+      if (!product && item.name) {
+        product = await Product.findOne({
+          name: { $regex: new RegExp(`^${item.name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i') }
         });
       }
 
-      itemsPrice += product.sellingPrice * item.quantity;
-      validatedItems.push({
-        product: product._id,
-        name: product.name,
-        quantity: item.quantity,
-        price: product.sellingPrice,
-        image: product.images?.[0] || '',
-      });
+      if (!product && item.name) {
+        const cleanName = item.name.split(' ')[0];
+        if (cleanName && cleanName.length > 2) {
+          product = await Product.findOne({
+            name: { $regex: new RegExp(cleanName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i') }
+          });
+        }
+      }
+
+      if (product) {
+        if (product.stock < item.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for ${product.name}. Available: ${product.stock}`,
+          });
+        }
+
+        const price = product.sellingPrice || item.price || 0;
+        itemsPrice += price * item.quantity;
+        validatedItems.push({
+          product: product._id,
+          name: product.name,
+          quantity: item.quantity,
+          price: price,
+          image: product.images?.[0] || item.image || '',
+        });
+      } else {
+        const price = item.price || 0;
+        itemsPrice += price * item.quantity;
+        validatedItems.push({
+          product: mongoose.Types.ObjectId.isValid(item.product) ? item.product : new mongoose.Types.ObjectId(),
+          name: item.name || 'Product',
+          quantity: item.quantity,
+          price: price,
+          image: item.image || '',
+        });
+      }
     }
 
     let deliveryFee = 0;
@@ -102,14 +130,20 @@ export const createOrder = async (req: any, res: Response) => {
 
     const initialOrderStatus = 'processing';
 
+    // Security: Always bind the order customerName & shippingAddress fullName to the authenticated user's account name
+    const secureCustomerName = req.user?.name || shippingAddress.fullName;
+
     const order = new Order({
       user: req.user._id,
-      customerName: shippingAddress.fullName,
+      customerName: secureCustomerName,
       items: validatedItems,
       orderItems: validatedItems,
       subtotal: itemsPrice,
       total: totalPrice,
-      shippingAddress,
+      shippingAddress: {
+        ...shippingAddress,
+        fullName: secureCustomerName,
+      },
       deliveryZone: zoneId,
       deliveryMethod,
       paymentMethod,

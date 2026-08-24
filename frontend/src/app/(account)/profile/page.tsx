@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { User, Package, MapPin, CreditCard, Settings, ChevronRight, Edit2, Camera, Heart, X, ShoppingBag, RefreshCcw, LayoutDashboard, MessageSquare, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { api, AddressEntry, PaymentMethod } from '@/lib/api';
+import { validateSriLankanPhone } from '@/lib/utils';
 
 interface Order {
   id: string;
@@ -23,6 +25,7 @@ interface SavedCard extends PaymentMethod {
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('settings');
   const [userAvatar, setUserAvatar] = useState('');
   const [userName, setUserName] = useState('');
@@ -104,7 +107,10 @@ export default function ProfilePage() {
 
   const fetchUserProfile = async () => {
     const token = localStorage.getItem('auth_token');
-    if (!token) return;
+    if (!token) {
+      router.push('/login?redirect=/profile');
+      return;
+    }
 
     try {
       const response = await api.getMe(token);
@@ -127,8 +133,14 @@ export default function ProfilePage() {
           : (wishlistRes.data.length || 0);
         setWishlistCount(wishlistItems);
       }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('authorized') || error?.message?.includes('token')) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        router.push('/login?redirect=/profile');
+      } else {
+        console.error('Error fetching profile:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -286,12 +298,9 @@ export default function ProfilePage() {
       setAddressError('Address is required');
       return false;
     }
-    if (!addressFormData.phone.trim()) {
-      setAddressError('Phone number is required');
-      return false;
-    }
-    if (addressFormData.phone.trim().length < 10) {
-      setAddressError('Please enter a valid phone number');
+    const phoneErr = validateSriLankanPhone(addressFormData.phone);
+    if (phoneErr) {
+      setAddressError(phoneErr);
       return false;
     }
     return true;
@@ -417,6 +426,13 @@ export default function ProfilePage() {
     if (!settingsFormData.name.trim()) {
       setSettingsError('Full name is required');
       return;
+    }
+    if (settingsFormData.phone) {
+      const phoneErr = validateSriLankanPhone(settingsFormData.phone);
+      if (phoneErr) {
+        setSettingsError(phoneErr);
+        return;
+      }
     }
 
     try {

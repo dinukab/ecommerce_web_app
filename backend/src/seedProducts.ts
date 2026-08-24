@@ -135,21 +135,28 @@ const seedProducts = async () => {
   try {
     await connectDB();
 
-    // Clear only existing products
-    await Product.deleteMany({});
-    console.log('✅ Cleared existing products');
+    // Upsert products by SKU to prevent deleting existing products
+    const weightCategories = ['Vegetables', 'Fruits', 'Meat', 'Seafood', 'Meat & Poultry', 'Grains & Pulses', 'Rice & Grains'];
 
-    // Insert all products with storeId
-    const toInsert = products.map(p => ({
-      ...p,
-      storeId: 'STORE-2025-001',
-      featured: false,
-      brand: 'OneShop',
-      description: `Quality ${p.name} available at OneShop.`,
-    }));
-
-    const inserted = await Product.insertMany(toInsert);
-    console.log(`✅ Inserted ${inserted.length} products across all categories`);
+    for (const p of products) {
+      const isWeight = weightCategories.includes(p.category) || p.name.includes('1kg') || p.name.includes('500g');
+      await Product.findOneAndUpdate(
+        { sku: p.sku },
+        {
+          $set: {
+            ...p,
+            isWeightBased: isWeight,
+            unit: isWeight ? 'kg' : 'item',
+            storeId: 'STORE-2025-001',
+            featured: false,
+            brand: 'OneShop',
+            description: `Quality ${p.name} available at OneShop.`,
+          }
+        },
+        { upsert: true, new: true }
+      );
+    }
+    console.log(`✅ Upserted ${products.length} products without deleting existing products`);
 
     process.exit(0);
   } catch (err) {

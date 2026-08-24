@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import React from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { validateSriLankanPhone } from '@/lib/utils';
 import { storeConfig } from '@/lib/storeConfig';
 import { useStore } from '@/context/StoreContext';
 
@@ -52,6 +53,14 @@ const [success, setSuccess] = useState(false);
       return;
     }
 
+    if (formData.phone) {
+      const phoneErr = validateSriLankanPhone(formData.phone);
+      if (phoneErr) {
+        setError(phoneErr);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       // Use the API service instead of manual fetch
@@ -59,6 +68,7 @@ const [success, setSuccess] = useState(false);
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
+        phone: formData.phone,
       });
 
       setSuccess(true);
@@ -138,6 +148,18 @@ const [success, setSuccess] = useState(false);
                 required
                 className="w-full h-12 rounded-xl border-[#d1d5db] bg-[#f9fafb] shadow-sm text-black
                  focus:ring-brand focus:border-brand"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-gray-700 ml-1">Phone Number (Optional)</label>
+              <Input
+                type="tel"
+                name="phone"
+                placeholder="07XXXXXXXX (e.g. 0771234567)"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full h-12 rounded-xl border-gray-200 bg-gray-50/50 shadow-sm text-black focus:ring-brand focus:border-brand"
               />
             </div>
 

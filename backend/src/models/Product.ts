@@ -25,6 +25,7 @@ const productSchema = new mongoose.Schema(
 
     isWeightBased: { type: Boolean, default: false },
     unit:          { type: String, enum: ['kg', 'item'], default: 'item' },
+    expiryDate:    { type: Date, default: null },
 
     storeId:   { type: String, required: true, default: 'STORE-2025-001' },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },

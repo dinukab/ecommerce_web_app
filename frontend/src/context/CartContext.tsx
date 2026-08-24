@@ -64,10 +64,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setCart([]);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('oneshop-cart');
+    }
   };
 
   const clearSelectedItems = () => {
-    setCart(prevCart => prevCart.filter(item => item.selected === false));
+    setCart(prevCart => {
+      const remainingCart = prevCart.filter(item => item.selected === false);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('oneshop-cart', JSON.stringify(remainingCart));
+      }
+      return remainingCart;
+    });
   };
 
   const toggleItemSelection = (productId: string) => {
@@ -89,7 +98,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getCartCount = () => {
-    return cart.reduce((count, item) => count + item.quantity, 0);
+    const total = cart.reduce((count, item) => {
+      const isKg = item.isWeightBased || item.unit === 'kg' || (typeof item.unit === 'string' && item.unit.toLowerCase().includes('kg'));
+      if (isKg || !Number.isInteger(item.quantity)) {
+        return count + 1;
+      }
+      return count + (Math.round(item.quantity) || 1);
+    }, 0);
+    return Math.round(total);
   };
 
   return (

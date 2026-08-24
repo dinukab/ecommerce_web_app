@@ -189,8 +189,14 @@ export default function ProductDetailPage() {
               </span>
             </div>
 
-            <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-3xl font-bold text-gray-900">Rs {product.sellingPrice.toLocaleString()}</span>
+            {/* Price & Unit Display */}
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="text-3xl font-bold text-gray-900">
+                Rs {product.sellingPrice.toLocaleString()}
+                {(product.isWeightBased || product.unit === 'kg' || product.name.toLowerCase().includes('/kg') || product.name.toLowerCase().includes('(kg)')) && (
+                  <span className="text-lg font-normal text-gray-500"> / kg</span>
+                )}
+              </span>
               {discount > 0 && (
                 <>
                   <span className="text-lg text-gray-300 line-through">Rs {(product.costPrice ?? 0).toLocaleString()}</span>
@@ -199,38 +205,119 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            <p className="text-gray-500 text-sm leading-relaxed mb-8 max-w-md">
+            {(product.isWeightBased || product.unit === 'kg' || product.name.toLowerCase().includes('/kg') || product.name.toLowerCase().includes('(kg)')) && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-full mb-4 w-fit border border-amber-200">
+                ⚖️ Sold by weight (Select in grams/kg)
+              </span>
+            )}
+
+            {product.expiryDate && (
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-full mb-4 w-fit border border-rose-200 shadow-sm">
+                <span>📅</span> Expiry Date: {new Date(product.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+              </div>
+            )}
+
+            <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-md">
               {product.description || `Premium quality ${product.name} for your daily needs. Sourced from the best suppliers to ensure freshness and taste.`}
             </p>
 
-            <div className="space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center bg-gray-100 rounded-full px-2 py-1">
-                  <button 
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-8 h-8 flex items-center justify-center text-gray-400"
-                  >
-                    <Minus size={14} />
-                  </button>
-                  <span className="w-8 text-center font-bold text-sm text-gray-900">{quantity}</span>
-                  <button 
-                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                    className="w-8 h-8 flex items-center justify-center text-gray-400"
-                  >
-                    <Plus size={14} />
-                  </button>
+            <div className="space-y-6">
+              {/* Weight Selector for Weight-Based Products */}
+              {(product.isWeightBased || product.unit === 'kg' || product.name.toLowerCase().includes('/kg') || product.name.toLowerCase().includes('(kg)')) ? (
+                <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Select Weight:</span>
+                    <span className="text-xs font-bold text-brand bg-brand-light/50 px-2.5 py-1 rounded-lg">
+                      Selected: {quantity >= 1 ? `${quantity} kg` : `${Math.round(quantity * 1000)}g`}
+                    </span>
+                  </div>
+
+                  {/* Preset Weight Buttons */}
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { weight: 0.25, label: '250g' },
+                      { weight: 0.5, label: '500g' },
+                      { weight: 1, label: '1 kg' },
+                      { weight: 1.5, label: '1.5 kg' },
+                      { weight: 2, label: '2 kg' },
+                      { weight: 3, label: '3 kg' },
+                      { weight: 5, label: '5 kg' },
+                    ].map((preset) => (
+                      <button
+                        key={preset.weight}
+                        type="button"
+                        onClick={() => setQuantity(preset.weight)}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                          quantity === preset.weight
+                            ? 'bg-[#151194] text-white border-[#151194] shadow-md scale-105'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-brand hover:text-brand'
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Fine Weight Adjuster */}
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-200/60">
+                    <span className="text-xs text-gray-500">Adjust weight (±250g):</span>
+                    <div className="flex items-center bg-white border border-gray-200 rounded-xl px-2 py-1 shadow-sm">
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(Math.max(0.25, Number((quantity - 0.25).toFixed(2))))}
+                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-brand font-bold"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="w-16 text-center font-bold text-xs text-gray-900">
+                        {quantity >= 1 ? `${quantity} kg` : `${Math.round(quantity * 1000)}g`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(Number((quantity + 0.25).toFixed(2)))}
+                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-brand font-bold"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Calculated Price Display */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200 font-bold text-sm">
+                    <span className="text-gray-700">Total Price:</span>
+                    <span className="text-xl text-brand">
+                      Rs {(product.sellingPrice * quantity).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
+              ) : (
+                /* Unit Quantity Selector */
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center bg-gray-100 rounded-full px-2 py-1">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-8 h-8 flex items-center justify-center text-gray-400"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="w-8 text-center font-bold text-sm text-gray-900">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      className="w-8 h-8 flex items-center justify-center text-gray-400"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
 
-                <button 
-                  onClick={() => addToCart(product, quantity)}
-                  className="flex-1 h-12 bg-[#151194] text-white rounded-full font-bold text-sm flex items-center justify-center gap-3 hover:bg-[#0c0a5c] transition-all"
-                >
-                  <ShoppingCart size={16} />
-                  Add to Cart
-                </button>
-              </div>
-
-
+              <button 
+                onClick={() => addToCart(product, quantity)}
+                className="w-full h-13 bg-[#151194] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-3 hover:bg-[#0c0a5c] shadow-lg shadow-brand-light transition-all active:scale-98"
+              >
+                <ShoppingCart size={18} />
+                Add {(product.isWeightBased || product.unit === 'kg') ? (quantity >= 1 ? `${quantity} kg` : `${Math.round(quantity * 1000)}g`) : `${quantity} item(s)`} to Cart — Rs {(product.sellingPrice * quantity).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </button>
             </div>
           </div>
         </div>

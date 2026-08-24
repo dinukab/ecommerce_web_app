@@ -22,25 +22,23 @@ const emailSchema = z
   .max(254, 'Email address is too long.')
   .email('Please enter a valid email address.');
 
-/*Sri Lankan mobile number validation*/
+/*Sri Lankan mobile number validation (must start with 07 and be 10 digits)*/
 const sriLankanPhoneSchema = z
   .string({ error: 'Phone number is required.' })
   .trim()
   .transform((val) => val.replace(/[\s\-\(\)]/g, '')) // strip formatting
   .refine(
-    (val) => /^(\+94|94|0)?7[0-9]{8}$/.test(val),
-    {
-      message:
-        'Enter a valid Sri Lankan mobile number (e.g. +94 77 123 4567 or 077 123 4567).',
-    }
+    (val) => /^\d+$/.test(val),
+    { message: 'Phone number must contain only digits.' }
   )
-  .transform((val) => {
-    // Normalise to international format +94XXXXXXXXX
-    if (val.startsWith('+94')) return val;
-    if (val.startsWith('94')) return `+${val}`;
-    if (val.startsWith('0')) return `+94${val.slice(1)}`;
-    return `+94${val}`;
-  });
+  .refine(
+    (val) => val.startsWith('07'),
+    { message: 'Phone number must start with 07.' }
+  )
+  .refine(
+    (val) => val.length === 10,
+    { message: 'Phone number must be exactly 10 digits (e.g. 0771234567).' }
+  );
 
 /**
  * Password strength rules:
@@ -60,13 +58,23 @@ const passwordSchema = z
 //REQUEST SCHEMAS//
 
 /** POST /api/auth/register */
-export const registerSchema = z.object({
-  name: nameSchema,
-  email: emailSchema,
-  password: passwordSchema,
-  // phone is optional at registration
-  phone: z.union([sriLankanPhoneSchema, z.literal(''), z.undefined()]).optional(),
-});
+export const registerSchema = z.preprocess(
+  (data: any) => {
+    if (data && typeof data === 'object') {
+      if (!data.name && data.fullName) {
+        return { ...data, name: data.fullName };
+      }
+    }
+    return data;
+  },
+  z.object({
+    name: nameSchema,
+    fullName: z.string().optional(),
+    email: emailSchema,
+    password: passwordSchema,
+    phone: z.union([sriLankanPhoneSchema, z.literal(''), z.undefined()]).optional(),
+  })
+);
 
 /** POST /api/auth/login */
 export const loginSchema = z.object({
@@ -107,7 +115,7 @@ export const forgotPasswordSchema = z.object({
 const orderItemSchema = z.object({
   product: z.string().min(1, 'Product ID is required.'),
   name: z.string().min(1, 'Product name is required.'),
-  quantity: z.number().int().min(1, 'Quantity must be at least 1.'),
+  quantity: z.number().positive('Quantity must be a positive number.'),
   price: z.number().min(0, 'Price must be a positive number.'),
   image: z.string().optional().default(''),
 });

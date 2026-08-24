@@ -187,6 +187,11 @@ export default function CartPage() {
                           </h3>
                         </Link>
                         <p className="text-xs text-gray-500 mt-1">{item.category}</p>
+                        {item.expiryDate && (
+                          <p className="text-[11px] font-semibold text-rose-600 mt-0.5 flex items-center gap-1">
+                            <span>📅</span> Exp: {new Date(item.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </p>
+                        )}
                         <button
                           onClick={() => removeFromCart(item._id)}
                           className="text-xs font-medium text-red-600 hover:text-red-700 mt-2 flex items-center gap-1"
@@ -201,6 +206,9 @@ export default function CartPage() {
                     <div className="md:col-span-2 md:text-center">
                       <span className="text-sm font-semibold text-gray-900">
                         LKR {item.sellingPrice.toLocaleString()}
+                        {(item.isWeightBased || item.unit === 'kg') && (
+                          <span className="text-xs font-normal text-gray-500"> / kg</span>
+                        )}
                       </span>
                     </div>
 
@@ -209,7 +217,8 @@ export default function CartPage() {
                       <QuantityPicker
                         value={item.quantity}
                         onChange={(qty: number) => updateQuantity(item._id, qty)}
-                        min={1}
+                        unit={item.unit}
+                        isWeightBased={item.isWeightBased}
                       />
                     </div>
 
