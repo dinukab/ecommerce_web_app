@@ -1,8 +1,37 @@
 import request from 'supertest';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import { app } from '../server.js';
 import Product from '../models/Product.js';
 import DeliveryZone from '../models/DeliveryZone.js';
 import { Order } from '../models/Order.js';
+import { Customer } from '../models/Customer.js';
+
+let mongoServer: MongoMemoryServer;
+
+beforeAll(async () => {
+  try {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+    mongoServer = await MongoMemoryServer.create({
+      instance: {
+        ip: '127.0.0.1',
+        port: 27018, // using different port to prevent conflicts when running in parallel
+      },
+    });
+    const mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri);
+  } catch (error) {
+    console.error('Failed to start MongoDB Memory Server:', error);
+    throw error;
+  }
+});
+
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongoServer.stop();
+});
 
 describe('Order Integration Tests', () => {
   let userToken: string;
@@ -10,15 +39,27 @@ describe('Order Integration Tests', () => {
   let testDeliveryZoneId: string;
 
   beforeEach(async () => {
+    // Clean the database before tests to avoid conflicts
+    await Product.deleteMany({});
+    await DeliveryZone.deleteMany({});
+    await Order.deleteMany({});
+    await Customer.deleteMany({});
+
     // 1. Create a user and get auth token
     const registerResponse = await request(app)
       .post('/api/auth/register')
       .send({
         name: 'Order Tester',
         email: 'ordertester@example.com',
-        password: 'password123',
+        password: 'Password123!',
         phone: '0712345678'
       });
+    
+    // Validate response was successful
+    if (!registerResponse.body?.data?.token) {
+      throw new Error(`Registration failed: ${JSON.stringify(registerResponse.body)}`);
+    }
+    
     userToken = registerResponse.body.data.token;
 
     // 2. Create a Delivery Zone
