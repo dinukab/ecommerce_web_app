@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { api } from '@/lib/api';
 import { storeConfig } from '@/lib/storeConfig';
 import { useStore } from '@/context/StoreContext';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const { settings } = useStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -165,5 +165,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="flex-1 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-brand" /></div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

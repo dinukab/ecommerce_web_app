@@ -1,13 +1,45 @@
 import request from 'supertest';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import { app } from '../server.js';
 import { Customer } from '../models/Customer.js';
+
+let mongoServer: MongoMemoryServer;
+
+beforeAll(async () => {
+  try {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+    mongoServer = await MongoMemoryServer.create({
+      instance: {
+        ip: '127.0.0.1',
+        port: 27017,
+      },
+    });
+    const mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri);
+  } catch (error) {
+    console.error('Failed to start MongoDB Memory Server:', error);
+    throw error;
+  }
+});
+
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongoServer.stop();
+});
+
+beforeEach(async () => {
+  await Customer.deleteMany({});
+});
 
 describe('Auth Integration Tests', () => {
   const testUser = {
     name: 'Test User',
     email: 'test@example.com',
-    password: 'password123',
-    phone: '1234567890'
+    password: 'Password123!',
+    phone: '0712345678'
   };
 
   describe('POST /api/auth/register', () => {
@@ -61,7 +93,7 @@ describe('Auth Integration Tests', () => {
         .post('/api/auth/login')
         .send({
           email: testUser.email,
-          password: 'wrongpassword'
+          password: 'WrongPassword123!'
         });
 
       expect(response.status).toBe(401);

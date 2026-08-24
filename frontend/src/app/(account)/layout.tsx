@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import AccountSidebar from '@/components/account/Sidebar';
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
@@ -13,9 +13,9 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <Suspense fallback={<div className="lg:col-span-1 animate-pulse bg-white rounded-2xl h-64" />}>
             <AccountSidebar />
-          </div>
+          </Suspense>
 
           {/* Main Content Area */}
           <div className="lg:col-span-3">
