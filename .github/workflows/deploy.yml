@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20' 
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -33,7 +33,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm ci || true
           cd backend && npm ci
           cd ../frontend && npm ci
 

@@ -12,6 +12,7 @@ export default $config({
     
     const api = new sst.aws.Function("StorefrontApi", {
       handler: "backend/src/server.handler", 
+      url: true,
       environment: {
         PAYHERE_MERCHANT_SECRET: process.env.PAYHERE_MERCHANT_SECRET || "",
         MONGODB_URI: process.env.MONGODB_URI || "",
