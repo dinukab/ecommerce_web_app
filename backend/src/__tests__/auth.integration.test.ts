@@ -39,7 +39,7 @@ describe('Auth Integration Tests', () => {
     name: 'Test User',
     email: 'test@example.com',
     password: 'Password123!',
-    phone: '1234567890'
+    phone: '0712345678'
   };
 
   describe('POST /api/auth/register', () => {

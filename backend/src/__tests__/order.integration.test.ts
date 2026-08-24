@@ -91,6 +91,8 @@ describe('Order Integration Tests', () => {
         orderItems: [
           {
             product: testProductId,
+            name: 'Test Laptop',
+            price: 100000,
             quantity: 2
           }
         ],
@@ -129,6 +131,8 @@ describe('Order Integration Tests', () => {
         orderItems: [
           {
             product: testProductId,
+            name: 'Test Laptop',
+            price: 100000,
             quantity: 10 // Only 5 in stock
           }
         ],
@@ -156,7 +160,7 @@ describe('Order Integration Tests', () => {
 
     it('should fail to create order if delivery district is not supported', async () => {
       const orderPayload = {
-        orderItems: [{ product: testProductId, quantity: 1 }],
+        orderItems: [{ product: testProductId, name: 'Test Laptop', price: 100000, quantity: 1 }],
         shippingAddress: {
           fullName: 'Order Tester',
           addressLine1: '123 Test St',
@@ -184,7 +188,7 @@ describe('Order Integration Tests', () => {
     it('should successfully track an order without authentication', async () => {
       // First create an order to track
       const orderPayload = {
-        orderItems: [{ product: testProductId, quantity: 1 }],
+        orderItems: [{ product: testProductId, name: 'Test Laptop', price: 100000, quantity: 1 }],
         shippingAddress: {
           fullName: 'Order Tester',
           addressLine1: '123 Test St',
