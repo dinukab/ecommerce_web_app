@@ -9,9 +9,10 @@ export default $config({
     };
   },
   async run() {
-    
+
+    // Deploy the API Lambda first
     const api = new sst.aws.Function("StorefrontApi", {
-      handler: "backend/src/server.handler", 
+      handler: "backend/src/server.handler",
       url: true,
       environment: {
         PAYHERE_MERCHANT_SECRET: process.env.PAYHERE_MERCHANT_SECRET || "",
@@ -20,12 +21,21 @@ export default $config({
       },
     });
 
-  
-    new sst.aws.Nextjs("StorefrontWeb", {
+    // Deploy the Next.js frontend, inject the API URL (with /api suffix)
+    const web = new sst.aws.Nextjs("StorefrontWeb", {
       path: "frontend",
       environment: {
-        NEXT_PUBLIC_API_URL: api.url,
+        // Lambda URL already ends with "/", so append "api"
+        NEXT_PUBLIC_API_URL: $interpolate`${api.url}api`,
+        NEXT_PUBLIC_PAYHERE_MERCHANT_ID: process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID || "1235406",
       },
     });
+
+    // Feed the frontend URL back to the API so CORS allows it
+    // (SST Output values are lazy — this is resolved at deploy time)
+    return {
+      api: api.url,
+      web: web.url,
+    };
   },
 });

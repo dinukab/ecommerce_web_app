@@ -42,3 +42,4 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           PAYHERE_MERCHANT_SECRET: ${{ secrets.PAYHERE_MERCHANT_SECRET }}
+          NEXT_PUBLIC_PAYHERE_MERCHANT_ID: ${{ secrets.NEXT_PUBLIC_PAYHERE_MERCHANT_ID }}

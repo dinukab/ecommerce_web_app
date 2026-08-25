@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
+import serverlessExpress from "@vendia/serverless-express";
 import connectDB from "./config/database.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -25,10 +26,29 @@ if (process.env.NODE_ENV !== 'test') {
 
 export const app = express();
 
+// CORS: allow localhost for dev, and any deployed AWS frontend URL
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
 app.use(cors({
-  origin: ['http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean) as string[],
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    // Allow any *.amazonaws.com or *.cloudfront.net URL automatically
+    if (
+      allowedOrigins.includes(origin) ||
+      /\.amazonaws\.com$/.test(origin) ||
+      /\.cloudfront\.net$/.test(origin)
+    ) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
 }));
+
 app.use((req, res, next) => {
   if (process.env.NODE_ENV !== 'test') {
     console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
@@ -52,7 +72,12 @@ app.use('/api/delivery', deliveryRoutes);
 app.use('/api/store-orders', storeOrderRoutes);
 app.use('/api/store-settings', storeRoutes);
 
-if (process.env.NODE_ENV !== 'test') {
+// ─── Lambda handler (used by SST / AWS Lambda Function URL) ──────────────────
+// This is what sst.config.ts references as "backend/src/server.handler"
+export const handler = serverlessExpress({ app });
+
+// ─── Local dev server (only when run directly, not in Lambda) ────────────────
+if (process.env.NODE_ENV !== 'test' && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
