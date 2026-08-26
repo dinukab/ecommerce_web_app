@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import serverlessExpress from "@vendia/serverless-express";
+import serverlessHttp from "serverless-http";
 import connectDB from "./config/database.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -73,8 +73,8 @@ app.use('/api/store-orders', storeOrderRoutes);
 app.use('/api/store-settings', storeRoutes);
 
 // ─── Lambda handler (used by SST / AWS Lambda Function URL) ──────────────────
-// This is what sst.config.ts references as "backend/src/server.handler"
-export const handler = serverlessExpress({ app });
+// serverless-http wraps Express with a Promise-based handler (Node.js 24 compatible)
+export const handler = serverlessHttp(app);
 
 // ─── Local dev server (only when run directly, not in Lambda) ────────────────
 if (process.env.NODE_ENV !== 'test' && !process.env.AWS_LAMBDA_FUNCTION_NAME) {

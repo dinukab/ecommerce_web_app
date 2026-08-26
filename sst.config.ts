@@ -13,6 +13,7 @@ export default $config({
     // Deploy the API Lambda first
     const api = new sst.aws.Function("StorefrontApi", {
       handler: "backend/src/server.handler",
+      runtime: "nodejs22.x",   // pin: Node.js 24 dropped callback-style handlers
       url: true,
       environment: {
         PAYHERE_MERCHANT_SECRET: process.env.PAYHERE_MERCHANT_SECRET || "",
