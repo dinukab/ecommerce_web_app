@@ -16,7 +16,7 @@ export default $config({
       runtime: "nodejs22.x",      // pin: Node.js 24 dropped callback-style handlers
       timeout: "30 seconds",       // MongoDB Atlas cold-connect needs ~5-8s; 3s default is too low
       memory: "512 MB",            // more memory = more vCPU = faster cold starts
-      url: true,
+      url: { cors: false },
       environment: {
         PAYHERE_MERCHANT_SECRET: process.env.PAYHERE_MERCHANT_SECRET || "",
         MONGODB_URI: process.env.MONGODB_URI || "",
