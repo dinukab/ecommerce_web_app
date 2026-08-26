@@ -20,9 +20,10 @@ import storeOrderRoutes from "./routes/storeOrderRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
 // import returnRoutes from "./routes/returns.js";
 
-if (process.env.NODE_ENV !== 'test') {
-  connectDB();
-}
+// DB connection is established lazily inside the handler (see below).
+// This avoids the race condition where Lambda serves requests before the
+// connection is ready. The readyState guard in database.ts makes it a no-op
+// on warm (reused) Lambda containers.
 
 export const app = express();
 
@@ -73,13 +74,22 @@ app.use('/api/store-orders', storeOrderRoutes);
 app.use('/api/store-settings', storeRoutes);
 
 // ─── Lambda handler (used by SST / AWS Lambda Function URL) ──────────────────
-// serverless-http wraps Express with a Promise-based handler (Node.js 24 compatible)
-export const handler = serverlessHttp(app);
+// Wraps serverless-http so that connectDB() is awaited before every request.
+// On warm containers, connectDB() returns immediately (readyState >= 1 guard).
+const _serverlessHandler = serverlessHttp(app);
+
+export const handler = async (event: any, context: any) => {
+  // Ensure DB is connected before handling the request
+  await connectDB();
+  return _serverlessHandler(event, context);
+};
 
 // ─── Local dev server (only when run directly, not in Lambda) ────────────────
 if (process.env.NODE_ENV !== 'test' && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  connectDB().then(() => {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   });
 }

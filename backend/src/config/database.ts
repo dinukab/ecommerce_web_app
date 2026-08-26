@@ -10,47 +10,54 @@ dns.setServers(['8.8.8.8', '1.1.1.1']);
 dotenv.config();
 
 const connectDB = async () => {
+  // ── Lambda connection caching ────────────────────────────────────────────────
+  // Lambda reuses the same Node.js process for warm invocations.
+  // If Mongoose is already connected (readyState 1) or connecting (2), skip.
+  if (mongoose.connection.readyState >= 1) {
+    console.log('♻️  Reusing existing MongoDB connection');
+    return;
+  }
+
   const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-  console.log('Environment check:');
-  console.log('NODE_ENV:', process.env.NODE_ENV);
-  console.log('MONGODB_URI exists:', !!mongoURI);
-  console.log('FULL MONGODB_URI:', mongoURI);
-  console.log('Using DNS servers:', dns.getServers());
-
   if (!mongoURI) {
-    console.error('❌ MongoDB Connection Failed');
-    throw new Error('MONGODB_URI is not defined in .env file');
+    throw new Error('MONGODB_URI is not defined');
   }
 
   const connectOptions = {
     family: 4,
-    serverSelectionTimeoutMS: 10000,
+    serverSelectionTimeoutMS: 8000,  // fail fast so Lambda doesn't time out
+    socketTimeoutMS: 30000,
+    maxPoolSize: 5,                   // limit pool size — Lambda scales via concurrency
+    minPoolSize: 1,
   };
 
+  console.log('Connecting to MongoDB Atlas...');
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+
   try {
-    console.log('Connecting to MongoDB Atlas...');
     const conn = await mongoose.connect(mongoURI, connectOptions);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`✅ Database: ${conn.connection.name}`);
   } catch (error: any) {
-    if (error.message.includes('querySrv ECONNREFUSED')) {
-      console.error('❌ MongoDB SRV DNS query failed. Retrying with public DNS servers...');
+    // Retry once with explicit public DNS in case of SRV resolution failure
+    if (error.message.includes('querySrv') || error.message.includes('ECONNREFUSED')) {
+      console.error('⚠️  DNS issue, retrying with public DNS...');
       dns.setServers(['8.8.8.8', '1.1.1.1']);
       try {
         const conn = await mongoose.connect(mongoURI, connectOptions);
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-        console.log(`✅ Database: ${conn.connection.name}`);
+        console.log(`✅ MongoDB Connected (retry): ${conn.connection.host}`);
         return;
       } catch (retryError: any) {
         console.error('❌ Retry failed:', retryError.message);
+        throw retryError; // let Lambda return 500, don't exit the process
       }
     }
 
-    console.error('❌ MongoDB Connection Failed');
-    console.error('Error:', error.message);
-    process.exit(1);
+    console.error('❌ MongoDB Connection Failed:', error.message);
+    throw error; // throw instead of process.exit — keeps the Lambda container alive
   }
 };
 
 export default connectDB;
+

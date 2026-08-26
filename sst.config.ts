@@ -13,7 +13,9 @@ export default $config({
     // Deploy the API Lambda first
     const api = new sst.aws.Function("StorefrontApi", {
       handler: "backend/src/server.handler",
-      runtime: "nodejs22.x",   // pin: Node.js 24 dropped callback-style handlers
+      runtime: "nodejs22.x",      // pin: Node.js 24 dropped callback-style handlers
+      timeout: "30 seconds",       // MongoDB Atlas cold-connect needs ~5-8s; 3s default is too low
+      memory: "512 MB",            // more memory = more vCPU = faster cold starts
       url: true,
       environment: {
         PAYHERE_MERCHANT_SECRET: process.env.PAYHERE_MERCHANT_SECRET || "",
