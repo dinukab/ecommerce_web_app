@@ -30,6 +30,7 @@ export const app = express();
 // CORS: allow localhost for dev, and any deployed AWS frontend URL
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
   process.env.FRONTEND_URL,
 ].filter(Boolean) as string[];
 
@@ -56,7 +57,8 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 app.use("/api/cart", cartRoutes);
@@ -72,6 +74,21 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/store-orders', storeOrderRoutes);
 app.use('/api/store-settings', storeRoutes);
+
+// Global Error Handler (returns JSON instead of HTML on error)
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Server error:', err);
+  if (err.type === 'entity.too.large' || err.status === 413) {
+    return res.status(413).json({
+      success: false,
+      message: 'File or payload too large. Please select a smaller file.',
+    });
+  }
+  return res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+  });
+});
 
 // ─── Lambda handler (used by SST / AWS Lambda Function URL) ──────────────────
 // Wraps serverless-http so that connectDB() is awaited before every request.
