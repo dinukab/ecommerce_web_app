@@ -519,7 +519,7 @@ export const cancelOrder = async (req: any, res: Response) => {
 
     // Restore stock for COD orders (stock was deducted on order creation).
     // PayHere orders only deduct stock on payment confirmation, so no restore needed.
-    if (order.paymentMethod === 'cash-on-delivery' || order.paymentMethod === 'cod') {
+    if (order.paymentMethod === 'cash-on-delivery') {
       try {
         for (const item of order.orderItems) {
           await Product.findByIdAndUpdate(item.product, {
