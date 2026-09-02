@@ -1,0 +1,11 @@
+time=2026-09-02T12:17:28.238+05:30 level=INFO msg="checking for pulumi" path=C:\Users\LENOVO\AppData\Roaming\sst\bin\pulumi.exe
+time=2026-09-02T12:17:28.552+05:30 level=INFO msg="checking for bun" path=C:\Users\LENOVO\AppData\Roaming\sst\bin\bun.exe
+time=2026-09-02T12:17:28.611+05:30 level=INFO msg="initializing project" version=4.17.1
+time=2026-09-02T12:17:28.614+05:30 level=INFO msg="esbuild building" out=D:\ecommerce_web_app\.sst\platform\sst.config.1788331648614.mjs
+time=2026-09-02T12:17:28.619+05:30 level=INFO msg="esbuild built" outfile=D:\ecommerce_web_app\.sst\platform\sst.config.1788331648614.mjs
+time=2026-09-02T12:17:28.621+05:30 level=INFO msg="evaluating config"
+time=2026-09-02T12:17:28.823+05:30 level=INFO msg="config evaluated"
+time=2026-09-02T12:17:28.826+05:30 level=INFO msg="checking platform"
+time=2026-09-02T12:17:28.827+05:30 level=INFO msg="loading home"
+time=2026-09-02T12:17:33.828+05:30 level=ERROR msg="failed to remove temp log file" err="open C:\\Users\\LENOVO\\AppData\\Local\\Temp\\D:\\ecommerce_web_app\\.sst\\log: The filename, directory name, or volume label syntax is incorrect."
+time=2026-09-02T12:17:33.843+05:30 level=ERROR msg="exited with error" err="aws: failed to refresh cached credentials, no EC2 IMDS role found, operation error ec2imds: GetMetadata, request canceled, context deadline exceeded"
