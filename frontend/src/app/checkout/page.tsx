@@ -451,24 +451,13 @@ export default function CheckoutPage() {
       if (res.success && res.data) {
         const order = res.data;
         if (formData.paymentMethod === 'payhere') {
+          // Use the payment params from the backend — they contain the exact values
+          // (amount, merchant_id, sandbox, hash) that were used to generate the hash.
+          // Reconstructing these on the frontend causes mismatches and "Unauthorized" errors.
           const payment = {
-            "sandbox": true,
-            "merchant_id": order.payhereMerchantId || process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID || "1228499",
-            "hash": order.payhereHash,
-            "return_url": window.location.origin + `/orders/confirmation/${order._id}`,
-            "cancel_url": window.location.origin + `/checkout`,
-            "notify_url": process.env.NEXT_PUBLIC_API_URL + "/orders/payhere-notify",
-            "order_id": order._id,
-            "items": "Ecommerce Order",
-            "amount": subtotal + deliveryData.fee,
-            "currency": "LKR",
-            "first_name": formData.fullName.split(' ')[0],
-            "last_name": formData.fullName.split(' ').slice(1).join(' ') || formData.fullName.split(' ')[0],
-            "email": formData.email,
-            "phone": formData.phone,
-            "address": formData.addressLine1,
-            "city": formData.city || formData.district,
-            "country": "Sri Lanka"
+            ...order.payhereParams,
+            return_url: window.location.origin + `/orders/confirmation/${order._id}`,
+            cancel_url: window.location.origin + `/checkout`,
           };
 
           const payhere = (window as any).payhere;

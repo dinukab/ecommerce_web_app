@@ -6,14 +6,10 @@ import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api, Order } from '@/lib/api';
 import { 
-  ArrowLeft,
-  Truck,
-  MapPin,
-  ChevronDown,
-  ChevronUp,
   Package,
   Search,
-  Store
+  Store,
+  XCircle
 } from 'lucide-react';
 import { storeConfig } from '@/lib/storeConfig';
 import { useRouter } from 'next/navigation';
@@ -150,6 +146,31 @@ export default function MyOrdersPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gray-50 border-t border-gray-100">
+                <Link
+                  href={`/orders/${order._id}`}
+                  className="text-xs font-bold text-brand hover:text-brand-dark transition-colors"
+                >
+                  View Details →
+                </Link>
+                {['pending', 'confirmed', 'processing'].includes(order.orderStatus) && (
+                  <Link
+                    href={`/orders/cancel/${order._id}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    Cancel Order
+                  </Link>
+                )}
+                {order.orderStatus === 'cancelled' && (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400">
+                    <XCircle className="w-3.5 h-3.5" />
+                    Order Cancelled
+                  </span>
+                )}
               </div>
             </div>
           ))

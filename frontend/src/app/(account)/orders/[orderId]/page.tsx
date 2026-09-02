@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api, Order } from '@/lib/api';
 import OrderStatusBadge from '@/components/OrderStatusBadge';
@@ -10,13 +10,11 @@ import {
   ArrowLeft, 
   Copy, 
   Truck, 
-  MapPin, 
   CreditCard, 
   Calendar,
   CheckCircle,
   Clock,
-  Printer,
-  ChevronRight
+  XCircle
 } from 'lucide-react';
 
 export default function OrderDetailsPage() {
@@ -60,6 +58,9 @@ export default function OrderDetailsPage() {
 
   if (!order) return null;
 
+  const isCancellable = ['pending', 'confirmed', 'processing'].includes(order.orderStatus);
+  const isCancelled = order.orderStatus === 'cancelled';
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
@@ -73,15 +74,38 @@ export default function OrderDetailsPage() {
             Back to Orders
           </Link>
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => copyToClipboard(order.trackingNumber)}
-              className="px-6 py-3 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand-dark transition-all shadow-lg shadow-brand-light flex items-center gap-2"
-            >
-              {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copySuccess ? 'Copied!' : 'Copy Tracking Number'}
-            </button>
+
+            {isCancellable && (
+              <Link
+                href={`/orders/cancel/${order._id}`}
+                className="px-6 py-3 rounded-xl bg-white border-2 border-red-200 text-red-600 font-bold text-sm hover:bg-red-50 hover:border-red-300 transition-all flex items-center gap-2"
+              >
+                <XCircle className="w-4 h-4" />
+                Cancel Order
+              </Link>
+            )}
           </div>
         </div>
+
+        {/* Cancelled Banner */}
+        {isCancelled && (
+          <div className="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6 flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+              <XCircle className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <h3 className="font-black text-red-800 text-base">Order Cancelled</h3>
+              <p className="text-sm text-red-600 mt-1">
+                This order was cancelled{order.cancelledAt ? ` on ${new Date(order.cancelledAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}.
+              </p>
+              {order.cancelReason && order.cancelReason !== 'No reason provided' && (
+                <p className="text-sm text-red-700 font-semibold mt-2">
+                  Reason: <span className="font-bold">{order.cancelReason}</span>
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Order Header Card */}
         <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 mb-8">
