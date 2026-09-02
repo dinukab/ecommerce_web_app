@@ -41,7 +41,8 @@ app.use(cors({
     if (
       allowedOrigins.includes(origin) ||
       /\.amazonaws\.com$/.test(origin) ||
-      /\.cloudfront\.net$/.test(origin)
+      /\.cloudfront\.net$/.test(origin) ||
+      origin === 'https://opendoor.allinoneshop.store'
     ) {
       return callback(null, true);
     }
