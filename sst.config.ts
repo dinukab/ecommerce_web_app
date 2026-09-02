@@ -27,6 +27,7 @@ export default $config({
     // Deploy the Next.js frontend, inject the API URL (with /api suffix)
     const web = new sst.aws.Nextjs("StorefrontWeb", {
       path: "frontend",
+      domain: "opendoor.allinoneshop.store",
       environment: {
         // Lambda URL already ends with "/", so append "api"
         NEXT_PUBLIC_API_URL: $interpolate`${api.url}api`,
