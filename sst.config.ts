@@ -44,4 +44,3 @@ export default $config({
   },
 });
 
-// trigger deploy for payhere
