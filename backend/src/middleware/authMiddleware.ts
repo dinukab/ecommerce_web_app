@@ -47,6 +47,33 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
   }
 };
 
+export const protectOptional = async (req: any, res: Response, next: NextFunction) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || 'supersecretkey'
+      ) as any;
+
+      const user = await User.findById(decoded.id);
+      if (user) {
+        req.user = user;
+      }
+    } catch (error) {
+      // Ignore token errors for optional auth
+    }
+  }
+  next();
+};
+
 export const admin = (req: any, res: Response, next: NextFunction) => {
   if (req.user && req.user.role === 'admin') {
     next();

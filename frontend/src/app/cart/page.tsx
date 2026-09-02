@@ -15,7 +15,7 @@ import {
 
 import OrderSummary from '@/components/OrderSummary';
 import { useCart } from "@/context/CartContext";
-import { fetchProducts, type Product } from '@/api/Productapi';
+import { fetchProducts, fetchRecommendations, type Product } from '@/api/Productapi';
 import ProductCard from '@/components/category/ProductCard';
 import { api } from "@/lib/api";
 
@@ -38,41 +38,29 @@ export default function CartPage() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (cart.length === 0) return;
-      
       try {
         setLoadingRelated(true);
+        const cartIds = cart.map(c => c._id);
         const categories = [...new Set(cart.map(item => item.category).filter(Boolean))];
         
-        // 1. Fetch Related Products (same category)
-        let related: Product[] = [];
-        if (categories.length > 0) {
-          const categorySlug = categories[0]
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '');
+        // 1. Fetch Recommendations analyzed from previous order categories
+        const recommended = await fetchRecommendations({
+          excludeIds: cartIds,
+          cartCategories: categories
+        });
 
-          const res = await fetchProducts({ category: categorySlug, limit: 10 });
-          const cartIds = cart.map(c => c._id);
-          related = (res.data || []).filter((p: Product) => !cartIds.includes(p._id));
-        }
+        // Strictly cap at 5 products as requested
+        const top5Recommended = (recommended || []).slice(0, 5);
+        setRelatedProducts(top5Recommended);
 
-        // Fallback for related if empty
-        if (related.length === 0) {
-          const fallbackRes = await fetchProducts({ sort: 'rating', limit: 10 });
-          const cartIds = cart.map(c => c._id);
-          related = (fallbackRes.data || []).filter((p: Product) => !cartIds.includes(p._id));
-        }
-        setRelatedProducts(related);
-
-        // 2. Fetch "More Products" (random/newest) for the grid below
+        // 2. Fetch "More Products" for the grid below
         const moreRes = await fetchProducts({ limit: 12, sort: 'newest' });
-        const usedIds = [...cart.map(c => c._id), ...related.map(r => r._id)];
+        const usedIds = [...cartIds, ...top5Recommended.map(r => r._id)];
         const filteredMore = (moreRes.data || []).filter((p: Product) => !usedIds.includes(p._id));
         setMoreProducts(filteredMore);
 
       } catch (err) {
-        console.error('Error fetching products:', err);
+        console.error('Error fetching recommendations:', err);
       } finally {
         setLoadingRelated(false);
       }
