@@ -18,7 +18,7 @@ export default $config({
       memory: "512 MB",            // more memory = more vCPU = faster cold starts
       url: { cors: false },
       environment: {
-        PAYHERE_MERCHANT_SECRET: process.env.PAYHERE_MERCHANT_SECRET || "",
+        PAYHERE_MERCHANT_SECRET: "MjY4MzgxNzgzNDMxNzkzNDQ4MjYwOTY1MTcwNDI4OTYxNDk3NzI=",
         MONGODB_URI: process.env.MONGODB_URI || "",
         JWT_SECRET: process.env.JWT_SECRET || "",
       },
