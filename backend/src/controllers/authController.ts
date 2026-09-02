@@ -14,13 +14,13 @@ const generateToken = (id: any, rememberMe: boolean = false) => {
 
 const registerUser = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, phone } = req.body;
     const name = req.body.name || req.body.fullName;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phone) {
       return res.status(400).json({ 
         success: false,
-        message: 'All fields are required.' 
+        message: 'All fields including phone number are required.' 
       });
     }
 
@@ -35,7 +35,8 @@ const registerUser = async (req: Request, res: Response) => {
     const user = await User.create({ 
       name, 
       email, 
-      password
+      password,
+      phone
     });
 
     return res.status(201).json({
@@ -46,6 +47,7 @@ const registerUser = async (req: Request, res: Response) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          phone: user.phone,
           role: 'user'
         },
         token: generateToken(user._id)
@@ -103,6 +105,7 @@ const loginUser = async (req: Request, res: Response) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          phone: user.phone || '',
           role: 'user'
         },
         token: generateToken(user._id, rememberMe)
@@ -152,9 +155,23 @@ const getMe = async (req: any, res: Response) => {
       { $set: { totalOrders, totalSpent, lastPurchase } }
     ).catch(err => console.error('Error updating customer stats:', err));
 
+    // Fallback: if user.phone is empty, resolve phone from latest order shippingAddress
+    let resolvedPhone = user.phone;
+    if (!resolvedPhone && userOrders.length > 0) {
+      const latestOrderWithPhone = userOrders
+        .filter((o: any) => o.shippingAddress && o.shippingAddress.phone)
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+      if (latestOrderWithPhone) {
+        resolvedPhone = latestOrderWithPhone.shippingAddress.phone;
+      }
+    }
+
+    const userData = user.toObject ? user.toObject() : { ...user };
+    userData.phone = resolvedPhone || userData.phone || '';
+
     res.status(200).json({
       success: true,
-      data: user
+      data: userData
     });
   } catch (err) {
     console.error('getMe error:', err);

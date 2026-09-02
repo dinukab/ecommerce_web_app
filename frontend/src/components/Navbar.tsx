@@ -19,7 +19,7 @@ export default function Navbar() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  const { getCartCount } = useCart();
+  const { getCartCount, clearCart } = useCart();
   const [userName, setUserName] = useState('');
 
   const pathname = usePathname();
@@ -28,24 +28,33 @@ export default function Navbar() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser);
-          setUserName(user.name);
-        } catch (e) {}
-      }
-      const token = localStorage.getItem('auth_token');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
       if (token) {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+            if (user && user.name) setUserName(user.name);
+          } catch (e) {}
+        }
         try {
           const res = await api.getMe(token);
           if (res.success && res.data) {
             setUserName(res.data.name);
             localStorage.setItem('user', JSON.stringify(res.data));
+          } else {
+            setUserName('');
+            localStorage.removeItem('user');
+            localStorage.removeItem('auth_token');
           }
         } catch (error) {
-          // ignore
+          setUserName('');
+          localStorage.removeItem('user');
+          localStorage.removeItem('auth_token');
         }
+      } else {
+        setUserName('');
+        localStorage.removeItem('user');
       }
     };
     fetchProfile();
@@ -274,6 +283,9 @@ export default function Navbar() {
                     <button 
                       onClick={() => { 
                         localStorage.removeItem('auth_token'); 
+                        localStorage.removeItem('user');
+                        setUserName('');
+                        clearCart();
                         router.push('/login'); 
                       }} 
                       className="w-full text-left block px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors"

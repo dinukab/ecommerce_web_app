@@ -26,7 +26,8 @@ import {
   ShoppingBag,
   CheckCircle2,
   AlertCircle,
-  Lock
+  Lock,
+  Calendar
 } from 'lucide-react';
 
 // Flatten all districts from provinces data
@@ -201,6 +202,27 @@ export default function CheckoutPage() {
   const [verifyingAuth, setVerifyingAuth] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [deliveryData, setDeliveryData] = useState({ fee: 0, days: 0 });
+  const [baseDeliveryDays, setBaseDeliveryDays] = useState<number>(0);
+
+  const getFormattedDeliveryDate = (days: number) => {
+    const date = new Date();
+    if (days === 0) {
+      return `Today (${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`;
+    }
+    date.setDate(date.getDate() + days);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const getMethodDays = (methodId: string) => {
+    if (methodId === 'pickup') return 0;
+    if (methodId === 'express') return Math.max(1, Math.ceil((baseDeliveryDays || 2) / 2));
+    return baseDeliveryDays || 2;
+  };
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -272,11 +294,19 @@ export default function CheckoutPage() {
         if (res.success && res.data) {
           const user = res.data;
           setIsAuthenticated(true);
+          const storedUserStr = localStorage.getItem('user');
+          let storedPhone = '';
+          if (storedUserStr) {
+            try {
+              const parsed = JSON.parse(storedUserStr);
+              storedPhone = parsed.phone || '';
+            } catch (e) {}
+          }
           setFormData(prev => ({
             ...prev,
-            fullName: user.name || '',
-            email: user.email || '',
-            phone: user.phone || ''
+            fullName: user.name || prev.fullName,
+            email: user.email || prev.email,
+            phone: user.phone || storedPhone || prev.phone || ''
           }));
         }
       } catch (err: any) {
@@ -306,6 +336,14 @@ export default function CheckoutPage() {
         if (res.success && res.data) {
           const data = res.data;
           setDeliveryData({ fee: data.fee, days: data.estimatedDays });
+        }
+
+        const baseRes = await api.calculateDeliveryFee({
+          district: formData.district,
+          deliveryMethod: 'standard'
+        });
+        if (baseRes.success && baseRes.data) {
+          setBaseDeliveryDays(baseRes.data.estimatedDays);
         }
       } catch (err) {
         console.error('Fee calculation error:', err);
@@ -604,21 +642,31 @@ export default function CheckoutPage() {
 
                 {/* Phone Number */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Phone Number</label>
-                  <div className={`flex items-center rounded-2xl border-1 bg-white shadow-sm focus-within:ring-4 transition-all duration-300 ${
-                    fieldErrors.phone
-                      ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-50/50'
-                      : 'border-gray-100 focus-within:border-blue-500 focus-within:ring-blue-50/50'
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Phone Number</label>
+                    {isAuthenticated && formData.phone && (
+                      <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md">
+                        <Lock className="w-3 h-3 text-brand" /> Account Locked
+                      </span>
+                    )}
+                  </div>
+                  <div className={`flex items-center rounded-2xl border-1 transition-all duration-300 ${
+                    isAuthenticated && formData.phone
+                      ? 'bg-gray-100/80 border-gray-200 cursor-not-allowed'
+                      : fieldErrors.phone
+                      ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-50/50 bg-white shadow-sm'
+                      : 'border-gray-100 focus-within:border-blue-500 focus-within:ring-blue-50/50 bg-white shadow-sm'
                   }`}>
                     <Phone className={`ml-4 w-4 h-4 flex-shrink-0 ${fieldErrors.phone ? 'text-red-400' : 'text-gray-400'}`} />
                     <input
                       required
+                      readOnly={isAuthenticated && !!formData.phone}
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       placeholder="07XXXXXXXX (e.g. 0771234567)"
-                      className="w-full px-4 py-3 bg-transparent outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                      className={`w-full px-4 py-3 bg-transparent outline-none text-sm font-medium ${isAuthenticated && formData.phone ? 'text-gray-600 cursor-not-allowed' : 'text-gray-900'} placeholder:text-gray-400`}
                     />
                   </div>
                   {fieldErrors.phone && (
@@ -764,32 +812,63 @@ export default function CheckoutPage() {
                     { id: 'standard', label: 'Standard Delivery', desc: 'Normal transit time' },
                     { id: 'express', label: 'Express Delivery', desc: 'Faster delivery (+50% fee)' },
                     { id: 'pickup', label: 'Store Pickup', desc: 'Pick up at store (FREE)' }
-                  ].map((m) => (
-                    <label
-                      key={m.id}
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.deliveryMethod === m.id
-                          ? 'border-brand bg-brand-light/50'
-                          : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio"
-                          name="deliveryMethod"
-                          value={m.id}
-                          checked={formData.deliveryMethod === m.id}
-                          onChange={handleChange}
-                          className="w-4 h-4 text-brand focus:ring-brand-light0"
-                        />
-                        <div>
-                          <p className="text-sm font-bold text-gray-900">{m.label}</p>
-                          <p className="text-[10px] text-gray-500">{m.desc}</p>
+                  ].map((m) => {
+                    const mDays = getMethodDays(m.id);
+                    return (
+                      <label
+                        key={m.id}
+                        className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${formData.deliveryMethod === m.id
+                            ? 'border-brand bg-brand-light/50'
+                            : 'border-gray-50 hover:border-gray-200 bg-gray-50/30'
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            name="deliveryMethod"
+                            value={m.id}
+                            checked={formData.deliveryMethod === m.id}
+                            onChange={handleChange}
+                            className="w-4 h-4 text-brand focus:ring-brand-light0"
+                          />
+                          <div>
+                            <p className="text-sm font-bold text-gray-900">{m.label}</p>
+                            <p className="text-[10px] text-gray-500">{m.desc}</p>
+                            {formData.district && (
+                              <p className="text-[11px] font-semibold text-brand mt-1 flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                Est. Delivery: {getFormattedDeliveryDate(mDays)}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      {formData.deliveryMethod === m.id && <CheckCircle2 className="w-5 h-5 text-brand" />}
-                    </label>
-                  ))}
+                        {formData.deliveryMethod === m.id && <CheckCircle2 className="w-5 h-5 text-brand" />}
+                      </label>
+                    );
+                  })}
                 </div>
+
+                {formData.district ? (
+                  <div className="mt-4 p-3.5 rounded-2xl bg-brand-light/70 border border-brand/20 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-brand text-white flex items-center justify-center flex-shrink-0 font-bold">
+                      <Calendar className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Estimated Delivery Date</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {getFormattedDeliveryDate(deliveryData.days)}
+                        <span className="text-xs font-semibold text-brand ml-2">
+                          ({deliveryData.days === 0 ? 'Ready for Pickup' : `${deliveryData.days} ${deliveryData.days === 1 ? 'day' : 'days'} transit`})
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 p-3 rounded-xl bg-gray-50 text-gray-500 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-gray-400" />
+                    Select a district to view estimated delivery date
+                  </div>
+                )}
               </div>
 
               {/* Payment Method */}
@@ -860,6 +939,7 @@ export default function CheckoutPage() {
             <OrderSummary
               items={cart.filter(item => item.selected !== false)}
               deliveryFee={deliveryData.fee}
+              estimatedDays={formData.district ? deliveryData.days : undefined}
               subtotal={subtotal}
             />
 

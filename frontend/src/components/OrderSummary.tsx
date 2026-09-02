@@ -15,6 +15,7 @@ interface OrderItem {
 interface OrderSummaryProps {
   items: OrderItem[];
   deliveryFee?: number;
+  estimatedDays?: number;
   subtotal: number;
   isCart?: boolean;
   loading?: boolean;
@@ -22,7 +23,21 @@ interface OrderSummaryProps {
   children?: React.ReactNode;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, subtotal, isCart, loading, onCheckout, children }) => {
+const getFormattedDeliveryDate = (days: number) => {
+  const date = new Date();
+  if (days === 0) {
+    return `Today (${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`;
+  }
+  date.setDate(date.getDate() + days);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+
+const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, estimatedDays, subtotal, isCart, loading, onCheckout, children }) => {
   const total = subtotal + (deliveryFee || 0);
 
   return (
@@ -69,6 +84,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ items = [], deliveryFee, su
             )}
           </span>
         </div>
+        {estimatedDays !== undefined && (
+          <div className="flex justify-between items-center text-sm pt-1">
+            <span className="text-gray-500">Est. Delivery</span>
+            <span className="font-bold text-xs bg-brand-light text-brand px-2.5 py-1 rounded-lg">
+              {getFormattedDeliveryDate(estimatedDays)}
+            </span>
+          </div>
+        )}
         <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
           <span className="text-base font-bold text-gray-900">Total</span>
           <span className="text-xl font-black" style={{ color: 'var(--brand)' }}>

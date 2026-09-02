@@ -50,7 +50,7 @@ export const getProducts = async (req: Request, res: Response) => {
       'price-asc': { sellingPrice: 1 },
       'price-desc': { sellingPrice: -1 },
       newest: { createdAt: -1 },
-      rating: { rating: -1 },
+      rating: { rating: -1 },//Trending items query: sorts products by rating in descending order
     };
     const sortQuery = (sortMap as any)[sort as string] || { name: 1 };
 

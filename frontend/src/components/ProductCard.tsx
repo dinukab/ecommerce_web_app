@@ -17,6 +17,7 @@ interface ProductCardProps {
   isWeightBased?: boolean;
   unit?: string;
   expiryDate?: string | Date;
+  stock?: number;
   initialWishlisted?: boolean;
   onWishlistRemove?: (id: string) => void;
 }
@@ -33,6 +34,7 @@ export default function ProductCard({
   isWeightBased,
   unit,
   expiryDate,
+  stock,
   initialWishlisted = false,
   onWishlistRemove,
 }: ProductCardProps) {
@@ -197,12 +199,19 @@ export default function ProductCard({
             <span className="text-sm text-gray-600 ml-2">({reviews})</span>
           </div>
 
-          {/* Expiry Date */}
-          {expiryDate && (
-            <p className="text-[11px] font-semibold text-rose-600 mb-2 flex items-center gap-1">
-              <span>📅</span> Exp: {new Date(expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-            </p>
-          )}
+          {/* Expiry Date & Stock Quantity */}
+          <div className="flex flex-wrap items-center gap-2 mb-2 text-[11px] font-semibold">
+            {expiryDate && (
+              <span className="text-rose-600">
+                📅 Exp: {new Date(expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+              </span>
+            )}
+            {stock !== undefined && (
+              <span className={stock > 0 ? (stock <= 10 ? 'text-amber-600 font-bold' : 'text-emerald-600 font-bold') : 'text-red-600 font-bold'}>
+                {stock > 0 ? (stock <= 10 ? `⚠️ Only ${stock} left` : `In Stock: ${stock}`) : 'Out of Stock'}
+              </span>
+            )}
+          </div>
 
           {/* Price */}
           <div className="flex items-baseline space-x-2 mt-auto">

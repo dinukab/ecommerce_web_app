@@ -25,9 +25,11 @@ export const createReview = async (req: Request, res: Response) => {
       text
     });
 
-    // Optionally update product average rating
+    // Update product average rating & review count
     const reviews = await Review.find({ product: productId });
-    const avgRating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
+    const avgRating = reviews.length > 0 
+      ? Number((reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length).toFixed(1))
+      : 5;
     
     await Product.findByIdAndUpdate(productId, {
       rating: avgRating,

@@ -51,6 +51,17 @@ export default function ProductDetailPage() {
       setProduct(prodData);
       setReviews(reviewData);
 
+      // Check logged in user to auto-fill review author name
+      const storedUserStr = localStorage.getItem('user');
+      if (storedUserStr) {
+        try {
+          const parsed = JSON.parse(storedUserStr);
+          if (parsed && parsed.name) {
+            setNewReview(prev => ({ ...prev, user: parsed.name }));
+          }
+        } catch (e) {}
+      }
+
       // Check if item is wishlisted
       const token = localStorage.getItem('auth_token');
       if (token) {
@@ -212,10 +223,33 @@ export default function ProductDetailPage() {
             )}
 
             {product.expiryDate && (
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-full mb-4 w-fit border border-rose-200 shadow-sm">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-full mb-3 w-fit border border-rose-200 shadow-sm">
                 <span>📅</span> Expiry Date: {new Date(product.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
               </div>
             )}
+
+            {/* Stock Quantity Display */}
+            <div className="mb-4">
+              {product.stock > 0 ? (
+                <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border shadow-sm ${
+                  product.stock <= (product.lowStockThreshold ?? 10)
+                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                    : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${
+                    product.stock <= (product.lowStockThreshold ?? 10) ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'
+                  }`} />
+                  {product.stock <= (product.lowStockThreshold ?? 10)
+                    ? `Low Stock: Only ${product.stock} items left in stock!`
+                    : `In Stock: ${product.stock} items available`}
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-200 shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-red-500" />
+                  Out of Stock
+                </div>
+              )}
+            </div>
 
             <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-md">
               {product.description || `Premium quality ${product.name} for your daily needs. Sourced from the best suppliers to ensure freshness and taste.`}

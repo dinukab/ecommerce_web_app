@@ -10,17 +10,32 @@ import { sendInvoiceEmail } from '../utils/mailer.js';
 
 async function logStockHistory(order: any) {
   try {
-    for (const item of order.orderItems) {
-      await StockHistory.create({
-        product: item.product,
-        type: 'remove',
-        quantity: item.quantity,
-        reason: `Online transaction ${order.orderId}`,
-        by: order.user ? order.user.toString() : 'system',
-        storeId: order.storeId || '69e539fd180ff885ce56ca57',
-      });
+    const orderIdStr = order.orderId || (order._id ? order._id.toString() : '');
+    const reasonText = `Online transaction ${orderIdStr}`;
+
+    // Deduplication check: prevent duplicate stock history entries for the same order
+    if (orderIdStr) {
+      const existing = await StockHistory.findOne({ reason: reasonText });
+      if (existing) {
+        console.log(`ℹ️ Stock history already logged for order: ${orderIdStr}`);
+        return;
+      }
     }
-    console.log(`✅ Stock history written for order: ${order.orderId}`);
+
+    const itemsToLog = order.orderItems || order.items || [];
+    for (const item of itemsToLog) {
+      if (item && item.product) {
+        await StockHistory.create({
+          product: item.product,
+          type: 'remove',
+          quantity: item.quantity,
+          reason: reasonText,
+          by: order.user ? order.user.toString() : 'system',
+          storeId: order.storeId || '69e539fd180ff885ce56ca57',
+        });
+      }
+    }
+    console.log(`✅ Stock history written for online order: ${orderIdStr}`);
   } catch (err) {
     console.error('Failed to log stock history:', err);
   }
@@ -164,18 +179,16 @@ export const createOrder = async (req: any, res: Response) => {
       return res.status(500).json({ success: false, message: 'Failed to save order to database' });
     }
 
-    // Deduct stock immediately ONLY for COD orders. 
-    // PayHere orders will deduct stock in the notification handler (payhereNotify).
-    if (paymentMethod === 'cod' || paymentMethod === 'cash-on-delivery') {
-      try {
-        for (const item of validatedItems) {
-          await Product.findByIdAndUpdate(item.product, {
-            $inc: { stock: -item.quantity },
-          });
-        }
-      } catch (stockError) {
-        console.error('Error updating stock for COD:', stockError);
+    // Deduct stock immediately and log to StockHistory for all online orders
+    try {
+      for (const item of validatedItems) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: -item.quantity },
+        });
       }
+      await logStockHistory(createdOrder);
+    } catch (stockError) {
+      console.error('Error updating stock and stock history:', stockError);
     }
 
 
