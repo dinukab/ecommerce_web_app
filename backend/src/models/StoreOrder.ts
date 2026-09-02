@@ -5,7 +5,7 @@ const storeOrderItemSchema = new mongoose.Schema(
   {
     productId: { type: String },                          // optional product ref (string or ObjectId)
     name:      { type: String, required: true },
-    quantity:  { type: Number, required: true, min: 1 },
+    quantity:  { type: Number, required: true, min: 0.001 },
     price:     { type: Number, required: true, min: 0 },
     image:     { type: String },
   },

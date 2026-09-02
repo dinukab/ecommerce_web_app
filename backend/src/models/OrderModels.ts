@@ -40,7 +40,7 @@ const orderSchema = new mongoose.Schema({
     productId: { type: String, required: true },
     name: { type: String, required: true },
     details: { type: String },
-    quantity: { type: Number, required: true, min: 1 },
+    quantity: { type: Number, required: true, min: 0.001 },
     price: { type: Number, required: true, min: 0 }
   }],
 
