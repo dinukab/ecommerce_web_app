@@ -8,7 +8,7 @@ import sendEmail from '../utils/sendEmail.js';
 
 const generateToken = (id: any, rememberMe: boolean = false) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'supersecretkey', {
-    expiresIn: rememberMe ? '30d' : '24h',
+    expiresIn: rememberMe ? '30d' : '24h',  // 30 days if 'Remember Me' is checked, otherwise 24 hours
   });
 };
 
