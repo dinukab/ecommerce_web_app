@@ -161,7 +161,7 @@ const getMe = async (req: any, res: Response) => {
       const latestOrderWithPhone = userOrders
         .filter((o: any) => o.shippingAddress && o.shippingAddress.phone)
         .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
-      if (latestOrderWithPhone) {
+      if (latestOrderWithPhone?.shippingAddress?.phone) {
         resolvedPhone = latestOrderWithPhone.shippingAddress.phone;
       }
     }

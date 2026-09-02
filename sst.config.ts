@@ -18,7 +18,7 @@ export default $config({
       memory: "512 MB",            // more memory = more vCPU = faster cold starts
       url: { cors: false },
       environment: {
-        PAYHERE_MERCHANT_SECRET: process.env.PAYHERE_MERCHANT_SECRET || "",
+        PAYHERE_MERCHANT_SECRET: "MjY4MzgxNzgzNDMxNzkzNDQ4MjYwOTY1MTcwNDI4OTYxNDk3NzI=",
         MONGODB_URI: process.env.MONGODB_URI || "",
         JWT_SECRET: process.env.JWT_SECRET || "",
       },
@@ -27,6 +27,7 @@ export default $config({
     // Deploy the Next.js frontend, inject the API URL (with /api suffix)
     const web = new sst.aws.Nextjs("StorefrontWeb", {
       path: "frontend",
+      domain: "opendoor.allinoneshop.store",
       environment: {
         // Lambda URL already ends with "/", so append "api"
         NEXT_PUBLIC_API_URL: $interpolate`${api.url}api`,
@@ -42,3 +43,4 @@ export default $config({
     };
   },
 });
+
