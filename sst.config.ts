@@ -18,9 +18,14 @@ export default $config({
       memory: "512 MB",            // more memory = more vCPU = faster cold starts
       url: { cors: false },
       environment: {
-        PAYHERE_MERCHANT_SECRET: "MTgyNjAzNzQyMDY0NzkxOTEzNjM3NTIxMTc4NDYzODU5ODYyMzk0",
+        PAYHERE_MERCHANT_SECRET: "MTAxNTEyMDgwODQwNTQxMzYzOTM5NTY5NTAyNjAyOTEzMjgzNDcw",
+        PAYHERE_MERCHANT_ID: "1235406",
+        PAYHERE_IS_SANDBOX: "false",
         MONGODB_URI: process.env.MONGODB_URI || "",
         JWT_SECRET: process.env.JWT_SECRET || "",
+        NODE_ENV: "production",
+        FRONTEND_URL: "https://opendoor.allinoneshop.store",
+        // BACKEND_URL is set after deploy — injected below via api.url
       },
     });
 
