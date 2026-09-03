@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { api, Order } from '@/lib/api';
 import OrderStatusBadge from '@/components/OrderStatusBadge';
 import OrderTimeline from '@/components/OrderTimeline';
+import OrderInvoiceButton from '@/components/OrderInvoiceButton';
 import { 
   ArrowLeft, 
   Copy, 
@@ -74,6 +75,7 @@ export default function OrderDetailsPage() {
             Back to Orders
           </Link>
           <div className="flex items-center gap-3">
+            <OrderInvoiceButton orderId={order._id} />
 
             {isCancellable && (
               <Link
