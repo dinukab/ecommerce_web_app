@@ -22,15 +22,19 @@ const sendEmail = async (options) => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
 
   // 2) Define the email options
   const mailOptions = {
-    from: `"Open Door" <${process.env.EMAIL_USER}>`,
+    from: `"Open Door Contact Form" <${process.env.EMAIL_USER}>`,
     to: options.email,
+    replyTo: options.replyTo,
     subject: options.subject,
     text: options.message,
-    // html: 
+    html: options.html,
   };
 
   // 3) Actually send the email

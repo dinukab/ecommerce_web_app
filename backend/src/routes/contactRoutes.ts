@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import ContactMessage from '../models/contactMessage.js';
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
+import sendEmail from '../utils/sendEmail.js';
 
 const router = express.Router();
 
@@ -28,6 +29,40 @@ router.post('/', async (req, res) => {
       message
     });
     await contactMessage.save();
+
+    // ── Send Email Notification to cipheroneshop1234@gmail.com ──
+    try {
+      await sendEmail({
+        email: 'cipheroneshop1234@gmail.com',
+        replyTo: email,
+        subject: `[Contact Form] ${subject} - from ${name}`,
+        message: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff;">
+            <h2 style="color: #2b6cb0; border-bottom: 2px solid #3182ce; padding-bottom: 8px; margin-top: 0;">New Contact Inquiry Received</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold; width: 100px; color: #4a5568;">From:</td>
+                <td style="padding: 6px 0; color: #1a202c;">${name} (&lt;<a href="mailto:${email}" style="color: #3182ce;">${email}</a>&gt;)</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-weight: bold; color: #4a5568;">Subject:</td>
+                <td style="padding: 6px 0; color: #1a202c;">${subject}</td>
+              </tr>
+            </table>
+            <div style="background-color: #f7fafc; padding: 16px; border-left: 4px solid #3182ce; border-radius: 4px; margin-bottom: 16px;">
+              <p style="margin: 0; white-space: pre-wrap; color: #2d3748; line-height: 1.5;">${message}</p>
+            </div>
+            <p style="font-size: 12px; color: #718096; margin: 0;">
+              💡 <em>You can click 'Reply' directly in your email client to respond to ${name} (${email}).</em>
+            </p>
+          </div>
+        `
+      });
+      console.log(`📧 Contact form notification email sent to cipheroneshop1234@gmail.com for inquiry by ${email}`);
+    } catch (emailError) {
+      console.error('Failed to send contact notification email:', emailError);
+    }
 
     // ── Save to Conversation & Message collections for POS Message Center ──
     try {
