@@ -39,6 +39,13 @@ const connectDB = async () => {
     const conn = await mongoose.connect(mongoURI, connectOptions);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`✅ Database: ${conn.connection.name}`);
+
+    // Clean up legacy unique indexes that break guest operations
+    try {
+      await conn.connection.db?.collection('conversations').dropIndex('storeId_1_customerId_1');
+    } catch (_) {
+      // Index already dropped or doesn't exist
+    }
   } catch (error: any) {
     // Retry once with explicit public DNS in case of SRV resolution failure
     if (error.message.includes('querySrv') || error.message.includes('ECONNREFUSED')) {

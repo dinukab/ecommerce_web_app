@@ -30,34 +30,38 @@ router.post('/', async (req, res) => {
     await contactMessage.save();
 
     // ── Save to Conversation & Message collections for POS Message Center ──
-    let conversation = await Conversation.findOne({
-      customerEmail: email.toLowerCase(),
-      status: { $ne: 'closed' }
-    });
-
-    if (!conversation) {
-      conversation = new Conversation({
-        customerName: name,
+    try {
+      let conversation = await Conversation.findOne({
         customerEmail: email.toLowerCase(),
-        subject: subject,
-        lastMessage: message,
-        status: 'open'
+        status: { $ne: 'closed' }
       });
-      await conversation.save();
-    } else {
-      conversation.lastMessage = message;
-      // Mark as updatedAt so it bubbles up in inbox
-      conversation.set('updatedAt', new Date());
-      await conversation.save();
-    }
 
-    const messageDoc = new Message({
-      conversationId: conversation._id,
-      sender: 'customer',
-      senderName: name,
-      text: message
-    });
-    await messageDoc.save();
+      if (!conversation) {
+        conversation = new Conversation({
+          customerName: name,
+          customerEmail: email.toLowerCase(),
+          subject: subject,
+          lastMessage: message,
+          status: 'open'
+        });
+        await conversation.save();
+      } else {
+        conversation.lastMessage = message;
+        // Mark as updatedAt so it bubbles up in inbox
+        conversation.set('updatedAt', new Date());
+        await conversation.save();
+      }
+
+      const messageDoc = new Message({
+        conversationId: conversation._id,
+        sender: 'customer',
+        senderName: name,
+        text: message
+      });
+      await messageDoc.save();
+    } catch (posError) {
+      console.error('POS sync error in contact route (non-fatal):', posError);
+    }
 
     res.status(201).json({
       success: true,

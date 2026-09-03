@@ -234,7 +234,7 @@ class ContactService {
       if (status === 500) {
         return {
           success: false,
-          message: 'Server error. Please try again later.',
+          message: axiosError.response?.data?.message || 'Server error. Please try again later.',
           error: 'server_error'
         };
       }
